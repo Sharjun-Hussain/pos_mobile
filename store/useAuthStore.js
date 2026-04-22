@@ -11,6 +11,7 @@ export const useAuthStore = create(
       token: null,
       refreshToken: null,
       user: null,
+      selectedBranch: null,
       isAuthenticated: false,
       isHydrated: false,
 
@@ -19,15 +20,21 @@ export const useAuthStore = create(
       
       setUser: (user) => set({ user }),
 
+      setSelectedBranch: (branch) => set({ selectedBranch: branch }),
+
       login: async (token, refreshToken, user) => {
         set({ token, refreshToken, user, isAuthenticated: true });
+        // If user has only one branch, auto-select it
+        if (user.branches?.length === 1) {
+          set({ selectedBranch: user.branches[0] });
+        }
         // Double write to primitive storage for API service recovery
         await storage.set('auth_token', token);
         if (refreshToken) await storage.set('refresh_token', refreshToken);
       },
 
       logout: async () => {
-        set({ token: null, refreshToken: null, user: null, isAuthenticated: false });
+        set({ token: null, refreshToken: null, user: null, selectedBranch: null, isAuthenticated: false });
         await storage.remove('auth_token');
         await storage.remove('refresh_token');
       },

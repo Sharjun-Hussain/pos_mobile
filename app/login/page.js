@@ -24,8 +24,15 @@ export default function LoginPage() {
       const res = await api.auth.login(email, password);
       
       if (res.status === 'success') {
+        const user = res.data.user;
         haptics.heavy();
-        router.push('/');
+        
+        // Redirection logic based on branches
+        if (user?.branches?.length > 1) {
+          router.push('/branch-selection');
+        } else {
+          router.push('/');
+        }
       } else {
         setError(res.message || 'Invalid login credentials');
       }

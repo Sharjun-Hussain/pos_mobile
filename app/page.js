@@ -19,6 +19,7 @@ import {
 import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
@@ -93,6 +94,7 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
 
 export default function Home() {
   const { openDrawer } = useUIStore();
+  const { selectedBranch } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
@@ -150,9 +152,16 @@ export default function Home() {
               <h1 className="text-xl font-black text-text-main leading-none mb-1">
                 {user?.organization?.name || "Inzeedo POS"}
               </h1>
-              <p className="text-[10px] font-bold text-text-secondary leading-none">
-                {user ? user.name : 'Store Dashboard'}
-              </p>
+              <div className="flex items-center gap-1.5 opacity-60">
+                <p className="text-[10px] font-bold text-text-secondary leading-none uppercase tracking-wider">
+                  {selectedBranch?.name || 'Main Warehouse'}
+                </p>
+                {selectedBranch?.code && (
+                  <span className="text-[8px] font-bold bg-brand/10 text-brand px-1 rounded">
+                    {selectedBranch.code}
+                  </span>
+                )}
+              </div>
             </div>
           )}
         </div>

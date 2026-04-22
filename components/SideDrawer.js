@@ -62,7 +62,7 @@ const MenuGroup = ({ title, children }) => (
 );
 
 export const SideDrawer = ({ isOpen, onClose }) => {
-  const { user, logout } = useAuthStore();
+  const { user, selectedBranch, logout } = useAuthStore();
   const pathname = usePathname();
 
   const handleLogout = () => {
@@ -100,8 +100,12 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                     <TrendingUp size={20} strokeWidth={3} />
                   </div>
                   <div>
-                    <h2 className="text-base font-black text-text-main leading-none mb-1">Inzeedo</h2>
-                    <span className="text-[10px] font-bold text-brand opacity-60">Terminal</span>
+                    <h2 className="text-sm font-black text-text-main leading-tight">
+                      {user?.organization?.name || "Inzeedo"}
+                    </h2>
+                    <span className="text-[9px] font-bold text-brand uppercase tracking-widest opacity-60">
+                      {selectedBranch?.name || 'Terminal'}
+                    </span>
                   </div>
                 </div>
                 <button

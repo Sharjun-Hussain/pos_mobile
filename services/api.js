@@ -173,6 +173,10 @@ export const api = {
       return apiRequest('/settings/logo', { method: 'POST', body: formData });
     }
   },
+
+  branches: {
+    getActiveList: () => api.get('/branches/active/list')
+  },
   
   getImageUrl: async (imageField) => {
     if (!imageField) return null;

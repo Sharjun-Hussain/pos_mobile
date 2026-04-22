@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Settings as SettingsIcon,
   User,
@@ -14,7 +15,8 @@ import {
   Server,
   Smartphone,
   FileText,
-  CreditCard
+  CreditCard,
+  Building2
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -55,8 +57,9 @@ const SettingItem = ({ icon: Icon, label, value, color = 'brand', onClick }) => 
 };
 
 export default function SettingsPage() {
+  const router = useRouter();
   const { openDrawer } = useUIStore();
-  const { user } = useAuthStore();
+  const { user, selectedBranch, logout } = useAuthStore();
   const {
     theme,
     setTheme
@@ -135,9 +138,14 @@ export default function SettingsPage() {
           </div>
           <div className="text-center">
             <h3 className="text-xl font-black text-text-main">{user?.name || 'Inzeedo Admin'}</h3>
-            <p className="text-[10px] font-bold text-text-secondary bg-surface-muted px-4 py-1 rounded-full mt-1 border border-glass-border/30">
-              {user?.organization?.name || 'Enterprise Manager'}
-            </p>
+            <div className="flex flex-col items-center gap-1 mt-1">
+              <p className="text-[10px] font-bold text-text-secondary bg-surface-muted px-4 py-1 rounded-full border border-glass-border/30">
+                {user?.organization?.name || 'Enterprise Manager'}
+              </p>
+              <p className="text-[9px] font-black text-brand uppercase tracking-widest opacity-70">
+                {selectedBranch?.name || 'Main Warehouse'}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -241,6 +249,15 @@ export default function SettingsPage() {
           color="brand"
           onClick={() => { }}
         />
+        {user?.branches?.length > 1 && (
+          <SettingItem
+            icon={Building2}
+            label="Switch Branch"
+            value="Change working location"
+            color="rose"
+            onClick={() => { router.push('/branch-selection'); }}
+          />
+        )}
       </section>
 
       <div className="mt-4 opacity-30 text-center">

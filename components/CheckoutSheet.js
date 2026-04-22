@@ -262,44 +262,46 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         />
                       </div>
 
-                      <div className="grid gap-2 max-h-[40vh] overflow-y-auto no-scrollbar pb-2">
+                      <div className="flex flex-col bg-surface-muted/5 border border-glass-border/20 rounded-[2rem] overflow-hidden overflow-y-auto max-h-[45vh] no-scrollbar overscroll-contain">
                         <button 
-                          onClick={() => setSelectedCustomer(null)}
-                          className={`glass-panel p-4 rounded-3xl flex items-center justify-between transition-all border ${!selectedCustomer ? 'border-brand bg-brand/10' : 'border-glass-border'}`}
+                          onClick={() => { haptics.light(); setSelectedCustomer(null); }}
+                          className={`flex items-center justify-between p-3.5 px-6 transition-all border-b border-glass-border/10 ${!selectedCustomer ? 'bg-brand/5' : ''}`}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-2xl bg-surface-muted flex items-center justify-center text-text-secondary">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-surface-muted flex items-center justify-center text-text-secondary">
                               <User size={20} />
                             </div>
-                            <div className="text-left">
-                              <p className="text-sm font-bold text-text-main">Walk-in Customer</p>
-                              <p className="text-[10px] font-medium text-text-secondary">Standard Pricing</p>
+                            <div className="text-left overflow-hidden">
+                              <p className="text-sm font-bold text-text-main truncate">Walk-in Customer</p>
+                              <p className="text-[10px] font-medium text-text-secondary truncate">Standard Retail Pricing</p>
                             </div>
                           </div>
-                          {!selectedCustomer && <CheckCircle2 className="text-brand" size={20} />}
+                          {!selectedCustomer && <CheckCircle2 className="text-brand shrink-0" size={18} />}
                         </button>
 
                         {loading ? (
-                          <div className="animate-pulse space-y-2">
-                            {[1, 2, 3].map(i => <div key={i} className="h-16 w-full bg-surface-muted rounded-3xl" />)}
+                          <div className="p-6 space-y-4">
+                            {[1, 2, 3].map(i => <div key={i} className="h-10 w-full bg-surface-muted/50 rounded-xl animate-pulse" />)}
                           </div>
                         ) : (
-                          filteredCustomers.map(c => (
+                          filteredCustomers.map((c, idx) => (
                             <button 
                               key={c.id}
                               onClick={() => { haptics.light(); setSelectedCustomer(c); }}
-                              className={`glass-panel p-4 rounded-3xl flex items-center justify-between transition-all border ${selectedCustomer?.id === c.id ? 'border-brand bg-brand/10' : 'border-glass-border'}`}
+                              className={`flex items-center justify-between p-3.5 px-6 transition-all ${
+                                idx !== filteredCustomers.length - 1 ? 'border-b border-glass-border/10' : ''
+                              } ${selectedCustomer?.id === c.id ? 'bg-brand/5' : ''}`}
                             >
-                              <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-2xl bg-brand/10 flex items-center justify-center text-brand">
+                              <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 rounded-xl bg-brand/10 flex items-center justify-center text-brand">
                                   <User size={20} />
                                 </div>
-                                <div className="text-left">
-                                  <p className="text-sm font-bold text-text-main">{c.name}</p>
-                                  <p className="text-[10px] font-bold text-text-secondary">{c.phone || 'No phone profile'}</p>
+                                <div className="text-left overflow-hidden">
+                                  <p className="text-sm font-bold text-text-main truncate">{c.name}</p>
+                                  <p className="text-[10px] font-bold text-text-secondary truncate">{c.phone || 'No phone profile'}</p>
                                 </div>
                               </div>
-                              {selectedCustomer?.id === c.id && <CheckCircle2 className="text-brand" size={20} />}
+                              {selectedCustomer?.id === c.id && <CheckCircle2 className="text-brand shrink-0" size={18} />}
                             </button>
                           ))
                         )}

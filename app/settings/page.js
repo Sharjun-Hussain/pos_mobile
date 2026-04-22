@@ -80,7 +80,7 @@ export default function SettingsPage() {
       {/* Profile Section */}
       <section className="flex flex-col gap-4">
         <div className="flex flex-col items-center justify-center py-6 gap-3">
-          <div className="h-24 w-24 rounded-[2.5rem] bg-brand shadow-2xl shadow-brand/20 flex items-center justify-center text-white p-1 border-4 border-white">
+          <div className="h-24 w-24 rounded-[2.5rem] bg-brand shadow-2xl shadow-brand/20 flex items-center justify-center text-white border-4 border-white">
             <div className="w-full h-full rounded-[2.2rem] bg-brand flex items-center justify-center overflow-hidden">
               {profileImageUrl ? (
                 <img src={avatarSrc} alt={user?.name || "Profile"} className="w-full h-full object-cover" />

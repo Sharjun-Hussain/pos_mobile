@@ -48,6 +48,7 @@ const ProductListItem = ({ product, getImageUrl }) => {
 };
 
 export default function InventoryPage() {
+  const { openDrawer } = useUIStore();
   const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateProducts } = useFetch('/products/active/list');
   const { data: categoriesData, isLoading: categoriesLoading, mutate: mutateCategories } = useFetch('/main-categories/active/list');
 

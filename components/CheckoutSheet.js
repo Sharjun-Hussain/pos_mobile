@@ -545,10 +545,6 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
             <div className="pt-6 border-t border-glass-border flex flex-col gap-4 pointer-events-auto px-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 relative">
-                  <span className="text-[10px] font-bold text-text-secondary pl-1 mb-1 block">
-                    {step === 3 ? 'Options' : 'Grand Total'}
-                  </span>
-                  
                   {step === 3 ? (
                     <>
                       <button 
@@ -597,7 +593,6 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                 </div>
 
                 <div className="flex flex-col flex-1">
-                  <span className="text-[10px] font-bold text-text-secondary pl-1 mb-1">Navigation</span>
                   {step < 3 ? (
                     <button 
                       onClick={handleNext}

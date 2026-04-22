@@ -223,7 +223,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
               ) : (
                 <>
                   <CheckCircle2 size={20} strokeWidth={3} />
-                  <span className="text-[15px] font-black uppercase tracking-widest">Finalize Return</span>
+                  <span className="text-[15px] font-black uppercase tracking-widest">Finish Return</span>
                 </>
               )}
             </button>

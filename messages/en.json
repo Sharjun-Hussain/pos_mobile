@@ -18,7 +18,7 @@
   "checkout": {
     "reviewOrder": "Review Order",
     "selectCustomer": "Select Customer",
-    "finalizeSale": "Finalize Sale",
+    "finalizeSale": "Create Sale",
     "subtotal": "Subtotal",
     "discount": "Discount",
     "adjustment": "Adjustment",

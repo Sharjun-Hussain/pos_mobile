@@ -61,10 +61,19 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
     );
   }
 
+  // Map color names to Tailwind v4 classes
+  const colorMap = {
+    brand: "bg-brand/10 text-brand",
+    amber: "bg-amber-500/10 text-amber-500",
+    blue: "bg-blue-500/10 text-blue-500",
+  };
+
+  const activeColor = colorMap[color] || colorMap.brand;
+
   return (
-    <button className="glass-panel p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-transform">
-      <div className={`p-3 rounded-2xl ${color} bg-opacity-10 text-opacity-90`}>
-        <Icon size={20} />
+    <button className="glass-panel p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-all duration-200 hover:bg-surface-muted/30">
+      <div className={`p-3 rounded-2xl ${activeColor}`}>
+        <Icon size={22} strokeWidth={2.5} />
       </div>
       <div>
         <h4 className="font-bold text-text-main text-sm">{title}</h4>
@@ -199,21 +208,21 @@ export default function Home() {
             title="New Sale" 
             description="Start a checkout transaction" 
             icon={Plus} 
-            color="bg-brand text-brand" 
+            color="brand" 
             isLoading={loading}
           />
           <ActionCard 
             title="Scan Product" 
             description="Use camera to identify items" 
             icon={ScanBarcode} 
-            color="bg-amber-500 text-amber-500" 
+            color="amber" 
             isLoading={loading}
           />
           <ActionCard 
             title="Manage Stock" 
             description="Update inventory levels" 
             icon={Package} 
-            color="bg-blue-500 text-blue-500" 
+            color="blue" 
             isLoading={loading}
           />
         </div>

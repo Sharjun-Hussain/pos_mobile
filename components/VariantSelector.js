@@ -31,12 +31,6 @@ export const VariantSelector = ({ product, isOpen, onClose, onSelect }) => {
               <p className="text-[10px] text-text-secondary font-bold opacity-60">Select a variation</p>
             </div>
           </div>
-          <button 
-            onClick={onClose}
-            className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-rose-500 active:scale-90 transition-transform"
-          >
-            <X size={20} />
-          </button>
         </div>
 
         <div className="overflow-y-auto pr-1 no-scrollbar flex-1 pb-4">

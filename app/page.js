@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, 
+  TrendingDown,
   Users, 
   Package, 
   ArrowUpRight, 
@@ -10,39 +11,46 @@ import {
   Search,
   ScanBarcode,
   RefreshCcw,
-  AlertCircle
+  AlertCircle,
+  DollarSign,
+  FileText
 } from 'lucide-react';
 import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
 
-const StatCard = ({ title, value, trend, icon: Icon, isLoading }) => {
+const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
     return (
-      <div className="glass-panel p-4 rounded-3xl animate-pulse flex flex-col gap-3">
-        <div className="h-8 w-8 bg-surface-muted rounded-xl" />
-        <div className="h-4 w-1/2 bg-surface-muted rounded" />
-        <div className="h-6 w-3/4 bg-surface-muted rounded" />
+      <div className="glass-panel p-3.5 rounded-[1.75rem] min-w-[160px] animate-pulse flex flex-col gap-3">
+        <div className="h-9 w-9 bg-surface-muted rounded-xl" />
+        <div className="space-y-2">
+          <div className="h-2.5 w-1/2 bg-surface-muted rounded" />
+          <div className="h-5 w-3/4 bg-surface-muted rounded" />
+        </div>
       </div>
     );
   }
 
+  const isUp = trendValue && trendValue.startsWith('+');
+
   return (
-    <div className="glass-panel p-4 rounded-3xl flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <div className="p-2 rounded-xl bg-brand/10 text-brand">
+    <div className="glass-panel p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5">
+      <div className="flex items-start justify-between">
+        <div className={`p-2 rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md`}>
           <Icon size={18} />
         </div>
-        {trend && (
-          <span className={`text-xs font-bold flex items-center gap-0.5 px-2 py-0.5 rounded-full ${
-            trend.startsWith('+') ? 'text-emerald-500 bg-emerald-500/10' : 'text-red-500 bg-red-500/10'
+        {trendValue && (
+          <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold ${
+            isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
           }`}>
-            {trend} <ArrowUpRight size={10} />
-          </span>
+            {isUp ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
+            {trendValue}
+          </div>
         )}
       </div>
       <div>
-        <p className="text-text-secondary text-xs font-semibold">{title}</p>
-        <h3 className="text-xl font-bold mt-0.5 text-text-main">{value}</h3>
+        <p className="text-text-secondary text-[9px] font-bold uppercase tracking-wider">{title}</p>
+        <h3 className="text-lg font-black mt-0.5 text-text-main tracking-tight">{value}</h3>
       </div>
     </div>
   );
@@ -61,7 +69,6 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
     );
   }
 
-  // Map color names to Tailwind v4 classes
   const colorMap = {
     brand: "bg-brand/10 text-brand",
     amber: "bg-amber-500/10 text-amber-500",
@@ -103,7 +110,6 @@ export default function Home() {
       setUser(userData);
       setStats(sRes.data);
       
-      // Resolve profile image URL
       if (userData?.profile_image) {
         const resolvedUrl = await api.getImageUrl(userData.profile_image);
         setProfileImageUrl(resolvedUrl);
@@ -144,43 +150,56 @@ export default function Home() {
           {loading ? (
             <div className="w-full h-full animate-pulse" />
           ) : (
-            <img 
-              src={avatarSrc} 
-              alt="Avatar" 
-              className="w-full h-full object-cover"
-            />
+            <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
           )}
         </div>
       </header>
 
-      {/* Stats Grid */}
-      <section className="grid grid-cols-2 gap-4">
-        <StatCard 
-          title="Today Revenue" 
-          value={stats?.todayRevenue?.value ? `$${parseFloat(stats.todayRevenue.value).toFixed(2)}` : '$0.00'} 
-          trend={stats?.todayRevenue?.change} 
-          icon={TrendingUp} 
-          isLoading={loading}
-        />
-        <StatCard 
-          title="New Customers" 
-          value={stats?.newCustomers?.value || '0'} 
-          trend={stats?.newCustomers?.change} 
-          icon={Users} 
-          isLoading={loading}
-        />
+      {/* Scrollable Stats Section */}
+      <section>
+        <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-6 px-6">
+          <StatCard 
+            title="Revenue" 
+            value={stats?.todayRevenue?.value ? `LKR ${parseFloat(stats.todayRevenue.value).toLocaleString()}` : 'LKR 0.00'} 
+            trendValue={stats?.todayRevenue?.change}
+            icon={DollarSign} 
+            gradient="from-emerald-500 to-teal-400"
+            isLoading={loading}
+          />
+          <StatCard 
+            title="Invoices" 
+            value={stats?.pendingInvoices?.value || '0'} 
+            trendValue={stats?.pendingInvoices?.change}
+            icon={FileText} 
+            gradient="from-blue-500 to-indigo-400"
+            isLoading={loading}
+          />
+          <StatCard 
+            title="Low Stock" 
+            value={stats?.lowStockCount?.value || '0'} 
+            trendValue={stats?.lowStockCount?.change}
+            icon={Package} 
+            gradient="from-amber-500 to-orange-400"
+            isLoading={loading}
+          />
+          <StatCard 
+            title="Customers" 
+            value={stats?.newCustomers?.value || '0'} 
+            trendValue={stats?.newCustomers?.change}
+            icon={Users} 
+            gradient="from-violet-500 to-purple-400"
+            isLoading={loading}
+          />
+        </div>
       </section>
 
       {error && (
-        <div className="glass-panel p-4 rounded-2xl flex items-center justify-between bg-red-500/5 border-red-500/10">
-          <div className="flex items-center gap-3 text-red-500">
+        <div className="glass-panel p-4 rounded-2xl flex items-center justify-between bg-rose-500/5 border-rose-500/10">
+          <div className="flex items-center gap-3 text-rose-500">
             <AlertCircle size={18} />
             <span className="text-xs font-bold uppercase">{error}</span>
           </div>
-          <button 
-            onClick={() => { haptics.medium(); fetchDashboardData(); }}
-            className="p-2 rounded-xl bg-surface-muted text-text-main active:rotate-180 transition-transform duration-500"
-          >
+          <button onClick={() => { haptics.medium(); fetchDashboardData(); }} className="p-2 rounded-xl bg-surface-muted text-text-main active:rotate-180 transition-transform duration-500">
             <RefreshCcw size={16} />
           </button>
         </div>
@@ -200,31 +219,11 @@ export default function Home() {
 
       {/* Quick Actions */}
       <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between ml-1">
-          <h2 className="text-sm font-bold text-text-secondary">Quick Actions</h2>
-        </div>
+        <h2 className="text-sm font-bold text-text-secondary ml-1">Quick Actions</h2>
         <div className="flex flex-col gap-3">
-          <ActionCard 
-            title="New Sale" 
-            description="Start a checkout transaction" 
-            icon={Plus} 
-            color="brand" 
-            isLoading={loading}
-          />
-          <ActionCard 
-            title="Scan Product" 
-            description="Use camera to identify items" 
-            icon={ScanBarcode} 
-            color="amber" 
-            isLoading={loading}
-          />
-          <ActionCard 
-            title="Manage Stock" 
-            description="Update inventory levels" 
-            icon={Package} 
-            color="blue" 
-            isLoading={loading}
-          />
+          <ActionCard title="New Sale" description="Start a checkout transaction" icon={Plus} color="brand" isLoading={loading} />
+          <ActionCard title="Scan Product" description="Use camera to identify items" icon={ScanBarcode} color="amber" isLoading={loading} />
+          <ActionCard title="Manage Stock" description="Update inventory levels" icon={Package} color="blue" isLoading={loading} />
         </div>
       </section>
     </div>

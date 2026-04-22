@@ -7,60 +7,28 @@ import { storage } from '@/services/api';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SellAnywhereSVG = ({ color }) => (
-  <svg width="240" height="240" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="35" y="15" width="50" height="90" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="2"/>
-    <rect x="42" y="25" width="36" height="50" rx="2" fill="white" fillOpacity="0.05"/>
-    <circle cx="60" cy="95" r="3" fill="#3f3f46"/>
-    <circle cx="95" cy="50" r="16" fill={color === 'bg-brand' ? '#6366f1' : '#f59e0b'} fillOpacity="0.2"/>
-    <path d="M88 50H102M95 43V57" stroke={color === 'bg-brand' ? '#6366f1' : '#f59e0b'} strokeWidth="2" strokeLinecap="round"/>
-    <rect x="42" y="25" width="20" height="4" rx="1" fill={color === 'bg-brand' ? '#6366f1' : '#f59e0b'} fillOpacity="0.4"/>
-  </svg>
-);
-
-const SyncSVG = ({ color }) => (
-  <svg width="240" height="240" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="20" y="40" width="45" height="45" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="2"/>
-    <rect x="65" y="25" width="35" height="60" rx="4" fill="#18181b" stroke="#3f3f46" strokeWidth="2"/>
-    <path d="M45 30C55 20 75 20 85 30" stroke={color} strokeWidth="2" strokeLinecap="round" strokeDasharray="4 4"/>
-    <path d="M45 90C55 100 75 100 85 90" stroke={color} strokeWidth="2" strokeLinecap="round" strokeDasharray="4 4"/>
-    <circle cx="65" cy="60" r="8" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="1"/>
-  </svg>
-);
-
-const InsightsSVG = ({ color }) => (
-  <svg width="240" height="240" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="25" y="25" width="70" height="70" rx="8" fill="#18181b" stroke="#3f3f46" strokeWidth="2"/>
-    <rect x="35" y="65" width="10" height="20" rx="2" fill={color} fillOpacity="0.6"/>
-    <rect x="50" y="45" width="10" height="40" rx="2" fill={color} fillOpacity="0.8"/>
-    <rect x="65" y="55" width="10" height="30" rx="2" fill={color} fillOpacity="0.4"/>
-    <rect x="80" y="35" width="10" height="50" rx="2" fill={color}/>
-    <path d="M30 40L90 40" stroke="white" strokeOpacity="0.1" strokeWidth="1"/>
-  </svg>
-);
-
 const slides = [
   {
     id: 1,
-    title: "Sell Anywhere",
-    description: "Accept payments and manage sales directly from your mobile device with incredible speed.",
-    Illustration: SellAnywhereSVG,
+    title: "Unified Operations",
+    description: "Your entire business lifecycle—from sales to procurement—orchestrated in one powerful mobile command center.",
+    image: "/onboarding_ops.png",
     color: "bg-brand",
     hex: "#6366f1"
   },
   {
     id: 2,
-    title: "Real-time Sync",
-    description: "Your inventory and sales data stays in perfect harmony across all your connected devices.",
-    Illustration: SyncSVG,
+    title: "Intelligent Inventory",
+    description: "Advanced warehouse logistics and real-time stock synchronization across all your distributed nodes.",
+    image: "/onboarding_inventory.png",
     color: "bg-amber-500",
     hex: "#f59e0b"
   },
   {
     id: 3,
-    title: "Powerful Insights",
-    description: "Track your store performance with detailed analytics and reports right in your pocket.",
-    Illustration: InsightsSVG,
+    title: "Enterprise Analytics",
+    description: "Deep-dive into your financial data with predictive insights and comprehensive enterprise-level reporting.",
+    image: "/onboarding_analytics.png",
     color: "bg-emerald-500",
     hex: "#10b981"
   }
@@ -97,7 +65,6 @@ export default function OnboardingPage() {
   };
 
   const activeSlide = slides[currentSlide];
-  const Illustration = activeSlide.Illustration;
 
   return (
     <div className="min-h-screen flex flex-col bg-surface overflow-hidden">
@@ -105,9 +72,9 @@ export default function OnboardingPage() {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 1.05, y: -20 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -115,14 +82,21 @@ export default function OnboardingPage() {
           onDragEnd={handleDragEnd}
           className="flex-1 flex flex-col items-center justify-center p-8 touch-none"
         >
-          <div className="mb-12">
-            <Illustration color={activeSlide.hex} />
+          <div className="mb-10 w-full flex items-center justify-center px-4">
+            <div className="relative group">
+              <div className="absolute -inset-4 bg-brand/20 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <img 
+                src={activeSlide.image} 
+                alt={activeSlide.title} 
+                className="w-full max-w-[320px] aspect-square object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in zoom-in duration-1000 relative"
+              />
+            </div>
           </div>
 
-          <h2 className="text-3xl font-bold text-text-main mb-3 text-center">
+          <h2 className="text-3xl font-bold text-text-main mb-3 text-center tracking-tight">
             {activeSlide.title}
           </h2>
-          <p className="text-text-secondary text-base text-center leading-relaxed max-w-[280px] font-medium">
+          <p className="text-text-secondary text-base text-center leading-relaxed max-w-[300px] font-medium">
             {activeSlide.description}
           </p>
         </motion.div>

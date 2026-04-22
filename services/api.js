@@ -125,6 +125,10 @@ export const api = {
     getActiveList: () => api.get('/customers/active/list'),
     create: (data) => api.post('/customers', data)
   },
+
+  sales: {
+    create: (data) => api.post('/sales', data)
+  },
   
   getImageUrl: async (imageField) => {
     if (!imageField) return null;

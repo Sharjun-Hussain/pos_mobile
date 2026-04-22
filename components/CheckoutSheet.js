@@ -41,7 +41,18 @@ const slideVariants = {
 
 export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   // Consume Global Stores
-  const { cart, updateQty, clearCart, getTotal, getSubtotal, discount, adjustment, setDiscount, setAdjustment } = useCartStore();
+  const { 
+    cart, 
+    updateQty, 
+    clearCart, 
+    getTotal, 
+    getSubtotal, 
+    discount, 
+    adjustment, 
+    setDiscount, 
+    setAdjustment,
+    getDiscountAmount 
+  } = useCartStore();
   const { isWholesale } = useSettingsStore();
 
   const [[step, direction], setStepState] = useState([1, 0]);
@@ -51,6 +62,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const [loading, setLoading] = useState(false);
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '' });
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [amountTendered, setAmountTendered] = useState('');
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     if (isOpen && step === 2) {
@@ -111,13 +125,47 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     }
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
+    if (cart.length === 0) return;
+    setIsSyncing(true);
     haptics.heavy();
-    onFinish(selectedCustomer);
-    setTimeout(() => {
-      clearCart();
-      setStepState([1, 0]);
-    }, 500);
+
+    try {
+      // Map cart to backend expected schema
+      const payload = {
+        customer_id: selectedCustomer?.id || null,
+        items: cart.map(item => ({
+          product_id: item.product_id || item.id,
+          product_variant_id: item.product_variant_id || (item.selectedVariant?.id) || null,
+          quantity: item.quantity,
+          discount_amount: 0 // We can implement line-level discounts later if needed
+        })),
+        payment_method: paymentMethod,
+        adjustment: parseFloat(adjustment || 0) || 0,
+        paid_amount: paymentMethod === 'cash' ? (parseFloat(amountTendered) || total) : total,
+        status: 'completed',
+        is_wholesale: isWholesale
+      };
+
+      const res = await api.sales.create(payload);
+      
+      if (res.status === 'success') {
+        haptics.heavy();
+        onFinish(selectedCustomer); // Parent can show success feedback
+        setTimeout(() => {
+          clearCart();
+          setStepState([1, 0]);
+          setPaymentMethod('cash');
+          setAmountTendered('');
+          setIsSyncing(false);
+        }, 500);
+      }
+    } catch (e) {
+      console.error('Sale Sync Failed:', e);
+      // We should ideally show a toast here
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleClose = () => {
@@ -205,14 +253,17 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             <Percent size={14} strokeWidth={3} />
                           </div>
                           <div className="flex flex-col flex-1">
-                            <span className="text-[9px] font-bold text-text-secondary leading-none mb-1">Discount</span>
-                            <input 
-                              type="number" 
-                              placeholder="0.00" 
-                              value={discount || ''}
-                              onChange={(e) => setDiscount(e.target.value)}
-                              className="bg-transparent border-none p-0 text-sm font-black text-text-main outline-none placeholder:text-text-secondary/30 w-full"
-                            />
+                            <span className="text-[9px] font-bold text-text-secondary leading-none mb-1">Discount (%)</span>
+                            <div className="flex items-center gap-1">
+                              <input 
+                                type="number" 
+                                placeholder="0" 
+                                value={discount || ''}
+                                onChange={(e) => setDiscount(e.target.value)}
+                                className="bg-transparent border-none p-0 text-sm font-black text-text-main outline-none placeholder:text-text-secondary/30 w-full"
+                              />
+                              <span className="text-[10px] font-bold text-rose-500">%</span>
+                            </div>
                           </div>
                         </div>
 
@@ -395,48 +446,93 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   )}
 
                   {step === 3 && (
-                    <div className="flex flex-col gap-6 pb-4 pointer-events-auto px-6">
-                      <div className="glass-panel p-6 rounded-[3rem] bg-brand text-white shadow-xl shadow-brand/20 flex flex-col items-center text-center gap-4 border-none">
-                        <div className="h-16 w-16 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-md">
-                          <CreditCard size={32} />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 mb-1">Payable Amount</p>
-                          <h3 className="text-4xl font-bold tracking-tighter">LKR {total.toLocaleString()}</h3>
-                        </div>
+                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto px-6 overflow-y-auto no-scrollbar max-h-[60vh]">
+                      {/* Summary Card - High Contrast Glass Panel */}
+                      <div className="p-6 rounded-[2.5rem] bg-brand shadow-2xl shadow-brand/20 flex flex-col items-center text-center gap-1 border border-white/20 relative overflow-hidden">
+                        {/* Decorative Blur */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[40px] -mr-16 -mt-16" />
+                        
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">Payable Amount</p>
+                        <h3 className="text-4xl font-black tracking-tight text-white">LKR {total.toLocaleString()}</h3>
+                        
+                        {selectedCustomer && (
+                          <div className="flex items-center gap-2 mt-2 bg-white/20 px-3.5 py-1.5 rounded-full backdrop-blur-md border border-white/10">
+                            <User size={12} className="text-white" strokeWidth={3} />
+                            <span className="text-[10px] font-bold text-white truncate max-w-[150px]">{selectedCustomer.name}</span>
+                          </div>
+                        )}
                       </div>
 
-                      <div className="grid gap-3">
-                        <div className="flex items-center justify-between px-4">
-                          <span className="text-[10px] font-bold text-text-secondary uppercase">Subtotal</span>
-                          <span className="text-sm font-bold text-text-main">LKR {subtotal.toLocaleString()}</span>
+                      {/* Payment Mode Selector - Brand Themed */}
+                      <div className="bg-surface-muted/30 p-1.5 rounded-2x border border-glass-border/20 flex gap-1">
+                        {[
+                          { id: 'cash', label: 'Cash', icon: Calculator },
+                          { id: 'card', label: 'Card', icon: CreditCard },
+                          { id: 'bank', label: 'Bank', icon: ChevronRight }
+                        ].map((mode) => {
+                          const Icon = mode.icon;
+                          const isActive = paymentMethod === mode.id;
+                          return (
+                            <button
+                              key={mode.id}
+                              onClick={() => { haptics.light(); setPaymentMethod(mode.id); }}
+                              className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
+                                isActive 
+                                  ? 'bg-brand shadow-lg shadow-brand/20 text-white scale-100' 
+                                  : 'text-text-secondary opacity-60 scale-95 hover:opacity-100 hover:bg-brand/5'
+                              }`}
+                            >
+                              <Icon size={14} strokeWidth={3} />
+                              <span className="text-[11px] font-bold">{mode.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Cash Logic Area */}
+                      {paymentMethod === 'cash' && (
+                        <div className="flex flex-col gap-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold text-text-secondary pl-1">Amount Tendered</label>
+                            <div className="relative">
+                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-brand">LKR</span>
+                              <input 
+                                type="number"
+                                placeholder={total.toString()}
+                                value={amountTendered}
+                                onChange={(e) => setAmountTendered(e.target.value)}
+                                className="w-full h-12 bg-surface-muted/50 border border-brand/20 rounded-xl pl-12 pr-4 text-base font-black text-text-main outline-none focus:border-brand/50"
+                              />
+                            </div>
+                          </div>
+                          
+                          {amountTendered && parseFloat(amountTendered) > total && (
+                            <div className="flex items-center justify-between bg-brand/5 border border-brand/10 p-3 rounded-xl">
+                              <span className="text-[10px] font-bold text-brand uppercase">Change</span>
+                              <span className="text-base font-black text-brand">LKR {(parseFloat(amountTendered) - total).toLocaleString()}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Small Breakdown - High Density */}
+                      <div className="space-y-1.5 border-t border-glass-border/30 pt-3 px-1">
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-text-secondary font-bold uppercase tracking-tighter">Subtotal</span>
+                          <span className="text-text-main font-black">LKR {subtotal.toLocaleString()}</span>
                         </div>
                         {discount > 0 && (
-                          <div className="flex items-center justify-between px-4">
-                            <span className="text-[10px] font-bold text-rose-500 uppercase">Discount</span>
-                            <span className="text-sm font-bold text-rose-500">- LKR {discount.toLocaleString()}</span>
+                          <div className="flex justify-between items-center text-[11px]">
+                            <span className="text-rose-500 font-bold uppercase tracking-tighter">Discount ({discount}%)</span>
+                            <span className="text-rose-500 font-black">- LKR {getDiscountAmount().toLocaleString()}</span>
                           </div>
                         )}
                         {adjustment !== 0 && (
-                          <div className="flex items-center justify-between px-4">
-                            <span className="text-[10px] font-bold text-amber-600 uppercase">Adjustment</span>
-                            <span className={`text-sm font-bold ${adjustment > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                              {adjustment > 0 ? '+ ' : '- '} LKR {Math.abs(adjustment).toLocaleString()}
-                            </span>
+                          <div className="flex justify-between items-center text-[11px]">
+                            <span className="text-brand font-bold uppercase tracking-tighter">Adjustment</span>
+                            <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} LKR {Math.abs(adjustment).toLocaleString()}</span>
                           </div>
                         )}
-                      </div>
-
-                      <div className="mt-4 p-4 glass-panel rounded-3xl bg-surface-muted/50 border-glass-border">
-                        <p className="text-[10px] font-bold text-text-secondary text-center uppercase mb-2">Payment Method</p>
-                        <div className="flex gap-2">
-                          <div className="flex-1 h-12 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-center gap-3 border border-brand text-brand shadow-lg shadow-brand/10">
-                            <Check size={16} strokeWidth={3} /> <span className="text-xs font-bold">Cash</span>
-                          </div>
-                          <div className="flex-1 h-12 bg-surface-muted/30 rounded-2xl flex items-center justify-center text-text-secondary text-xs font-bold opacity-40 grayscale">
-                            Card
-                          </div>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -468,15 +564,31 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   ) : (
                     <button 
                       onClick={handleFinish}
-                      className="bg-emerald-500 text-white px-5 h-14 rounded-2xl shadow-xl shadow-emerald-500/20 border border-emerald-500/50 flex items-center justify-center gap-2 group transition-all active:scale-95"
+                      disabled={isSyncing}
+                      className="bg-brand text-white px-5 h-14 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50 flex items-center justify-center gap-2 group transition-all active:scale-95 disabled:opacity-50"
                     >
-                      <span className="text-sm font-black tracking-tight">Sync Order</span>
+                      <span className="text-sm font-black tracking-tight">{isSyncing ? 'Syncing...' : 'Sync Order'}</span>
                       <Check size={18} strokeWidth={3} />
                     </button>
                   )}
                 </div>
               </div>
             </div>
+
+            {/* Syncing Overlay */}
+            <AnimatePresence>
+              {isSyncing && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] z-[150] flex flex-col items-center justify-center gap-4 rounded-t-[3rem]"
+                >
+                  <div className="h-16 w-16 border-4 border-brand border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm font-black text-brand tracking-widest uppercase">Synchronizing Order</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       )}

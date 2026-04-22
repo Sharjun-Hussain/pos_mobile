@@ -30,23 +30,28 @@ const apiRequest = async (endpoint, options = {}) => {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${baseUrl}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
-  if (response.status === 401) {
-    // Handle unauthorized (e.g., redirect to login)
-    await storage.remove('auth_token');
+    if (response.status === 401) {
+      // Clear token on auth failure
+      await storage.remove('auth_token');
+    }
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'API request failed');
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`API Error [${endpoint}]:`, error);
+    throw error;
   }
-
-  const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
-  }
-
-  return data;
 };
 
 export const api = {
@@ -54,4 +59,21 @@ export const api = {
   post: (endpoint, body) => apiRequest(endpoint, { method: 'POST', body: JSON.stringify(body) }),
   put: (endpoint, body) => apiRequest(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
   delete: (endpoint) => apiRequest(endpoint, { method: 'DELETE' }),
+  
+  // Auth Helpers
+  login: async (email, password) => {
+    const res = await api.post('/auth/login', { email, password });
+    if (res.data?.auth_token) {
+      await storage.set('auth_token', res.data.auth_token);
+      if (res.data.refresh_token) {
+        await storage.set('refresh_token', res.data.refresh_token);
+      }
+    }
+    return res;
+  },
+  
+  logout: async () => {
+    await storage.remove('auth_token');
+    await storage.remove('refresh_token');
+  }
 };

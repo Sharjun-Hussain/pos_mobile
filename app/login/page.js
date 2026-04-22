@@ -4,21 +4,36 @@ import React, { useState } from 'react';
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { useRouter } from 'next/navigation';
+import { api } from '@/services/api';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    haptics.medium();
+    setError('');
     setLoading(true);
-    // Mock login delay
-    setTimeout(() => {
+    haptics.medium();
+
+    try {
+      const res = await api.login(email, password);
+      
+      if (res.status === 'success') {
+        haptics.heavy();
+        router.push('/');
+      } else {
+        setError(res.message || 'Invalid login credentials');
+      }
+    } catch (err) {
+      setError(err.message || 'Connection failed. Please check your server URL.');
+    } finally {
       setLoading(false);
-      router.push('/');
-    }, 1500);
+    }
   };
 
   return (
@@ -43,6 +58,8 @@ export default function LoginPage() {
             <input 
               type="email" 
               placeholder="name@store.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/50 transition-colors placeholder:text-text-secondary/50"
             />
@@ -56,6 +73,8 @@ export default function LoginPage() {
             <input 
               type={showPassword ? "text" : "password"} 
               placeholder="••••••••" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-12 text-text-main outline-none focus:border-brand/50 transition-colors placeholder:text-text-secondary/50"
             />
@@ -68,6 +87,12 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl text-red-500 text-xs font-bold leading-relaxed">
+            {error}
+          </div>
+        )}
 
         <div className="flex justify-end mt-1">
           <button type="button" className="text-brand text-sm font-bold">Forgot password?</button>

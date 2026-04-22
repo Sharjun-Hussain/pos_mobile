@@ -37,6 +37,11 @@ export default function SetupPage() {
         formattedUrl = formattedUrl.slice(0, -1);
       }
 
+      // Ensure mandatory /api/v1 suffix
+      if (!formattedUrl.toLowerCase().endsWith('/api/v1')) {
+        formattedUrl = `${formattedUrl}/api/v1`;
+      }
+
       // 1. Test Connection (optional but recommended)
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 5000); // 5s timeout

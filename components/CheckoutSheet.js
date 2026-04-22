@@ -54,9 +54,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     setAdjustment,
     getDiscountAmount 
   } = useCartStore();
-  const { isWholesale } = useSettingsStore();
+  const { isWholesale, activePaymentMethods, currency } = useSettingsStore();
 
-  const [[step, direction], setStepState] = useState([1, 0]);
+  const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -321,7 +321,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                 {item.name}
                               </span>
                               <span className="text-[11px] text-text-secondary font-medium">
-                                LKR {parseFloat(item.price).toLocaleString()}
+                                {currency} {parseFloat(item.price).toLocaleString()}
                               </span>
                             </div>
                             
@@ -476,7 +476,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[40px] -mr-16 -mt-16" />
                         
                         <p className="text-[10px] font-bold text-white/70">Payable Amount</p>
-                        <h3 className="text-4xl font-black text-white">LKR {total.toLocaleString()}</h3>
+                        <h3 className="text-4xl font-black text-white">{currency} {total.toLocaleString()}</h3>
                         
                         {selectedCustomer && (
                           <div className="flex items-center gap-2 mt-2 bg-white/20 px-3.5 py-1.5 rounded-full backdrop-blur-md border border-white/10">
@@ -491,8 +491,11 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         {[
                           { id: 'cash', label: 'Cash', icon: Calculator },
                           { id: 'card', label: 'Card', icon: CreditCard },
-                          { id: 'bank', label: 'Bank', icon: ChevronRight }
-                        ].map((mode) => {
+                          { id: 'bank', label: 'Bank', icon: ChevronRight },
+                          { id: 'qr', label: 'QR Pay', icon: CreditCard }
+                        ]
+                        .filter(m => activePaymentMethods?.includes(m.id))
+                        .map((mode) => {
                           const Icon = mode.icon;
                           const isActive = paymentMethod === mode.id;
                           return (
@@ -518,7 +521,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-text-secondary pl-1">Amount Tendered</label>
                             <div className="relative">
-                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-brand">LKR</span>
+                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-brand">{currency}</span>
                               <input 
                                 type="number"
                                 placeholder={total.toString()}
@@ -532,7 +535,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                           {amountTendered && parseFloat(amountTendered) > total && (
                             <div className="flex items-center justify-between bg-brand/5 border border-brand/10 p-3 rounded-xl">
                               <span className="text-[10px] font-bold text-brand">Change</span>
-                              <span className="text-base font-black text-brand">LKR {(parseFloat(amountTendered) - total).toLocaleString()}</span>
+                              <span className="text-base font-black text-brand">{currency} {(parseFloat(amountTendered) - total).toLocaleString()}</span>
                             </div>
                           )}
                         </div>
@@ -542,18 +545,18 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       <div className="space-y-1.5 border-t border-glass-border/30 pt-3 px-1">
                         <div className="flex justify-between items-center text-[11px]">
                           <span className="text-text-secondary font-bold">Subtotal</span>
-                          <span className="text-text-main font-black">LKR {subtotal.toLocaleString()}</span>
+                          <span className="text-text-main font-black">{currency} {subtotal.toLocaleString()}</span>
                         </div>
                         {discount > 0 && (
                           <div className="flex justify-between items-center text-[11px]">
                             <span className="text-rose-500 font-bold">Discount ({discount}%)</span>
-                            <span className="text-rose-500 font-black">- LKR {getDiscountAmount().toLocaleString()}</span>
+                            <span className="text-rose-500 font-black">- {currency} {getDiscountAmount().toLocaleString()}</span>
                           </div>
                         )}
                         {adjustment !== 0 && (
                           <div className="flex justify-between items-center text-[11px]">
                             <span className="text-brand font-bold">Adjustment</span>
-                            <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} LKR {Math.abs(adjustment).toLocaleString()}</span>
+                            <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} {currency} {Math.abs(adjustment).toLocaleString()}</span>
                           </div>
                         )}
                       </div>
@@ -609,7 +612,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                     </>
                   ) : (
                     <div className="bg-surface border-2 border-brand/20 text-brand px-5 h-14 rounded-2xl flex items-center justify-center shadow-sm">
-                      <span className="text-lg font-black text-brand">LKR {total.toLocaleString()}</span>
+                      <span className="text-lg font-black text-brand">{currency} {total.toLocaleString()}</span>
                     </div>
                   )}
                 </div>

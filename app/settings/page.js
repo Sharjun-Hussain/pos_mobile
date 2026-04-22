@@ -1,28 +1,32 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Settings as SettingsIcon, 
-  User, 
-  Bell, 
-  Shield, 
-  Database, 
-  Moon, 
-  Globe, 
+import {
+  Settings as SettingsIcon,
+  User,
+  Bell,
+  Shield,
+  Database,
+  Moon,
+  Globe,
   ChevronRight,
   Menu,
   Server,
-  Smartphone
+  Smartphone,
+  FileText,
+  CreditCard
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
 import { EditProfileSheet } from '@/components/settings/EditProfileSheet';
+import { TerminalSettingsSheet } from '@/components/settings/TerminalSettingsSheet';
 import { useTheme } from 'next-themes';
-import { Sun } from 'lucide-react';
+import { Sun, RefreshCcw } from 'lucide-react';
 
-const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
+const SettingItem = ({ icon: Icon, label, value, color = 'brand', onClick }) => {
   const colors = {
     brand: 'bg-brand/10 text-brand',
     blue: 'bg-blue-500/10 text-blue-500',
@@ -32,8 +36,8 @@ const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
   };
 
   return (
-    <button 
-      onClick={() => haptics.light()}
+    <button
+      onClick={() => { haptics.light(); onClick?.(); }}
       className="w-full glass-panel p-4 rounded-3xl flex items-center justify-between active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border/30"
     >
       <div className="flex items-center gap-4">
@@ -53,15 +57,39 @@ const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
 export default function SettingsPage() {
   const { openDrawer } = useUIStore();
   const { user } = useAuthStore();
-  const { theme, setTheme } = useTheme();
+  const {
+    theme,
+    setTheme
+  } = useTheme();
+
+  const {
+    terminalName,
+    syncSettings,
+    businessName,
+    currency,
+    paperWidth,
+    activePaymentMethods
+  } = useSettingsStore();
+
   const [mounted, setMounted] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [initialProfileTab, setInitialProfileTab] = useState('profile');
 
+  const [isTerminalSheetOpen, setIsTerminalSheetOpen] = useState(false);
+  const [initialTerminalTab, setInitialTerminalTab] = useState('terminal');
+  const [isSyncing, setIsSyncing] = useState(false);
+
   useEffect(() => {
     setMounted(true);
+    handleSync();
   }, []);
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    await syncSettings();
+    setIsSyncing(false);
+  };
 
   useEffect(() => {
     if (user?.profile_image) {
@@ -75,7 +103,7 @@ export default function SettingsPage() {
     <div className="p-6 pb-24 flex flex-col gap-8 min-h-screen">
       <header className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => { haptics.light(); openDrawer(); }}
             className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
           >
@@ -83,7 +111,12 @@ export default function SettingsPage() {
           </button>
           <div>
             <h1 className="text-xl font-black text-text-main leading-none mb-1">Settings</h1>
-            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">System Control</p>
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">System Control</p>
+              <button onClick={() => { haptics.medium(); handleSync(); }} className={`text-brand active:rotate-180 transition-transform duration-700 ${isSyncing ? 'animate-spin' : ''}`}>
+                <RefreshCcw size={10} strokeWidth={3} />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -107,16 +140,16 @@ export default function SettingsPage() {
             </p>
           </div>
         </div>
-        
+
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => { haptics.light(); setInitialProfileTab('profile'); setIsEditProfileOpen(true); }}
             className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all"
           >
             <User size={16} className="text-brand" /> Edit Profile
           </button>
-          <button 
-            onClick={() => { haptics.light(); setInitialProfileTab('security'); setIsEditProfileOpen(true); }} 
+          <button
+            onClick={() => { haptics.light(); setInitialProfileTab('security'); setIsEditProfileOpen(true); }}
             className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all"
           >
             <Shield size={16} className="text-amber-500" /> Security
@@ -127,8 +160,22 @@ export default function SettingsPage() {
       {/* Global Preferences */}
       <section className="flex flex-col gap-3">
         <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">Preferences</p>
-        <SettingItem icon={Bell} label="Notifications" value="Enabled" color="blue" />
-        
+        <SettingItem
+          icon={Bell}
+          label="Notifications"
+          value="Enabled"
+          color="blue"
+          onClick={() => { }}
+        />
+
+        <SettingItem
+          icon={FileText}
+          label="Receipt & Policy"
+          value={`${paperWidth} Thermal • Template active`}
+          color="emerald"
+          onClick={() => { setInitialTerminalTab('receipt'); setIsTerminalSheetOpen(true); }}
+        />
+
         {/* Theme Switcher */}
         <div className="w-full glass-panel p-4 rounded-3xl flex flex-col gap-4 border-glass-border/30">
           <div className="flex items-center gap-4">
@@ -137,10 +184,10 @@ export default function SettingsPage() {
             </div>
             <div className="text-left">
               <p className="text-sm font-bold text-text-main">Appearance</p>
-              <p className="text-[10px] font-bold text-text-secondary">System Default</p>
+              <p className="text-[10px] font-bold text-text-secondary">{mounted ? theme.charAt(0).toUpperCase() + theme.slice(1) : 'System'} Default</p>
             </div>
           </div>
-          
+
           <div className="flex bg-surface-muted/50 p-1 rounded-2xl gap-1">
             {[
               { id: 'light', label: 'Light', icon: Sun },
@@ -150,11 +197,10 @@ export default function SettingsPage() {
               <button
                 key={t.id}
                 onClick={() => { haptics.light(); setTheme(t.id); }}
-                className={`flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[10px] font-bold transition-all ${
-                  mounted && theme === t.id 
-                    ? 'bg-white dark:bg-surface text-brand shadow-sm' 
-                    : 'text-text-secondary opacity-60'
-                }`}
+                className={`flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[10px] font-bold transition-all ${mounted && theme === t.id
+                  ? 'bg-white dark:bg-surface text-brand shadow-sm'
+                  : 'text-text-secondary opacity-60'
+                  }`}
               >
                 <t.icon size={14} />
                 {t.label}
@@ -162,16 +208,39 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
-
-        <SettingItem icon={Globe} label="Language" value="English (US)" color="emerald" />
       </section>
 
       {/* Technical Configuration */}
       <section className="flex flex-col gap-3">
         <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">Technical</p>
-        <SettingItem icon={Server} label="API Connection" value="Local Network" color="blue" />
-        <SettingItem icon={Database} label="Sync Status" value="Healthy • v1.2" color="emerald" />
-        <SettingItem icon={Smartphone} label="Terminal Info" value="Model iZ-400" color="amber" />
+        <SettingItem
+          icon={Smartphone}
+          label="Terminal Host"
+          value={terminalName}
+          color="amber"
+          onClick={() => { setInitialTerminalTab('terminal'); setIsTerminalSheetOpen(true); }}
+        />
+        <SettingItem
+          icon={CreditCard}
+          label="Payment Protocol"
+          value={`${activePaymentMethods?.length || 0} Methods Active`}
+          color="blue"
+          onClick={() => { setInitialTerminalTab('payments'); setIsTerminalSheetOpen(true); }}
+        />
+        <SettingItem
+          icon={Database}
+          label="Identity Base"
+          value={businessName || 'Syncing...'}
+          color="emerald"
+          onClick={() => { }}
+        />
+        <SettingItem
+          icon={Globe}
+          label="Locale & Currency"
+          value={`${currency} basis • English`}
+          color="brand"
+          onClick={() => { }}
+        />
       </section>
 
       <div className="mt-4 opacity-30 text-center">
@@ -180,10 +249,16 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <EditProfileSheet 
+      <EditProfileSheet
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
         initialTab={initialProfileTab}
+      />
+
+      <TerminalSettingsSheet
+        isOpen={isTerminalSheetOpen}
+        onClose={() => setIsTerminalSheetOpen(false)}
+        initialSection={initialTerminalTab}
       />
     </div>
   );

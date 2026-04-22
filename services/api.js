@@ -160,6 +160,19 @@ export const api = {
       }
     }
   },
+
+  settings: {
+    getBusiness: () => api.get('/settings/business'),
+    updateBusiness: (data) => api.put('/settings/business', data),
+    getModule: (category) => api.get(`/settings/${category}`),
+    updateModule: (category, settings_data) => api.post(`/settings/${category}`, { settings_data }),
+    getGlobal: () => api.get('/settings/global'),
+    uploadLogo: (file) => {
+      const formData = new FormData();
+      formData.append('logo', file);
+      return apiRequest('/settings/logo', { method: 'POST', body: formData });
+    }
+  },
   
   getImageUrl: async (imageField) => {
     if (!imageField) return null;

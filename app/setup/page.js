@@ -80,8 +80,8 @@ export default function SetupPage() {
             />
           </div>
           <div className="text-center px-4">
-            <h1 className="text-4xl font-black text-text-main tracking-tight">Server Setup</h1>
-            <p className="text-text-secondary text-base font-medium mt-2 leading-relaxed max-w-[320px] mx-auto">
+            <h1 className="text-2xl font-bold text-text-main tracking-tight">Server Setup</h1>
+            <p className="text-text-secondary text-sm font-medium mt-2 leading-relaxed max-w-[320px] mx-auto">
               Configure your self-hosted API endpoint to get started with Inzeedo POS.
             </p>
           </div>
@@ -89,7 +89,7 @@ export default function SetupPage() {
 
         <form onSubmit={handleSave} className="flex flex-col gap-6 w-full max-w-sm mx-auto">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-text-secondary ml-1 opacity-70">Server API URL</label>
+            <label className="text-sm font-semibold text-text-secondary ml-1 opacity-80">Server API URL</label>
             <div className="relative group">
               <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary transition-colors group-focus-within:text-brand" size={20} />
               <input
@@ -98,7 +98,7 @@ export default function SetupPage() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 required
-                className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-base font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all placeholder:text-text-secondary/40"
+                className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-base font-medium text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all placeholder:text-text-secondary/40"
               />
             </div>
             {error && <p className="text-red-500 text-xs mt-1 ml-1 font-semibold">{error}</p>}
@@ -114,7 +114,7 @@ export default function SetupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full h-16 text-lg mt-4 disabled:opacity-50"
+            className="btn-primary w-full h-16 text-base font-semibold mt-4 disabled:opacity-50"
           >
             {loading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-white/30 border-t-white" />
@@ -126,7 +126,7 @@ export default function SetupPage() {
 
         <div className="mt-12 flex items-center justify-center gap-2 text-text-secondary">
           <HelpCircle size={16} />
-          <button className="text-base font-bold text-text-secondary/80 hover:text-brand transition-colors active:opacity-50">Where can I find this?</button>
+          <button className="text-sm font-semibold text-text-secondary/80 hover:text-brand transition-colors active:opacity-50">Where can I find this?</button>
         </div>
       </div>
     </div>

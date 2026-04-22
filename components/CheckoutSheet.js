@@ -176,30 +176,35 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   {step === 1 && (
                     <div className="flex-1 flex flex-col pointer-events-auto">
                       {/* Financial Adjustments Bar */}
-                      <div className="flex items-center gap-2 px-6 mb-4">
-                        <div className="flex-1 flex flex-col gap-1.5">
-                          <label className="text-[9px] font-bold text-text-secondary uppercase tracking-widest pl-1">Discount (LKR)</label>
-                          <div className="relative">
-                            <Percent className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={12} />
+                      <div className="flex items-center gap-3 px-6 mb-5">
+                        <div className="flex-1 glass-panel bg-surface-muted/30 border-glass-border/40 p-2.5 px-4 rounded-2xl flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0">
+                            <Percent size={14} strokeWidth={3} />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <span className="text-[9px] font-bold text-text-secondary leading-none mb-1">Discount</span>
                             <input 
                               type="number" 
-                              placeholder="0" 
+                              placeholder="0.00" 
                               value={discount || ''}
                               onChange={(e) => setDiscount(e.target.value)}
-                              className="w-full h-10 bg-surface-muted/50 border border-glass-border/30 rounded-xl pl-8 pr-3 text-xs font-bold text-text-main outline-none focus:border-brand/40 shadow-inner"
+                              className="bg-transparent border-none p-0 text-sm font-black text-text-main outline-none placeholder:text-text-secondary/30 w-full"
                             />
                           </div>
                         </div>
-                        <div className="flex-1 flex flex-col gap-1.5">
-                          <label className="text-[9px] font-bold text-text-secondary uppercase tracking-widest pl-1">Adjust (+/-)</label>
-                          <div className="relative">
-                            <Calculator className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={12} />
+
+                        <div className="flex-1 glass-panel bg-surface-muted/30 border-glass-border/40 p-2.5 px-4 rounded-2xl flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
+                            <Calculator size={14} strokeWidth={3} />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <span className="text-[9px] font-bold text-text-secondary leading-none mb-1">Adjust</span>
                             <input 
                               type="number" 
-                              placeholder="0" 
+                              placeholder="0.00" 
                               value={adjustment || ''}
                               onChange={(e) => setAdjustment(e.target.value)}
-                              className="w-full h-10 bg-surface-muted/50 border border-glass-border/30 rounded-xl pl-8 pr-3 text-xs font-bold text-text-main outline-none focus:border-brand/40 shadow-inner"
+                              className="bg-transparent border-none p-0 text-sm font-black text-text-main outline-none placeholder:text-text-secondary/30 w-full"
                             />
                           </div>
                         </div>

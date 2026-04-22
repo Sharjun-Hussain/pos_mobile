@@ -21,7 +21,7 @@ import { usePathname } from 'next/navigation';
 import { haptics } from '@/services/haptics';
 import { useAuthStore } from '@/store/useAuthStore';
 
-const MenuLink = ({ href, icon: Icon, label, onClick }) => {
+const MenuLink = ({ href, icon: Icon, label, onClick, isLast }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -29,21 +29,37 @@ const MenuLink = ({ href, icon: Icon, label, onClick }) => {
     <Link
       href={href}
       onClick={() => { haptics.light(); onClick?.(); }}
-      className={`flex items-center justify-between py-3 px-4 rounded-2xl transition-all ${isActive
-        ? 'bg-brand text-white shadow-lg shadow-brand/20 ml-2'
-        : 'text-text-secondary hover:bg-brand/5'
-        }`}
+      className={`flex items-center justify-between py-2.5 px-4 transition-all relative ${isActive ? 'bg-brand/5' : 'active:bg-slate-100'}`}
     >
-      <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20' : 'bg-surface-muted'}`}>
-          <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+      <div className="flex items-center gap-3.5">
+        <div className={`p-2 rounded-xl ${isActive ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-400'}`}>
+          <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
         </div>
-        <span className={`text-[13px] font-bold ${isActive ? 'text-white' : 'text-text-main'}`}>{label}</span>
+        <span className={`text-[13px] font-bold ${isActive ? 'text-brand' : 'text-text-main'}`}>{label}</span>
       </div>
-      {isActive && <div className="h-1 w-1 rounded-full bg-white opacity-60" />}
+      <div className="flex items-center gap-2">
+        {isActive && <div className="h-1.5 w-1.5 rounded-full bg-brand" />}
+        <ChevronRight size={14} className={`${isActive ? 'text-brand opacity-40' : 'text-slate-300'}`} />
+      </div>
+      
+      {/* Hairline Divider */}
+      {!isLast && (
+        <div className="absolute bottom-0 left-12 right-0 h-[1px] bg-slate-100" />
+      )}
     </Link>
   );
 };
+
+const MenuGroup = ({ title, children }) => (
+  <div className="flex flex-col gap-1.5 pt-1 mb-4">
+    {title && (
+      <p className="text-[10px] font-black text-slate-400 ml-4 mb-0.5">{title}</p>
+    )}
+    <div className="bg-white rounded-[1.25rem] overflow-hidden border border-slate-100 shadow-sm mx-1">
+      {children}
+    </div>
+  </div>
+);
 
 export const SideDrawer = ({ isOpen, onClose }) => {
   const { user, logout } = useAuthStore();
@@ -73,74 +89,76 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] bg-surface z-[201] flex flex-col shadow-2xl safe-area-inset-top safe-area-inset-bottom"
+            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+            className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[300px] bg-slate-50 z-[201] flex flex-col shadow-2xl safe-area-inset-top safe-area-inset-bottom border-r border-slate-200"
           >
             {/* Header / Brand */}
-            <div className="p-6 pb-2 border-b border-glass-border flex flex-col gap-6">
+            <div className="p-5 pb-4 bg-white border-b border-slate-100 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-brand rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand/20">
-                    <TrendingUp size={22} strokeWidth={3} />
+                  <div className="h-9 w-9 bg-brand rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand/20">
+                    <TrendingUp size={20} strokeWidth={3} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-text-main tracking-tight leading-none mb-1">Inzeedo</h2>
-                    <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Enterprise POS</span>
+                    <h2 className="text-base font-black text-text-main tracking-tight leading-none mb-1">Inzeedo</h2>
+                    <span className="text-[10px] font-bold text-brand opacity-60">Terminal</span>
                   </div>
                 </div>
                 <button
                   onClick={onClose}
-                  className="h-10 w-10 flex items-center justify-center text-text-secondary active:scale-95 transition-transform"
+                  className="h-8 w-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 active:rotate-90 transition-transform"
                 >
-                  <X size={24} />
+                  <X size={18} />
                 </button>
               </div>
 
               {/* Account Quick Glance */}
-              <div className="bg-surface-muted/50 p-4 rounded-3xl flex items-center gap-3 border border-glass-border/30">
-                <div className="h-10 w-10 rounded-full bg-brand/10 flex items-center justify-center text-brand">
-                  <User size={20} strokeWidth={2.5} />
+              <div className="bg-slate-50 p-3 rounded-xl flex items-center gap-3 border border-slate-100">
+                <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-brand shadow-sm border border-slate-100">
+                  <User size={18} strokeWidth={2.5} />
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <p className="text-xs font-black text-text-main truncate">{user?.name || 'Store Manager'}</p>
-                  <p className="text-[10px] font-bold text-text-secondary truncate">{user?.email || 'admin@inzeedo.com'}</p>
+                  <p className="text-[11px] font-bold text-text-main truncate">{user?.name || 'Store Manager'}</p>
+                  <p className="text-[9px] font-medium text-slate-400 truncate mt-0.5">{user?.email || 'admin@inzeedo.com'}</p>
                 </div>
-                <ChevronRight size={14} className="text-text-secondary/50" />
               </div>
             </div>
 
-            {/* Navigation Menu */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-1.5 no-scrollbar">
-              <p className="text-[9px] font-black text-text-secondary uppercase tracking-widest pl-4 mb-2 mt-4 opacity-50">Main Menu</p>
+            {/* Navigation Menu (Scrollable) */}
+            <div className="flex-1 overflow-y-auto p-4 py-2 no-scrollbar">
+              <MenuGroup title="Operations">
+                <MenuLink href="/" icon={Home} label="Dashboard" onClick={onClose} />
+                <MenuLink href="/sales" icon={ShoppingBag} label="Sales History" onClick={onClose} />
+                <MenuLink href="/inventory" icon={Box} label="Quick Inventory" onClick={onClose} />
+                <MenuLink href="/customers" icon={Users} label="Customers" isLast onClick={onClose} />
+              </MenuGroup>
 
-              <MenuLink href="/" icon={Home} label="Dashboard" onClick={onClose} />
-              <MenuLink href="/sales" icon={ShoppingBag} label="Sales History" onClick={onClose} />
-              <MenuLink href="/inventory" icon={Box} label="Quick Inventory" onClick={onClose} />
-              <MenuLink href="/customers" icon={Users} label="Customers" onClick={onClose} />
+              <MenuGroup title="Catalog & Stock">
+                <MenuLink href="/products" icon={Box} label="Products Hub" onClick={onClose} />
+                <MenuLink href="/variants" icon={Target} label="Variant Registry" onClick={onClose} />
+                <MenuLink href="/inventory/stock" icon={Warehouse} label="Stock Control" isLast onClick={onClose} />
+              </MenuGroup>
 
-              <p className="text-[9px] font-black text-text-secondary uppercase tracking-widest pl-4 mb-2 mt-6 opacity-50">Catalog & Stock</p>
-              <MenuLink href="/products" icon={Box} label="Products Hub" onClick={onClose} />
-              <MenuLink href="/variants" icon={Target} label="Variant Registry" onClick={onClose} />
-              <MenuLink href="/inventory/stock" icon={Warehouse} label="Stock Control" onClick={onClose} />
-
-              <p className="text-[9px] font-black text-text-secondary uppercase tracking-widest pl-4 mb-2 mt-8 opacity-50">System</p>
-              <MenuLink href="/settings" icon={Settings} label="Global Settings" onClick={onClose} />
+              <MenuGroup title="System">
+                <MenuLink href="/settings" icon={Settings} label="Global Settings" isLast onClick={onClose} />
+              </MenuGroup>
             </div>
 
             {/* Footer / Logout */}
-            <div className="p-4 border-t border-glass-border">
+            <div className="p-4 border-t border-slate-100 bg-white">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-4 p-4 text-rose-500 rounded-2xl hover:bg-rose-50 active:bg-rose-100 transition-all font-bold text-sm"
+                className="w-full flex items-center justify-between p-3 bg-rose-50 text-rose-500 rounded-xl active:bg-rose-100 transition-all font-bold text-xs"
               >
-                <div className="p-2 bg-rose-500/10 rounded-xl">
-                  <LogOut size={20} />
+                <div className="flex items-center gap-3">
+                  <LogOut size={14} strokeWidth={2.5} />
+                  <span>Logout Session</span>
                 </div>
-                <span>Logout Session</span>
+                <ChevronRight size={12} className="opacity-40" />
               </button>
 
-              <p className="text-center text-[10px] font-bold text-text-secondary/30 mt-4">
-                v1.2.0 • Inzeedo POS Mobile
+              <p className="text-center text-[10px] font-bold text-slate-300 mt-4">
+                v1.2.0 • Inzeedo Terminal
               </p>
             </div>
           </motion.div>

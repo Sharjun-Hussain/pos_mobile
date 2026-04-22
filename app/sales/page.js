@@ -250,42 +250,41 @@ export default function SalesPage() {
         <div className="flex items-center justify-between">
           {!showSearch ? (
             <>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <button onClick={() => router.back()} className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary">
-                  <ArrowLeft size={20} />
+                  <ArrowLeft size={18} />
                 </button>
                 <div>
-                  <h1 className="text-sm font-black text-text-main uppercase tracking-widest leading-none">POS Terminal</h1>
-                  <p className="text-[10px] font-bold text-emerald-500 uppercase mt-1 tracking-wider flex items-center gap-1">
+                  <h1 className="text-sm font-bold text-text-main leading-none">POS Terminal</h1>
+                  <p className="text-[10px] font-medium text-emerald-500 mt-1 flex items-center gap-1">
                     <div className="h-1 w-1 bg-emerald-500 rounded-full animate-pulse" /> Live Node
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button 
                   onClick={scanBarcode}
-                  className="h-12 px-4 bg-brand text-white rounded-2xl flex items-center gap-2 shadow-lg shadow-brand/20 active:scale-95 transition-all"
+                  className="h-10 px-3 bg-brand text-white rounded-xl flex items-center gap-1.5 shadow-lg shadow-brand/20 active:scale-95 transition-all"
                 >
-                  <Camera size={18} strokeWidth={2.5} />
-                  <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Scan</span>
+                  <Camera size={16} strokeWidth={2.5} />
+                  <span className="text-[10px] font-bold hidden sm:inline">Scan</span>
                 </button>
                 <button 
                   onClick={() => setShowSearch(true)}
-                  className="h-12 w-12 glass-panel rounded-2xl flex items-center justify-center text-text-secondary active:scale-90"
+                  className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary active:scale-90"
                 >
-                  <Search size={18} />
+                  <Search size={16} />
                 </button>
-                <div className="h-8 w-[1px] bg-glass-border mx-1" />
                 <button 
                   onClick={toggleWholesale}
-                  className={`h-12 w-12 rounded-2xl flex items-center justify-center transition-all active:scale-90 border ${
+                  className={`h-10 px-2.5 rounded-xl flex items-center gap-1.5 transition-all active:scale-90 border text-[10px] font-bold ${
                     state.isWholesale 
                       ? 'bg-amber-500/10 border-amber-500/30 text-amber-600' 
-                      : 'bg-surface-muted border-glass-border text-text-secondary opacity-60'
+                      : 'bg-surface-muted/50 border-glass-border text-text-secondary'
                   }`}
                 >
-                  <Tag size={18} />
+                  <Tag size={16} /> <span className="hidden xs:inline">{state.isWholesale ? 'Wholesale' : 'Retail'}</span>
                 </button>
               </div>
             </>
@@ -328,7 +327,7 @@ export default function SalesPage() {
             <button 
               key={cat.id}
               onClick={() => { haptics.light(); setActiveCategory(cat.name); }}
-              className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all border ${
+              className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${
                 activeCategory === cat.name 
                   ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20' 
                   : 'bg-surface-muted/30 text-text-secondary border-glass-border'
@@ -350,12 +349,13 @@ export default function SalesPage() {
               <RotateCcw size={32} className="animate-spin-slow" />
             </div>
             <p className="text-sm font-black text-text-main uppercase tracking-widest">{error}</p>
-            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-black uppercase tracking-widest">Retry Node Sync</button>
+            <p className="text-sm font-bold text-text-main">Retry Node Sync</p>
+            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-bold">Retry Node Sync</button>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-24 opacity-30">
             <Package size={64} className="mx-auto mb-6" />
-            <p className="text-xs font-black uppercase tracking-widest">No structural matches</p>
+            <p className="text-xs font-bold text-text-main">No items found in this shelf</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-3">
@@ -363,27 +363,27 @@ export default function SalesPage() {
               <button 
                 key={p.id}
                 onClick={() => handleAddToCart(p)}
-                className="glass-panel p-2 rounded-[1.75rem] flex flex-col items-center gap-2 active:scale-95 transition-all border-glass-border group relative aspect-[4/5]"
+                className="glass-panel p-1.5 rounded-2xl flex flex-col items-center gap-2 active:scale-95 transition-all border-glass-border group relative aspect-[4/5]"
               >
                 {p.variants?.length > 1 && (
-                  <div className="absolute top-1.5 right-1.5 p-1 bg-brand/10 text-brand rounded-lg shadow-sm border border-brand/20">
+                  <div className="absolute top-1.5 right-1.5 p-1 bg-brand/10 text-brand rounded-lg shadow-sm">
                     <Maximize2 size={8} strokeWidth={4} />
                   </div>
                 )}
-                <div className="w-full aspect-square rounded-2xl bg-surface-muted overflow-hidden border border-glass-border shadow-inner group-hover:scale-105 transition-transform duration-500">
+                <div className="w-full aspect-square rounded-xl bg-surface-muted overflow-hidden border border-glass-border shadow-inner group-hover:scale-105 transition-transform duration-500">
                   {p.image ? (
                     <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-text-secondary/10">
-                      <Package size={24} />
+                      <Package size={20} />
                     </div>
                   )}
                 </div>
-                <div className="text-center w-full px-1 flex flex-col">
-                  <span className="font-bold text-text-main text-[9px] leading-[1.1] mb-1 line-clamp-2 h-[1.1rem]">
+                <div className="text-center w-full px-0.5 flex flex-col">
+                  <span className="font-bold text-text-main text-[9px] leading-tight mb-0.5 line-clamp-2 h-[1rem]">
                     {p.name}
                   </span>
-                  <span className="text-[10px] font-black text-brand tracking-tighter">
+                  <span className="text-[10px] font-bold text-brand tracking-tight">
                     LKR{parseFloat(p.variants[0]?.retailPrice || 0).toLocaleString()}
                   </span>
                 </div>
@@ -406,13 +406,13 @@ export default function SalesPage() {
               <ShoppingCart size={20} strokeWidth={2.5} />
             </div>
             <div className="text-left">
-              <p className="text-xs font-black text-text-main uppercase tracking-tighter">{state.cart.length} Items Selected</p>
-              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-0.5">LKR {total.toLocaleString()}</p>
+              <p className="text-xs font-bold text-text-main">{state.cart.length} Items Selected</p>
+              <p className="text-[10px] font-medium text-text-secondary mt-0.5">LKR {total.toLocaleString()}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 pr-2">
-            <span className="text-[10px] font-black text-brand uppercase tracking-[0.2em]">Review Cart</span>
-            <ChevronRight size={18} className="text-brand animate-pulse" />
+            <span className="text-[10px] font-bold text-brand">Review Cart</span>
+            <ChevronRight size={16} className="text-brand opacity-50" />
           </div>
         </button>
       </div>

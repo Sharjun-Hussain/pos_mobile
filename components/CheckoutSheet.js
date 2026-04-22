@@ -121,7 +121,7 @@ export const CheckoutSheet = ({ isOpen, onClose, cart, isWholesale, onUpdateQty,
               {cart.length === 0 && (
                 <div className="text-center py-10 opacity-50">
                   <ShoppingCart size={48} className="mx-auto mb-2" />
-                  <p className="text-xs font-bold uppercase tracking-widest">Cart is Empty</p>
+                  <p className="text-xs font-bold tracking-tight">Cart is empty</p>
                 </div>
               )}
             </div>
@@ -151,8 +151,8 @@ export const CheckoutSheet = ({ isOpen, onClose, cart, isWholesale, onUpdateQty,
                       <User size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-black text-text-main">Walk-in Customer</p>
-                      <p className="text-[10px] font-bold text-text-secondary">Standard Pricing</p>
+                      <p className="text-sm font-bold text-text-main">Walk-in Customer</p>
+                      <p className="text-[10px] font-medium text-text-secondary">Standard Pricing</p>
                     </div>
                   </div>
                   {!selectedCustomer && <CheckCircle2 className="text-brand" size={20} />}
@@ -204,26 +204,26 @@ export const CheckoutSheet = ({ isOpen, onClose, cart, isWholesale, onUpdateQty,
 
               <div className="grid gap-3">
                 <div className="flex items-center justify-between px-4">
-                  <span className="text-[11px] font-black text-text-secondary uppercase tracking-widest">Customer</span>
-                  <span className="text-sm font-black text-text-main">{selectedCustomer ? selectedCustomer.name : 'Walk-in'}</span>
+                  <span className="text-[10px] font-bold text-text-secondary uppercase">Customer</span>
+                  <span className="text-sm font-bold text-text-main">{selectedCustomer ? selectedCustomer.name : 'Walk-in'}</span>
                 </div>
                 <div className="flex items-center justify-between px-4">
-                  <span className="text-[11px] font-black text-text-secondary uppercase tracking-widest">Items</span>
-                  <span className="text-sm font-black text-text-main">{cart.length} Products</span>
+                  <span className="text-[10px] font-bold text-text-secondary uppercase">Items</span>
+                  <span className="text-sm font-bold text-text-main">{cart.length} Products</span>
                 </div>
                 <div className="flex items-center justify-between px-4">
-                  <span className="text-[11px] font-black text-text-secondary uppercase tracking-widest">Pricing</span>
-                  <span className="text-sm font-black text-amber-500">{isWholesale ? 'Wholesale' : 'Retail'}</span>
+                  <span className="text-[10px] font-bold text-text-secondary uppercase">Pricing</span>
+                  <span className="text-sm font-bold text-amber-500">{isWholesale ? 'Wholesale' : 'Retail'}</span>
                 </div>
               </div>
 
               <div className="mt-4 p-4 glass-panel rounded-3xl bg-surface-muted/50 border-glass-border">
-                <p className="text-[10px] font-bold text-text-secondary text-center uppercase tracking-wider mb-2">Payment Method</p>
+                <p className="text-[10px] font-bold text-text-secondary text-center uppercase mb-2">Payment Method</p>
                 <div className="flex gap-2">
                   <div className="flex-1 h-12 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-center gap-2 border border-brand text-brand shadow-lg shadow-brand/10">
-                    <Check size={16} strokeWidth={3} /> <span className="text-xs font-black uppercase tracking-widest">Cash</span>
+                    <Check size={16} strokeWidth={3} /> <span className="text-xs font-bold">Cash</span>
                   </div>
-                  <div className="flex-1 h-12 bg-surface-muted/30 rounded-2xl flex items-center justify-center text-text-secondary text-xs font-bold uppercase tracking-widest opacity-40 grayscale">
+                  <div className="flex-1 h-12 bg-surface-muted/30 rounded-2xl flex items-center justify-center text-text-secondary text-xs font-bold opacity-40 grayscale">
                     Card
                   </div>
                 </div>
@@ -236,21 +236,21 @@ export const CheckoutSheet = ({ isOpen, onClose, cart, isWholesale, onUpdateQty,
         <div className="pt-6 border-t border-glass-border flex flex-col gap-4">
           <div className="flex items-center justify-between px-2">
             <div className="flex flex-col">
-              <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">Grand Total</span>
+              <span className="text-[10px] font-bold text-text-secondary leading-none">Grand Total</span>
               <span className="text-lg font-black text-text-main">LKR {total.toLocaleString()}</span>
             </div>
             {step < 3 ? (
               <button 
                 onClick={handleNext}
                 disabled={cart.length === 0}
-                className="h-14 px-8 btn-primary rounded-2xl text-sm font-black uppercase tracking-widest flex items-center gap-2 group transition-all"
+                className="h-14 px-8 btn-primary rounded-2xl text-sm font-bold flex items-center gap-2 group transition-all"
               >
                 {step === 1 ? 'Customer' : 'Payment'} <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
             ) : (
               <button 
                 onClick={handleFinish}
-                className="h-14 px-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl text-sm font-black uppercase tracking-widest flex items-center gap-2 group transition-all shadow-xl shadow-emerald-500/20"
+                className="h-14 px-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl text-sm font-bold flex items-center gap-2 group transition-all shadow-xl shadow-emerald-500/20"
               >
                 Sync Order <Check size={18} strokeWidth={3} />
               </button>

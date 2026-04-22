@@ -14,6 +14,7 @@ import {
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
+import { useFetch } from '@/hooks/useFetch';
 
 const StockRow = ({ stock, getImageUrl }) => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -87,30 +88,15 @@ const StockGridItem = ({ stock, getImageUrl }) => {
 };
 
 export default function StockRegistryPage() {
-  const { openDrawer } = useUIStore();
-  const [loading, setLoading] = useState(true);
-  const [stocks, setStocks] = useState([]);
+  const { data: stocksData, isLoading: stocksLoading, error: stocksError, mutate: refetchStocks } = useFetch('/stocks?size=100');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [sortBy, setSortBy] = useState('name-asc'); // 'name-asc', 'qty-desc', 'qty-low'
-  const [error, setError] = useState(null);
 
-  const fetchStocks = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.stocks.getAll({ size: 100 });
-      setStocks(res.data?.data || res.data || []);
-    } catch (err) {
-      setError('Connection failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchStocks();
-  }, []);
+  const stocks = stocksData?.data || stocksData || [];
+  const loading = stocksLoading;
+  const error = stocksError;
 
   const filteredAndSortedStocks = Array.isArray(stocks) ? stocks
     .filter(s => 

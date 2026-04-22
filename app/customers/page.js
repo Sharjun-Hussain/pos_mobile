@@ -17,6 +17,7 @@ import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUIStore } from '@/store/useUIStore';
+import { useFetch } from '@/hooks/useFetch';
 
 const CustomerRow = ({ customer }) => {
   return (
@@ -63,34 +64,19 @@ const CustomerGridItem = ({ customer }) => {
 };
 
 export default function CustomersPage() {
-  const { openDrawer } = useUIStore();
-  const [loading, setLoading] = useState(true);
-  const [customers, setCustomers] = useState([]);
+  const { data: customersData, isLoading: customersLoading, error: customersError, mutate: refetchCustomers } = useFetch('/customers/active/list');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [sortBy, setSortBy] = useState('name-asc');
   const [isAdding, setIsAdding] = useState(false);
-  const [error, setError] = useState(null);
   
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '' });
   const [isSaving, setIsSaving] = useState(false);
 
-  const fetchCustomers = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.customers.getActiveList();
-      setCustomers(res.data || []);
-    } catch (err) {
-      setError('Connection failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
+  const customers = customersData || [];
+  const loading = customersLoading;
+  const error = customersError;
 
   const handleCreateCustomer = async () => {
     if (!newCustomer.name) return;
@@ -102,7 +88,7 @@ export default function CustomersPage() {
         haptics.heavy();
         setIsAdding(false);
         setNewCustomer({ name: '', phone: '', email: '' });
-        fetchCustomers();
+        refetchCustomers();
       }
     } catch (err) {
       console.error('Create Customer Failed:', err);

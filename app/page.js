@@ -28,6 +28,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
 import { RecentSalesList } from '@/components/dashboard/RecentSalesList';
 import { LowStockCarousel } from '@/components/dashboard/LowStockCarousel';
+import { useFetch } from '@/hooks/useFetch';
 
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
@@ -114,59 +115,39 @@ export default function Home() {
   const { user, selectedBranch, isAuthenticated, isHydrated } = useAuthStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
-  const [loading, setLoading] = useState(true);
+  const { data: userData, isLoading: userLoading } = useFetch('/auth/me');
+  const { data: statsData, error: statsError, isLoading: statsLoading } = useFetch('/reports/dashboard/summary');
+  const { data: salesData, isLoading: salesLoading } = useFetch('/sales?limit=5');
+  const { data: productsData, isLoading: productsLoading } = useFetch('/products?limit=5');
+
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
-  const [error, setError] = useState(null);
-  const [stats, setStats] = useState(null);
-  const [recentSales, setRecentSales] = useState([]);
-  const [lowStockItems, setLowStockItems] = useState([]);
-  const [localUser, setLocalUser] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
 
-  const fetchDashboardData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [uRes, sRes, salesRes, productsRes] = await Promise.all([
-        api.auth.me(),
-        api.reports.getDashboardSummary(),
-        api.sales.getAll({ limit: 5 }),
-        api.products.getAll({ limit: 5 }), // We'll filter for low stock or just show top
-        useSettingsStore.getState().syncSettings()
-      ]);
-
-      const userData = uRes.data?.user;
-      setLocalUser(userData);
-      setStats(sRes.data);
-      setRecentSales(salesRes.data?.data || salesRes.data || []);
-      
-      // Look for low stock items specifically if possible
-      const allProds = productsRes.data?.data || productsRes.data || [];
-      const lowOnes = allProds.filter(p => p.stock <= (p.reorder_level || 5));
-      setLowStockItems(lowOnes);
-
-      if (userData?.profile_image) {
-        const resolvedUrl = await api.getImageUrl(userData.profile_image);
-        setProfileImageUrl(resolvedUrl);
-      }
-    } catch (err) {
-      setError('Could not refresh data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchDashboardData();
+    useSettingsStore.getState().syncSettings();
   }, []);
 
   useEffect(() => {
-    if (isHydrated && isAuthenticated && !selectedBranch && (localUser?.branches?.length > 1 || user?.branches?.length > 1)) {
+    const resolveAvatar = async () => {
+      if (userData?.user?.profile_image) {
+        const url = await api.getImageUrl(userData.user.profile_image);
+        setProfileImageUrl(url);
+      }
+    };
+    resolveAvatar();
+  }, [userData]);
+
+  useEffect(() => {
+    if (isHydrated && isAuthenticated && !selectedBranch && (userData?.user?.branches?.length > 1 || user?.branches?.length > 1)) {
       setIsBranchSheetOpen(true);
     }
-  }, [isHydrated, isAuthenticated, selectedBranch, localUser?.branches?.length, user?.branches?.length]);
+  }, [isHydrated, isAuthenticated, selectedBranch, userData?.user?.branches?.length, user?.branches?.length]);
 
-  const displayUser = localUser || user;
+  const loading = userLoading || statsLoading || salesLoading || productsLoading;
+  const stats = statsData;
+  const recentSales = salesData?.data || salesData || [];
+  const lowStockItems = (productsData?.data || productsData || []).filter(p => p.stock <= (p.reorder_level || 5));
+  const displayUser = userData?.user || user;
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUser?.name || 'Felix'}`;
 
   const getGreeting = () => {

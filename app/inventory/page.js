@@ -4,6 +4,7 @@ import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
 import { useEffect, useState } from 'react';
+import { useFetch } from '@/hooks/useFetch';
 
 const ProductListItem = ({ product, getImageUrl }) => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -47,34 +48,16 @@ const ProductListItem = ({ product, getImageUrl }) => {
 };
 
 export default function InventoryPage() {
-  const { openDrawer } = useUIStore();
-  const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const { data: productsData, isLoading: productsLoading, error: productsError } = useFetch('/products/active/list');
+  const { data: categoriesData, isLoading: categoriesLoading } = useFetch('/main-categories/active/list');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [error, setError] = useState(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [pRes, cRes] = await Promise.all([
-        api.products.getActiveList(),
-        api.categories.getActiveList()
-      ]);
-      setProducts(pRes.data || []);
-      setCategories(cRes.data || []);
-    } catch (err) {
-      setError('Failed to load inventory');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const products = productsData || [];
+  const categories = categoriesData || [];
+  const loading = productsLoading || categoriesLoading;
+  const error = productsError;
 
   const filteredProducts = products.filter(p => {
     const matchesSearch = (p.name || p.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||

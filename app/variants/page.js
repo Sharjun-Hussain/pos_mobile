@@ -12,6 +12,7 @@ import {
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
+import { useFetch } from '@/hooks/useFetch';
 
 const VariantRow = ({ variant, productName, getImageUrl }) => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -80,44 +81,31 @@ const VariantGridItem = ({ variant, productName, getImageUrl }) => {
 };
 
 export default function VariantsPage() {
-  const { openDrawer } = useUIStore();
-  const [loading, setLoading] = useState(true);
-  const [variants, setVariants] = useState([]);
+  const { data: productsData, isLoading: productsLoading, error: productsError } = useFetch('/products/active/list');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [sortBy, setSortBy] = useState('name-asc'); // 'name-asc', 'price-desc', 'stock-low'
-  const [error, setError] = useState(null);
 
-  const fetchVariants = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.products.getActiveList();
-      const allVariants = [];
-      const rawData = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
-      
-      rawData.forEach(product => {
-        if (product.variants && Array.isArray(product.variants)) {
-          product.variants.forEach(variant => {
-            allVariants.push({
-              ...variant,
-              parentName: product.name
-            });
+  const variants = React.useMemo(() => {
+    const allVariants = [];
+    const rawData = Array.isArray(productsData) ? productsData : (Array.isArray(productsData?.data) ? productsData.data : []);
+    
+    rawData.forEach(product => {
+      if (product.variants && Array.isArray(product.variants)) {
+        product.variants.forEach(variant => {
+          allVariants.push({
+            ...variant,
+            parentName: product.name
           });
-        }
-      });
-      
-      setVariants(allVariants);
-    } catch (err) {
-      setError('Connection failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+        });
+      }
+    });
+    return allVariants;
+  }, [productsData]);
 
-  useEffect(() => {
-    fetchVariants();
-  }, []);
+  const loading = productsLoading;
+  const error = productsError;
 
   const filteredAndSortedVariants = Array.isArray(variants) ? variants
     .filter(v => 

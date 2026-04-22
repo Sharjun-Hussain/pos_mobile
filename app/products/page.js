@@ -14,6 +14,7 @@ import {
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
+import { useFetch } from '@/hooks/useFetch';
 
 const ProductRow = ({ product, getImageUrl }) => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -79,36 +80,18 @@ const ProductGridItem = ({ product, getImageUrl }) => {
 
 export default function ProductsPage() {
   const { openDrawer } = useUIStore();
-  const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const { data: productsData, isLoading: productsLoading, error: productsError, refetch: refetchProducts } = useFetch('/products?size=100');
+  const { data: categoriesData, isLoading: categoriesLoading } = useFetch('/main-categories/active/list');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [sortBy, setSortBy] = useState('name-asc'); // 'name-asc', 'name-desc', 'variants-desc'
-  const [error, setError] = useState(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [pRes, cRes] = await Promise.all([
-        api.products.getAll({ size: 100 }),
-        api.categories.getActiveList()
-      ]);
-      const productList = pRes.data?.data || pRes.data || [];
-      setProducts(productList);
-      setCategories(cRes.data || []);
-    } catch (err) {
-      setError('Connection failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const products = productsData?.data || productsData || [];
+  const categories = categoriesData || [];
+  const loading = productsLoading || categoriesLoading;
+  const error = productsError;
 
   const filteredAndSortedProducts = Array.isArray(products) ? products
     .filter(p => {

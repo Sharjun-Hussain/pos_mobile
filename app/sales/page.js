@@ -11,6 +11,7 @@ import {
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
+import { useFetch } from '@/hooks/useFetch';
 import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
 import { ReturnSheet } from '@/components/sales/ReturnSheet';
 
@@ -70,32 +71,17 @@ const SaleRow = ({ sale, onClick }) => {
 };
 
 export default function SalesHistoryPage() {
-  const { openDrawer } = useUIStore();
-  const [loading, setLoading] = useState(true);
-  const [sales, setSales] = useState([]);
+  const { data: salesData, isLoading: salesLoading, error: salesError, mutate: refetchSales } = useFetch('/sales?size=50');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSaleId, setSelectedSaleId] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isReturnOpen, setIsReturnOpen] = useState(false);
   const [activeSale, setActiveSale] = useState(null);
-  const [error, setError] = useState(null);
 
-  const fetchSales = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.sales.getAll({ size: 50 });
-      setSales(res.data?.data || res.data || []);
-    } catch (err) {
-      setError('Connection failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSales();
-  }, []);
+  const sales = salesData?.data || salesData || [];
+  const loading = salesLoading;
+  const error = salesError;
 
   const handleSaleClick = (saleId) => {
     setSelectedSaleId(saleId);

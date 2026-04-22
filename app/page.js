@@ -279,9 +279,14 @@ export default function Home() {
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-bold text-text-secondary">Recent Transactions</h2>
-          <button className="text-[10px] font-black text-brand uppercase tracking-wider">See All</button>
+          <button 
+            onClick={() => { haptics.light(); router.push('/sales'); }}
+            className="text-[10px] font-black text-brand uppercase tracking-wider"
+          >
+            See All
+          </button>
         </div>
-        <RecentSalesList sales={recentSales} isLoading={loading} />
+        <RecentSalesList sales={recentSales.slice(0, 5)} isLoading={loading} />
       </section>
 
       {/* Low Stock Section */}

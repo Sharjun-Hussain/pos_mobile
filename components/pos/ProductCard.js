@@ -36,7 +36,7 @@ const ProductCard = memo(({ product, onAdd }) => {
         <span className="font-bold text-text-main text-[9px] leading-tight mb-0.5 line-clamp-2 h-[1rem]">
           {product.name}
         </span>
-        <span className="text-[10px] font-bold text-brand tracking-tight">
+        <span className="text-[10px] font-bold text-brand">
           LKR {parseFloat(price || 0).toLocaleString()}
         </span>
       </div>

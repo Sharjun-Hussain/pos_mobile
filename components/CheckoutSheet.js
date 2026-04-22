@@ -339,7 +339,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         {cart.length === 0 && (
                           <div className="text-center py-20 opacity-30 flex flex-col items-center">
                             <ShoppingCart size={64} className="mb-4" />
-                            <p className="text-sm font-bold tracking-tight">Cart is empty</p>
+                            <p className="text-sm font-bold">Cart is empty</p>
                           </div>
                         )}
                       </div>
@@ -420,7 +420,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         <div className="px-6 py-2 flex flex-col gap-5 overflow-y-auto no-scrollbar">
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="text-sm font-bold text-text-main">Quick Registration</h3>
-                            <button onClick={() => setIsAddingCustomer(false)} className="text-[10px] font-bold text-rose-500 uppercase">Cancel</button>
+                            <button onClick={() => setIsAddingCustomer(false)} className="text-[10px] font-bold text-rose-500">Cancel</button>
                           </div>
                           
                           <div className="flex flex-col gap-4">
@@ -476,7 +476,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[40px] -mr-16 -mt-16" />
                         
                         <p className="text-[10px] font-bold text-white/70">Payable Amount</p>
-                        <h3 className="text-4xl font-black tracking-tight text-white">LKR {total.toLocaleString()}</h3>
+                        <h3 className="text-4xl font-black text-white">LKR {total.toLocaleString()}</h3>
                         
                         {selectedCustomer && (
                           <div className="flex items-center gap-2 mt-2 bg-white/20 px-3.5 py-1.5 rounded-full backdrop-blur-md border border-white/10">
@@ -609,7 +609,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                     </>
                   ) : (
                     <div className="bg-surface border-2 border-brand/20 text-brand px-5 h-14 rounded-2xl flex items-center justify-center shadow-sm">
-                      <span className="text-lg font-black tracking-tight">LKR {total.toLocaleString()}</span>
+                      <span className="text-lg font-black text-brand">LKR {total.toLocaleString()}</span>
                     </div>
                   )}
                 </div>
@@ -621,7 +621,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       disabled={cart.length === 0}
                       className="bg-brand text-white px-5 h-14 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50 flex items-center justify-center gap-2 group transition-all active:scale-95 disabled:opacity-50"
                     >
-                      <span className="text-sm font-black tracking-tight">{step === 1 ? 'Customer' : 'Payment'}</span>
+                      <span className="text-sm font-black">{step === 1 ? 'Customer' : 'Payment'}</span>
                       <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                   ) : (
@@ -630,7 +630,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       disabled={isSyncing}
                       className="bg-brand text-white px-5 h-14 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50 flex items-center justify-center gap-2 group transition-all active:scale-95 disabled:opacity-50"
                     >
-                      <span className="text-sm font-black tracking-tight">{isSyncing ? 'Saving...' : 'Complete'}</span>
+                      <span className="text-sm font-black">{isSyncing ? 'Saving...' : 'Complete'}</span>
                       <Check size={18} strokeWidth={3} />
                     </button>
                   )}
@@ -648,7 +648,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] z-[150] flex flex-col items-center justify-center gap-4 rounded-t-[3rem]"
                 >
                   <div className="h-16 w-16 border-4 border-brand border-t-transparent rounded-full animate-spin" />
-                  <p className="text-sm font-black text-brand tracking-widest uppercase">Synchronizing Order</p>
+                  <p className="text-sm font-black text-brand">Synchronizing Order</p>
                 </motion.div>
               )}
             </AnimatePresence>

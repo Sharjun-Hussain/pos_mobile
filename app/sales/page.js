@@ -44,7 +44,7 @@ const SaleRow = ({ sale, onClick }) => {
             <h4 className="font-bold text-text-main text-[13px] truncate leading-tight">
               {sale.invoice_number}
             </h4>
-            <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md ${getStatusColor(sale.payment_status)}`}>
+            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md ${getStatusColor(sale.payment_status)}`}>
               {sale.payment_status}
             </span>
           </div>
@@ -61,7 +61,7 @@ const SaleRow = ({ sale, onClick }) => {
       </div>
       <div className="text-right flex-shrink-0 ml-3">
         <p className="font-black text-brand text-[13px]">LKR {Math.round(sale.payable_amount).toLocaleString()}</p>
-        <p className="text-[9px] font-bold text-slate-300 uppercase mt-0.5">
+        <p className="text-[9px] font-bold text-slate-300 mt-0.5">
           {sale.payment_method || 'Cash'}
         </p>
       </div>
@@ -124,8 +124,8 @@ export default function SalesHistoryPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Recent Sales</h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase leading-none opacity-40">Transaction Ledger</p>
+            <h1 className="text-xl font-black text-text-main leading-none mb-1">Recent Sales</h1>
+            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">Transaction Ledger</p>
           </div>
         </div>
         <button 
@@ -151,7 +151,7 @@ export default function SalesHistoryPage() {
 
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
-          <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-30">
+          <h2 className="text-[10px] font-black text-text-secondary opacity-30">
             {loading ? 'Consulting Records...' : `${filteredSales.length} Recent Invoices`}
           </h2>
         </div>

@@ -121,20 +121,20 @@ export default function ProductsPage() {
 
       <section className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
           <input 
             type="text" 
             placeholder="Search catalog..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 transition-all placeholder:text-text-secondary/50"
+            className="w-full h-11 bg-surface-muted border border-glass-border rounded-xl pl-11 pr-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40 transition-all placeholder:text-text-secondary/30"
           />
         </div>
         <button 
           onClick={() => { haptics.light(); fetchData(); }}
-          className="h-14 w-14 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand"
+          className="h-11 w-11 glass-panel border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand"
         >
-          <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
+          <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
         </button>
       </section>
 

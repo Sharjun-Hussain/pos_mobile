@@ -6,6 +6,11 @@ import AuthGuard from "@/components/AuthGuard";
 export const metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "POS Mobile",
   description: "Premium Point of Sale System",
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export const viewport = {

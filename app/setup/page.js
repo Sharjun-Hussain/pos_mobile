@@ -68,14 +68,16 @@ export default function SetupPage() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center p-8 bg-surface">
-      <div className="flex flex-col gap-2 mb-12">
-        <div className="p-3 w-fit rounded-xl bg-brand/10 text-brand mb-4">
-          <Server size={24} />
+      <div className="flex flex-col items-center gap-6 mb-12 mt-4">
+        <div className="h-24 w-24 rounded-3xl overflow-hidden shadow-2xl shadow-brand/20">
+          <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />
         </div>
-        <h1 className="text-3xl font-bold text-text-main">Server Setup</h1>
-        <p className="text-text-secondary font-medium leading-relaxed">
-          Configure your self-hosted API endpoint to get started with Inzeedo POS.
-        </p>
+        <div className="text-center px-4">
+          <h1 className="text-3xl font-bold text-text-main">Server Setup</h1>
+          <p className="text-text-secondary text-sm font-medium mt-1 leading-relaxed">
+            Configure your self-hosted API endpoint to get started with Inzeedo POS.
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSave} className="flex flex-col gap-6">

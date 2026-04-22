@@ -85,6 +85,13 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface overflow-hidden">
+      {/* Brand Header */}
+      <div className="pt-12 flex justify-center">
+        <div className="h-12 w-12 rounded-xl overflow-hidden shadow-lg shadow-brand/10">
+          <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />
+        </div>
+      </div>
+
       {/* Visual Content Section */}
       <div className="flex-1 flex flex-col items-center justify-center p-8 transition-all duration-500">
         <div className="mb-12 animate-in zoom-in duration-700">

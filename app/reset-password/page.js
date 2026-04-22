@@ -59,9 +59,14 @@ export default function ResetPasswordPage() {
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-rose-500/10 blur-[100px] rounded-full translate-x-1/3 translate-y-1/3" />
 
       <div className="w-full max-w-sm mx-auto relative z-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-black tracking-tight text-text-main mb-2">New<br/>Password</h1>
-          <p className="text-sm font-bold text-text-secondary">Secure your account with a strong password.</p>
+        <div className="flex flex-col items-center gap-6 mb-12">
+          <div className="h-24 w-24 rounded-3xl overflow-hidden shadow-2xl shadow-brand/20">
+            <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />
+          </div>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-text-main">New Password</h1>
+            <p className="text-text-secondary text-sm font-medium mt-1">Secure your account with a strong password.</p>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">

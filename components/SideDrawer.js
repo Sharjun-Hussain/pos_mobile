@@ -96,8 +96,8 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             <div className="p-5 pb-4 bg-white border-b border-slate-100 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 bg-brand rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand/20">
-                    <TrendingUp size={20} strokeWidth={3} />
+                  <div className="h-9 w-9 rounded-xl overflow-hidden shadow-lg shadow-brand/20 border border-slate-100">
+                    <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
                   </div>
                   <div>
                     <h2 className="text-sm font-black text-text-main leading-tight">

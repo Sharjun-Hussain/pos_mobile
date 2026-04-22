@@ -46,9 +46,14 @@ export default function ForgotPasswordPage() {
           <ArrowLeft size={20} />
         </button>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-black tracking-tight text-text-main mb-2">Password<br/>Recovery</h1>
-          <p className="text-sm font-bold text-text-secondary">Enter your email to receive instructions.</p>
+        <div className="flex flex-col items-center gap-6 mb-12">
+          <div className="h-24 w-24 rounded-3xl overflow-hidden shadow-2xl shadow-brand/20">
+            <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />
+          </div>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-text-main">Password Recovery</h1>
+            <p className="text-text-secondary text-sm font-medium mt-1">Enter your email to receive instructions.</p>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">

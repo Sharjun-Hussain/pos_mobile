@@ -38,17 +38,27 @@ export default function POSLayout({ children }) {
 
   React.useEffect(() => {
     const checkConfig = async () => {
-      const { value: onboardingStarted } = await Preferences.get({ key: 'onboarding_complete' });
-      const { value: serverConfigured } = await Preferences.get({ key: 'custom_api_url' });
+      const { value: onboardingComplete } = await Preferences.get({ key: 'onboarding_complete' });
+      const { value: serverUrl } = await Preferences.get({ key: 'custom_api_url' });
 
-      if (!onboardingStarted && !isAuthOptionalPage) {
-        router.replace('/onboarding');
-      } else if (onboardingStarted && !serverConfigured && !isAuthOptionalPage) {
-        router.replace('/setup');
+      // 1. Force onboarding if not completed
+      if (onboardingComplete !== 'true') {
+        if (pathname !== '/onboarding') {
+          router.replace('/onboarding');
+        }
+        return;
+      }
+
+      // 2. Force setup if server is not configured
+      if (!serverUrl) {
+        if (pathname !== '/setup' && pathname !== '/onboarding') {
+          router.replace('/setup');
+        }
+        return;
       }
     };
     checkConfig();
-  }, [pathname, isOnboardingPage, isSetupPage, isLoginPage, router]);
+  }, [pathname, router]);
 
   return (
     <div className="flex flex-col min-h-screen">

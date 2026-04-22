@@ -50,8 +50,8 @@ const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient })
         )}
       </div>
       <div>
-        <p className="text-text-secondary text-[9px] font-bold uppercase tracking-wider">{title}</p>
-        <h3 className="text-lg font-black mt-0.5 text-text-main tracking-tight">{value}</h3>
+        <p className="text-text-secondary text-[9px] font-bold">{title}</p>
+        <h3 className="text-lg font-black mt-0.5 text-text-main">{value}</h3>
       </div>
     </div>
   );
@@ -147,10 +147,10 @@ export default function Home() {
             </div>
           ) : (
             <div>
-              <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">
+              <h1 className="text-xl font-black text-text-main leading-none mb-1">
                 {user?.organization?.name || "Inzeedo POS"}
               </h1>
-              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">
+              <p className="text-[10px] font-bold text-text-secondary leading-none">
                 {user ? user.name : 'Store Dashboard'}
               </p>
             </div>
@@ -207,7 +207,7 @@ export default function Home() {
         <div className="glass-panel p-4 rounded-2xl flex items-center justify-between bg-rose-500/5 border-rose-500/10">
           <div className="flex items-center gap-3 text-rose-500">
             <AlertCircle size={18} />
-            <span className="text-xs font-bold uppercase">{error}</span>
+            <span className="text-xs font-bold">{error}</span>
           </div>
           <button onClick={() => { haptics.medium(); fetchDashboardData(); }} className="p-2 rounded-xl bg-surface-muted text-text-main active:rotate-180 transition-transform duration-500">
             <RefreshCcw size={16} />

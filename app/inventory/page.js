@@ -1,7 +1,9 @@
+"use client"
 import { Search, Filter, Plus, Package, AlertCircle, Menu, RefreshCcw, Box } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
+import { useEffect, useState } from 'react';
 
 const ProductListItem = ({ product, getImageUrl }) => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -12,13 +14,12 @@ const ProductListItem = ({ product, getImageUrl }) => {
       getImageUrl(product.image).then(setImageUrl);
     }
   }, [product.image, getImageUrl]);
-  
+
   return (
     <div className="glass-panel p-3 rounded-2xl flex items-center justify-between active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border/30">
       <div className="flex items-center gap-3 overflow-hidden">
-        <div className={`h-11 w-11 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden ${
-          isLowStock ? 'bg-rose-500/10 text-rose-500' : 'bg-brand/10 text-brand'
-        }`}>
+        <div className={`h-11 w-11 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden ${isLowStock ? 'bg-rose-500/10 text-rose-500' : 'bg-brand/10 text-brand'
+          }`}>
           {imageUrl ? (
             <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
           ) : (
@@ -76,8 +77,8 @@ export default function InventoryPage() {
   }, []);
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = (p.name || p.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (p.sku || p.barcode || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (p.name || p.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.sku || p.barcode || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || p.category_id === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -86,7 +87,7 @@ export default function InventoryPage() {
     <div className="p-6 pb-24 flex flex-col gap-6">
       <header className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => { haptics.light(); openDrawer(); }}
             className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
           >
@@ -97,7 +98,7 @@ export default function InventoryPage() {
             <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">Global Stock Hub</p>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => haptics.medium()}
           className="h-12 w-12 rounded-2xl bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/20 active:scale-90 transition-transform"
         >
@@ -108,15 +109,15 @@ export default function InventoryPage() {
       <section className="flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search SKU or name..." 
+          <input
+            type="text"
+            placeholder="Search SKU or name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full h-14 bg-surface-muted border border-glass-border/50 rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/40 transition-all text-sm font-medium placeholder:text-text-secondary/50"
           />
         </div>
-        <button 
+        <button
           onClick={() => { haptics.light(); fetchData(); }}
           className="h-14 w-14 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand"
         >
@@ -128,11 +129,10 @@ export default function InventoryPage() {
       <section className="overflow-x-auto no-scrollbar flex gap-2 -mx-6 px-6">
         <button
           onClick={() => setSelectedCategory(null)}
-          className={`px-4 h-9 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-            !selectedCategory 
-              ? 'bg-brand text-white shadow-lg shadow-brand/20' 
-              : 'glass-panel text-text-secondary border-glass-border/40'
-          }`}
+          className={`px-4 h-9 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${!selectedCategory
+            ? 'bg-brand text-white shadow-lg shadow-brand/20'
+            : 'glass-panel text-text-secondary border-glass-border/40'
+            }`}
         >
           All Items
         </button>
@@ -140,11 +140,10 @@ export default function InventoryPage() {
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 h-9 rounded-full text-[10px] font-black uppercase whitespace-nowrap tracking-widest transition-all ${
-              selectedCategory === cat.id
-                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
-                : 'glass-panel text-text-secondary border-glass-border/40'
-            }`}
+            className={`px-4 h-9 rounded-full text-[10px] font-black uppercase whitespace-nowrap tracking-widest transition-all ${selectedCategory === cat.id
+              ? 'bg-brand text-white shadow-lg shadow-brand/20'
+              : 'glass-panel text-text-secondary border-glass-border/40'
+              }`}
           >
             {cat.name}
           </button>
@@ -158,7 +157,7 @@ export default function InventoryPage() {
           </h2>
           {error && <span className="text-[10px] font-black text-rose-500 uppercase">{error}</span>}
         </div>
-        
+
         {loading ? (
           Array(5).fill(0).map((_, i) => (
             <div key={i} className="h-16 w-full glass-panel rounded-2xl animate-pulse bg-surface-muted/50" />

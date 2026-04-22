@@ -34,16 +34,16 @@ const VariantRow = ({ variant, productName, getImageUrl }) => {
             {productName} <span className="font-medium text-slate-400">• {variant.name}</span>
           </h4>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] font-bold text-text-secondary opacity-40 uppercase tracking-tight">{variant.sku || 'No SKU'}</span>
+            <span className="text-[10px] font-bold text-text-secondary opacity-40">{variant.sku || 'No SKU'}</span>
             <div className="h-0.5 w-0.5 rounded-full bg-slate-300" />
-            <span className="text-[10px] font-bold text-brand uppercase">{variant.barcode || '---'}</span>
+            <span className="text-[10px] font-bold text-brand">{variant.barcode || '---'}</span>
           </div>
         </div>
       </div>
       <div className="text-right flex-shrink-0 ml-3">
         <p className="font-black text-brand text-[13px]">LKR {Math.round(variant.price).toLocaleString()}</p>
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">
-          {variant.stock_quantity || 0} In Stock
+        <p className="text-[9px] font-bold text-slate-400 mt-0.5">
+          {variant.stock_quantity || 0} in stock
         </p>
       </div>
     </div>
@@ -72,7 +72,7 @@ const VariantGridItem = ({ variant, productName, getImageUrl }) => {
         <p className="text-[10px] text-slate-400 font-medium truncate mb-2">{variant.name}</p>
         <div className="flex items-center justify-between mt-auto">
           <span className="text-[11px] font-black text-brand">LKR {Math.round(variant.price).toLocaleString()}</span>
-          <span className={`text-[9px] font-black uppercase ${isLow ? 'text-rose-500' : 'text-slate-300'}`}>{variant.stock_quantity}Q</span>
+          <span className={`text-[9px] font-black ${isLow ? 'text-rose-500' : 'text-slate-300'}`}>{variant.stock_quantity}q</span>
         </div>
       </div>
     </div>
@@ -145,8 +145,8 @@ export default function VariantsPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Variant Registry</h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase leading-none opacity-40">SKU-Level Control</p>
+            <h1 className="text-xl font-black text-text-main leading-none mb-1">Variant Registry</h1>
+            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">SKU-Level Control</p>
           </div>
         </div>
         <button 
@@ -204,8 +204,8 @@ export default function VariantsPage() {
 
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
-          <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-30">
-            {loading ? 'Refreshing Registry...' : `${filteredAndSortedVariants.length} Active SKUs`}
+          <h2 className="text-[10px] font-black text-text-secondary opacity-30">
+            {loading ? 'Refreshing Registry...' : `${filteredAndSortedVariants.length} active SKUs`}
           </h2>
         </div>
         

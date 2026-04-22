@@ -133,8 +133,8 @@ export default function CustomersPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Customers</h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase leading-none opacity-40">Relationship Registry</p>
+            <h1 className="text-xl font-black text-text-main leading-none mb-1">Customers</h1>
+            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">Relationship Registry</p>
           </div>
         </div>
         <button 
@@ -175,7 +175,7 @@ export default function CustomersPage() {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => { haptics.medium(); setIsAdding(true); }}
-              className="h-8 px-3 rounded-lg bg-brand/5 text-brand text-[10px] font-black uppercase flex items-center gap-1.5 active:scale-95 transition-all"
+              className="h-8 px-3 rounded-lg bg-brand/5 text-brand text-[10px] font-black flex items-center gap-1.5 active:scale-95 transition-all"
             >
               <UserPlus size={12} strokeWidth={2.5} />
               <span>Add New</span>
@@ -200,7 +200,7 @@ export default function CustomersPage() {
 
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
-          <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-30">
+          <h2 className="text-[10px] font-black text-text-secondary opacity-30">
             {loading ? 'Refreshing Registry...' : `${filteredAndSortedCustomers.length} registered customers`}
           </h2>
         </div>
@@ -247,8 +247,8 @@ export default function CustomersPage() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-xl font-black text-text-main tracking-tight">New Customer</h3>
-                  <p className="text-[10px] font-bold text-text-secondary uppercase opacity-40">Growth Registry</p>
+                  <h3 className="text-xl font-black text-text-main">New Customer</h3>
+                  <p className="text-[10px] font-bold text-text-secondary opacity-40">Growth Registry</p>
                 </div>
                 <button 
                   onClick={() => setIsAdding(false)}
@@ -260,7 +260,7 @@ export default function CustomersPage() {
 
               <div className="flex flex-col gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-secondary uppercase pl-1 opacity-50">Full Name*</label>
+                  <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Full Name*</label>
                   <input 
                     type="text" 
                     placeholder="Enter customer name"
@@ -270,7 +270,7 @@ export default function CustomersPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-secondary uppercase pl-1 opacity-50">Phone Number</label>
+                  <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Phone Number</label>
                   <input 
                     type="tel" 
                     placeholder="07x xxxx xxx"
@@ -280,7 +280,7 @@ export default function CustomersPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-secondary uppercase pl-1 opacity-50">Email Address</label>
+                  <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Email Address</label>
                   <input 
                     type="email" 
                     placeholder="customer@inzeedo.com"
@@ -294,7 +294,7 @@ export default function CustomersPage() {
               <button 
                 onClick={handleCreateCustomer}
                 disabled={!newCustomer.name || isSaving}
-                className="w-full h-14 bg-brand text-white rounded-2xl text-[13px] font-black mt-8 shadow-lg shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                className="w-full h-12 bg-brand text-white rounded-2xl text-[13px] font-black mt-8 shadow-lg shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-50"
               >
                 {isSaving ? (
                   <RefreshCcw size={18} className="animate-spin" />

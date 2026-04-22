@@ -216,7 +216,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
             <button 
               disabled={!hasItemsToReturn || isSubmitting}
               onClick={handleSubmit}
-              className="w-full h-16 bg-brand text-white rounded-2xl flex items-center justify-center gap-3 shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
+              className="w-full h-12 bg-brand text-white rounded-2xl flex items-center justify-center gap-3 shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {isSubmitting ? (
                 <div className="h-6 w-6 border-3 border-white border-t-transparent rounded-full animate-spin" />

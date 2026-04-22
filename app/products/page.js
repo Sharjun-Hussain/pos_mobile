@@ -38,7 +38,7 @@ const ProductRow = ({ product, getImageUrl }) => {
               {product.main_category?.name || 'Uncategorized'}
             </span>
             <div className="h-0.5 w-0.5 rounded-full bg-slate-300" />
-            <span className="text-[10px] font-bold text-brand uppercase">
+            <span className="text-[10px] font-bold text-brand">
               {product.variants?.length || 0} Variants
             </span>
           </div>
@@ -67,9 +67,9 @@ const ProductGridItem = ({ product, getImageUrl }) => {
       <div className="overflow-hidden">
         <h4 className="font-bold text-text-main text-[12px] truncate leading-tight mb-1">{product.name}</h4>
         <div className="flex items-center justify-between">
-          <span className="text-[9px] font-bold text-text-secondary opacity-50 uppercase">{product.main_category?.name || '---'}</span>
+          <span className="text-[9px] font-bold text-text-secondary opacity-50">{product.main_category?.name || '---'}</span>
           <span className="text-[9px] font-black text-brand bg-brand/5 px-1.5 py-0.5 rounded-md">
-            {product.variants?.length || 0}V
+            {product.variants?.length || 0}v
           </span>
         </div>
       </div>
@@ -135,8 +135,8 @@ export default function ProductsPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Products Hub</h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase leading-none opacity-40">Catalog Management</p>
+            <h1 className="text-xl font-black text-text-main leading-none mb-1">Products Hub</h1>
+            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">Catalog Management</p>
           </div>
         </div>
         <button 
@@ -213,8 +213,8 @@ export default function ProductsPage() {
 
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
-          <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-30">
-            {loading ? 'Refreshing Catalog...' : `${filteredAndSortedProducts.length} Results`}
+          <h2 className="text-[10px] font-black text-text-secondary opacity-30">
+            {loading ? 'Refreshing Catalog...' : `${filteredAndSortedProducts.length} results`}
           </h2>
         </div>
         

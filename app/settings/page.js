@@ -38,7 +38,7 @@ const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
         </div>
         <div className="text-left">
           <p className="text-sm font-bold text-text-main">{label}</p>
-          {value && <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{value}</p>}
+          {value && <p className="text-[10px] font-bold text-text-secondary">{value}</p>}
         </div>
       </div>
       <ChevronRight size={16} className="text-text-secondary opacity-30" />
@@ -61,8 +61,8 @@ export default function SettingsPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Settings</h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">System Control</p>
+            <h1 className="text-xl font-black text-text-main leading-none mb-1">Settings</h1>
+            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">System Control</p>
           </div>
         </div>
       </header>
@@ -76,8 +76,8 @@ export default function SettingsPage() {
             </div>
           </div>
           <div className="text-center">
-            <h3 className="text-xl font-black text-text-main tracking-tight">{user?.name || 'Inzeedo Admin'}</h3>
-            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest bg-surface-muted px-4 py-1 rounded-full mt-1 border border-glass-border/30">
+            <h3 className="text-xl font-black text-text-main">{user?.name || 'Inzeedo Admin'}</h3>
+            <p className="text-[10px] font-bold text-text-secondary bg-surface-muted px-4 py-1 rounded-full mt-1 border border-glass-border/30">
               {user?.organization?.name || 'Enterprise Manager'}
             </p>
           </div>
@@ -95,7 +95,7 @@ export default function SettingsPage() {
 
       {/* Global Preferences */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest pl-4 opacity-50 mb-1">Preferences</p>
+        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">Preferences</p>
         <SettingItem icon={Bell} label="Notifications" value="Enabled" color="blue" />
         <SettingItem icon={Moon} label="Dark Appearance" value="System Default" color="brand" />
         <SettingItem icon={Globe} label="Language" value="English (US)" color="emerald" />
@@ -103,14 +103,14 @@ export default function SettingsPage() {
 
       {/* Technical Configuration */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest pl-4 opacity-50 mb-1">Technical</p>
+        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">Technical</p>
         <SettingItem icon={Server} label="API Connection" value="Local Network" color="blue" />
         <SettingItem icon={Database} label="Sync Status" value="Healthy • v1.2" color="emerald" />
         <SettingItem icon={Smartphone} label="Terminal Info" value="Model iZ-400" color="amber" />
       </section>
 
       <div className="mt-4 opacity-30 text-center">
-        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+        <p className="text-[10px] font-bold text-text-secondary">
           Inzeedo Point of Sale • Build 842-1
         </p>
       </div>

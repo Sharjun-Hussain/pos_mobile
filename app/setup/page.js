@@ -16,7 +16,11 @@ export default function SetupPage() {
   useEffect(() => {
     // Pre-fill with existing if available
     storage.get('custom_api_url').then(saved => {
-      if (saved) setUrl(saved);
+      if (saved) {
+        // Hide the /api/v1 suffix from the user
+        const displayUrl = saved.replace(/\/api\/v1\/?$/i, '');
+        setUrl(displayUrl);
+      }
     });
   }, []);
 
@@ -27,35 +31,31 @@ export default function SetupPage() {
     haptics.medium();
 
     try {
-      // Basic validation
-      let formattedUrl = url.trim();
-      if (!formattedUrl.startsWith('http')) {
-        formattedUrl = `https://${formattedUrl}`;
+      // Basic validation and protocol enforcement
+      let base = url.trim();
+      if (!base.startsWith('http')) {
+        base = `https://${base}`;
       }
 
-      // Remove trailing slash
-      if (formattedUrl.endsWith('/')) {
-        formattedUrl = formattedUrl.slice(0, -1);
-      }
+      // Strip any trailing slashes or existing /api/v1 to avoid duplication
+      const cleanBase = base.replace(/\/+$/, '').replace(/\/api\/v1\/?$/i, '');
 
-      // Ensure mandatory /api/v1 suffix
-      if (!formattedUrl.toLowerCase().endsWith('/api/v1')) {
-        formattedUrl = `${formattedUrl}/api/v1`;
-      }
+      // Canonical storage URL always ends with /api/v1
+      const storageUrl = `${cleanBase}/api/v1`;
 
       // 1. Test Connection (optional but recommended)
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
       try {
-        await fetch(`${formattedUrl}/common/health-check`, { signal: controller.signal });
+        await fetch(`${storageUrl}/common/health-check`, { signal: controller.signal });
       } catch (err) {
         // We will allow saving even if test fails
       }
       clearTimeout(id);
 
-      // 2. Save
-      await storage.set('custom_api_url', formattedUrl);
+      // 2. Save canonical URL to storage
+      await storage.set('custom_api_url', storageUrl);
       haptics.heavy();
 
       // 3. Redirect
@@ -94,7 +94,7 @@ export default function SetupPage() {
               <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary transition-colors group-focus-within:text-brand" size={20} />
               <input
                 type="text"
-                placeholder="https://pos.yourdomain.com/api/v1"
+                placeholder="https://pos.yourdomain.com"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 required

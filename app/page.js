@@ -16,6 +16,7 @@ import {
   FileText,
   Menu
 } from 'lucide-react';
+import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
 import { useAuthStore } from '@/store/useAuthStore';

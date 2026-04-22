@@ -48,6 +48,7 @@ export const useAuthStore = create(
         token: state.token,
         refreshToken: state.refreshToken,
         user: state.user,
+        selectedBranch: state.selectedBranch,
         isAuthenticated: state.isAuthenticated
       }),
       onRehydrateStorage: () => (state) => {

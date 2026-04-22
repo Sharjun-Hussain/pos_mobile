@@ -1,37 +1,45 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Search, Filter, Plus, Package, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Plus, Package, AlertCircle, Menu, RefreshCcw, Box } from 'lucide-react';
 import { haptics } from '@/services/haptics';
+import { api } from '@/services/api';
 
-const products = [
-  { id: 1, name: 'Espresso Beans', sku: 'COF-001', price: 24.99, stock: 45, category: 'Coffee' },
-  { id: 2, name: 'Whole Milk 1L', sku: 'DAI-023', price: 3.50, stock: 12, category: 'Dairy' },
-  { id: 3, name: 'Oat Milk 1L', sku: 'DAI-045', price: 4.20, stock: 5, category: 'Dairy' },
-  { id: 4, name: 'Paper Cups (Small)', sku: 'PAC-002', price: 0.15, stock: 150, category: 'Packaging' },
-  { id: 5, name: 'Caramel Syrup', sku: 'SYR-009', price: 12.00, stock: 8, category: 'Add-ons' },
-];
+const ProductListItem = ({ product, getImageUrl }) => {
+  const [imageUrl, setImageUrl] = useState(null);
+  const isLowStock = product.stock_quantity < 10;
 
-const ProductListItem = ({ product }) => {
-  const isLowStock = product.stock < 10;
+  useEffect(() => {
+    if (product.image) {
+      getImageUrl(product.image).then(setImageUrl);
+    }
+  }, [product.image, getImageUrl]);
   
   return (
-    <div className="glass-panel p-3 rounded-2xl flex items-center justify-between active:scale-[0.98] transition-all hover:bg-surface-muted/50">
-      <div className="flex items-center gap-3">
-        <div className={`p-2.5 rounded-xl ${isLowStock ? 'bg-amber-500/10 text-amber-500' : 'bg-brand/10 text-brand'}`}>
-          <Package size={20} />
+    <div className="glass-panel p-3 rounded-2xl flex items-center justify-between active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border/30">
+      <div className="flex items-center gap-3 overflow-hidden">
+        <div className={`h-11 w-11 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden ${
+          isLowStock ? 'bg-rose-500/10 text-rose-500' : 'bg-brand/10 text-brand'
+        }`}>
+          {imageUrl ? (
+            <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
+          ) : (
+            <Package size={20} strokeWidth={2.5} />
+          )}
         </div>
-        <div>
-          <h4 className="font-bold text-text-main text-sm">{product.name}</h4>
-          <p className="text-xs text-text-secondary font-medium">{product.sku}</p>
+        <div className="overflow-hidden">
+          <h4 className="font-bold text-text-main text-[13px] truncate leading-tight">{product.name || product.fullName}</h4>
+          <p className="text-[10px] font-bold text-text-secondary tracking-wider truncate uppercase opacity-60">
+            {product.sku || product.barcode || 'NO SKU'}
+          </p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="font-bold text-text-main text-sm">${product.price.toFixed(2)}</p>
+      <div className="text-right flex-shrink-0 ml-3">
+        <p className="font-black text-brand text-xs">LKR {(parseFloat(product.retailPrice) || 0).toLocaleString()}</p>
         <div className="flex items-center justify-end gap-1 mt-0.5">
-          {isLowStock && <AlertCircle size={10} className="text-amber-500" strokeWidth={2.5} />}
-          <span className={`text-xs font-semibold ${isLowStock ? 'text-amber-500' : 'text-text-secondary'}`}>
-            {product.stock} Units
+          {isLowStock && <AlertCircle size={10} className="text-rose-500 shadow-sm" strokeWidth={3} />}
+          <span className={`text-[10px] font-black uppercase ${isLowStock ? 'text-rose-500' : 'text-text-secondary opacity-80'}`}>
+            {product.stock_quantity || 0} units
           </span>
         </div>
       </div>
@@ -39,20 +47,56 @@ const ProductListItem = ({ product }) => {
   );
 };
 
-export default function InventoryPage() {
+export default function InventoryPage({ onOpenDrawer }) {
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [error, setError] = useState(null);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.sku.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [pRes, cRes] = await Promise.all([
+        api.products.getActiveList(),
+        api.categories.getActiveList()
+      ]);
+      setProducts(pRes.data || []);
+      setCategories(cRes.data || []);
+    } catch (err) {
+      setError('Failed to load inventory');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = (p.name || p.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (p.sku || p.barcode || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || p.category_id === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="p-6 pb-24 flex flex-col gap-6">
       <header className="flex items-center justify-between pt-4">
-        <div>
-          <h1 className="text-2xl font-bold text-text-main tracking-tight">Inventory</h1>
-          <p className="text-text-secondary text-sm font-medium">Manage Stock</p>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={onOpenDrawer}
+            className="h-12 w-12 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-main active:scale-90 transition-transform shadow-sm"
+          >
+            <Menu size={24} strokeWidth={2.5} />
+          </button>
+          <div>
+            <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Inventory</h1>
+            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">Global Stock Hub</p>
+          </div>
         </div>
         <button 
           onClick={() => haptics.medium()}
@@ -70,23 +114,66 @@ export default function InventoryPage() {
             placeholder="Search SKU or name..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/40 transition-all text-sm font-medium placeholder:text-text-secondary/50"
+            className="w-full h-14 bg-surface-muted border border-glass-border/50 rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/40 transition-all text-sm font-medium placeholder:text-text-secondary/50"
           />
         </div>
-        <button className="h-14 w-14 glass-panel rounded-2xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand">
-          <Filter size={20} />
+        <button 
+          onClick={() => { haptics.light(); fetchData(); }}
+          className="h-14 w-14 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand"
+        >
+          <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
         </button>
       </section>
 
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-sm font-bold text-text-secondary ml-1">
-            {filteredProducts.length} Results
-          </h2>
-        </div>
-        {filteredProducts.map(product => (
-          <ProductListItem key={product.id} product={product} />
+      {/* Category Filter Pills */}
+      <section className="overflow-x-auto no-scrollbar flex gap-2 -mx-6 px-6">
+        <button
+          onClick={() => setSelectedCategory(null)}
+          className={`px-4 h-9 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+            !selectedCategory 
+              ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+              : 'glass-panel text-text-secondary border-glass-border/40'
+          }`}
+        >
+          All Items
+        </button>
+        {categories.map(cat => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`px-4 h-9 rounded-full text-[10px] font-black uppercase whitespace-nowrap tracking-widest transition-all ${
+              selectedCategory === cat.id
+                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                : 'glass-panel text-text-secondary border-glass-border/40'
+            }`}
+          >
+            {cat.name}
+          </button>
         ))}
+      </section>
+
+      <section className="flex flex-col gap-2.5">
+        <div className="flex items-center justify-between mb-1 px-1">
+          <h2 className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">
+            {loading ? 'Refreshing...' : `${filteredProducts.length} items in stock`}
+          </h2>
+          {error && <span className="text-[10px] font-black text-rose-500 uppercase">{error}</span>}
+        </div>
+        
+        {loading ? (
+          Array(5).fill(0).map((_, i) => (
+            <div key={i} className="h-16 w-full glass-panel rounded-2xl animate-pulse bg-surface-muted/50" />
+          ))
+        ) : filteredProducts.length > 0 ? (
+          filteredProducts.map(product => (
+            <ProductListItem key={product.id} product={product} getImageUrl={api.getImageUrl} />
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 opacity-30">
+            <Box size={48} strokeWidth={1} />
+            <p className="text-xs font-bold mt-4">No matching items found</p>
+          </div>
+        )}
       </section>
     </div>
   );

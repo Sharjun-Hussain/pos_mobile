@@ -13,7 +13,8 @@ import {
   RefreshCcw,
   AlertCircle,
   DollarSign,
-  FileText
+  FileText,
+  Menu
 } from 'lucide-react';
 import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
@@ -89,7 +90,7 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
   );
 };
 
-export default function Home() {
+export default function Home({ onOpenDrawer }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
@@ -130,22 +131,30 @@ export default function Home() {
     <div className="p-6 pb-24 flex flex-col gap-8">
       {/* Header */}
       <header className="flex items-center justify-between pt-4">
-        {loading ? (
-          <div className="flex-1 flex flex-col gap-2 animate-pulse">
-            <div className="h-7 w-2/3 bg-surface-muted rounded-lg" />
-            <div className="h-4 w-1/2 bg-surface-muted rounded-md" />
-          </div>
-        ) : (
-          <div>
-            <h1 className="text-2xl font-bold text-text-main">
-              {user?.organization?.name || process.env.NEXT_PUBLIC_APP_NAME || "Inzeedo POS"}
-            </h1>
-            <p className="text-text-secondary text-sm font-medium">
-              {user ? `Welcome, ${user.name}` : 'Store Dashboard'}
-            </p>
-          </div>
-        )}
-        <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand/20 shadow-lg shadow-brand/10 bg-surface-muted">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={onOpenDrawer}
+            className="h-12 w-12 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-main active:scale-90 transition-transform shadow-sm"
+          >
+            <Menu size={24} strokeWidth={2.5} />
+          </button>
+          {loading ? (
+            <div className="flex flex-col gap-2 animate-pulse">
+              <div className="h-6 w-32 bg-surface-muted rounded-lg" />
+              <div className="h-3 w-24 bg-surface-muted rounded-md" />
+            </div>
+          ) : (
+            <div>
+              <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">
+                {user?.organization?.name || "Inzeedo POS"}
+              </h1>
+              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">
+                {user ? user.name : 'Store Dashboard'}
+              </p>
+            </div>
+          )}
+        </div>
+        <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand/20 shadow-lg shadow-brand/10 bg-white">
           {loading ? (
             <div className="w-full h-full animate-pulse" />
           ) : (

@@ -127,7 +127,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                 handleClose();
               }
             }}
-            className="relative w-full max-w-xl bg-surface rounded-t-[3rem] p-6 shadow-2xl border-t border-glass-border pointer-events-auto flex flex-col max-h-[90vh] touch-none"
+            className="relative w-full max-w-xl bg-surface rounded-t-[3rem] pb-6 shadow-2xl border-t border-glass-border pointer-events-auto flex flex-col max-h-[90vh] touch-none"
           >
             {/* Native Drag Handle */}
             <div className="flex justify-center pb-4 -mt-2 cursor-grab active:cursor-grabbing">
@@ -135,7 +135,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
             </div>
 
             {/* Header / Stepper */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 px-6 pt-6">
               <div className="flex items-center gap-4">
                 {step > 1 && (
                   <button onClick={handleBack} className="h-10 w-10 glass-panel rounded-full flex items-center justify-center text-text-secondary">
@@ -172,17 +172,39 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   className="w-full"
                 >
                   {step === 1 && (
-                    <div className="flex flex-col gap-3 pb-4 overflow-y-auto max-h-[50vh] no-scrollbar overscroll-contain">
-                      {cart.map(item => (
-                        <div key={item.id} className="glass-panel p-4 rounded-3xl flex items-center justify-between pointer-events-auto">
-                          <div className="flex flex-col gap-0.5 flex-1 pr-4">
-                            <span className="font-bold text-text-main text-sm truncate uppercase tracking-tight">{item.name}</span>
-                            <span className="text-[10px] text-text-secondary font-bold">LKR {parseFloat(item.price).toLocaleString()} / Unit</span>
+                    <div className="flex flex-col overflow-y-auto max-h-[55vh] no-scrollbar overscroll-contain bg-surface-muted/5 border-y border-glass-border/20">
+                      {cart.map((item, idx) => (
+                        <div 
+                          key={item.id} 
+                          className={`flex items-center justify-between p-4 px-6 pointer-events-auto gap-4 ${
+                            idx !== cart.length - 1 ? 'border-b border-glass-border/20' : ''
+                          }`}
+                        >
+                          <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                            <span className="font-bold text-text-main text-[14px] leading-snug line-clamp-2">
+                              {item.name}
+                            </span>
+                            <span className="text-[11px] text-text-secondary font-medium">
+                              LKR {parseFloat(item.price).toLocaleString()}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-4 bg-surface-muted rounded-2xl p-1.5 px-4 border border-glass-border">
-                            <button onClick={() => updateQty(item.id, -1)} className="text-text-secondary active:scale-75 transition-transform"><Minus size={14} /></button>
-                            <span className="font-bold text-text-main text-sm min-w-[20px] text-center">{item.quantity}</span>
-                            <button onClick={() => updateQty(item.id, 1)} className="text-brand active:scale-125 transition-transform"><Plus size={14} /></button>
+                          
+                          <div className="flex items-center gap-0.5 flex-shrink-0 bg-surface-muted/40 rounded-xl p-0.5 px-0.5 border border-glass-border/40 scale-[0.85] origin-right">
+                            <button 
+                              onClick={() => updateQty(item.id, -1)} 
+                              className="h-8 w-8 rounded-lg flex items-center justify-center text-text-secondary active:text-brand transition-colors"
+                            >
+                              <Minus size={13} strokeWidth={2.5} />
+                            </button>
+                            <span className="font-bold text-text-main text-xs min-w-[20px] text-center">
+                              {item.quantity}
+                            </span>
+                            <button 
+                              onClick={() => updateQty(item.id, 1)} 
+                              className="h-8 w-8 rounded-lg flex items-center justify-center text-brand active:scale-110 active:text-brand transition-all"
+                            >
+                              <Plus size={13} strokeWidth={3} />
+                            </button>
                           </div>
                         </div>
                       ))}
@@ -196,7 +218,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   )}
 
                   {step === 2 && (
-                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto">
+                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto px-6">
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
                         <input 
@@ -258,7 +280,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   )}
 
                   {step === 3 && (
-                    <div className="flex flex-col gap-6 pb-4 pointer-events-auto">
+                    <div className="flex flex-col gap-6 pb-4 pointer-events-auto px-6">
                       <div className="glass-panel p-6 rounded-[3rem] bg-brand text-white shadow-xl shadow-brand/20 flex flex-col items-center text-center gap-4 border-none">
                         <div className="h-16 w-16 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-md">
                           <CreditCard size={32} />
@@ -302,7 +324,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
             </div>
 
             {/* Footer Actions */}
-            <div className="pt-6 border-t border-glass-border flex flex-col gap-4 pointer-events-auto">
+            <div className="pt-6 border-t border-glass-border flex flex-col gap-4 pointer-events-auto px-6">
               <div className="flex items-center justify-between px-2">
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-text-secondary leading-none">Grand Total</span>

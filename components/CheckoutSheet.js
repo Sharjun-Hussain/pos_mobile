@@ -49,6 +49,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const [search, setSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isAddingCustomer, setIsAddingCustomer] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '' });
 
   useEffect(() => {
     if (isOpen && step === 2) {
@@ -86,6 +88,27 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const handleBack = () => {
     haptics.light();
     setStepState([step - 1, -1]);
+  };
+
+  const handleCreateCustomer = async () => {
+    if (!newCustomer.name) return;
+    setLoading(true);
+    haptics.medium();
+    try {
+      const res = await api.customers.create(newCustomer);
+      if (res.status === 'success') {
+        const createdCustomer = res.data;
+        haptics.heavy();
+        setCustomers(prev => [createdCustomer, ...prev]);
+        setSelectedCustomer(createdCustomer);
+        setIsAddingCustomer(false);
+        setNewCustomer({ name: '', phone: '', email: '' });
+      }
+    } catch (e) {
+      console.error('Failed to create customer');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFinish = () => {
@@ -251,67 +274,123 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
                   {step === 2 && (
                     <div className="flex flex-col gap-4 pb-4 pointer-events-auto">
-                      <div className="relative px-6">
-                        <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
-                        <input 
-                          type="text" 
-                          placeholder="Find customer..." 
-                          value={search}
-                          onChange={(e) => setSearch(e.target.value)}
-                          className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
-                        />
-                      </div>
-
-                      <div className="flex flex-col bg-surface-muted/5 border-y border-glass-border/20 overflow-hidden overflow-y-auto max-h-[45vh] no-scrollbar overscroll-contain">
-                        <button 
-                          onClick={() => { haptics.light(); setSelectedCustomer(null); }}
-                          className={`flex items-center justify-between p-3.5 px-6 transition-all border-b border-glass-border/10 ${!selectedCustomer ? 'bg-brand/5' : ''}`}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-xl bg-surface-muted flex items-center justify-center text-text-secondary">
-                              <User size={20} />
-                            </div>
-                            <div className="text-left overflow-hidden">
-                              <p className="text-sm font-bold text-text-main truncate">Walk-in Customer</p>
-                              <p className="text-[10px] font-medium text-text-secondary truncate">Standard Retail Pricing</p>
-                            </div>
+                      {!isAddingCustomer ? (
+                        <>
+                          <div className="relative px-6">
+                            <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                            <input 
+                              type="text" 
+                              placeholder="Find customer..." 
+                              value={search}
+                              onChange={(e) => setSearch(e.target.value)}
+                              className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                            />
                           </div>
-                          {!selectedCustomer && <CheckCircle2 className="text-brand shrink-0" size={18} />}
-                        </button>
 
-                        {loading ? (
-                          <div className="p-6 space-y-4">
-                            {[1, 2, 3].map(i => <div key={i} className="h-10 w-full bg-surface-muted/50 rounded-xl animate-pulse" />)}
-                          </div>
-                        ) : (
-                          filteredCustomers.map((c, idx) => (
+                          <div className="flex flex-col bg-surface-muted/5 border-y border-glass-border/20 overflow-hidden overflow-y-auto max-h-[42vh] min-h-[30vh] no-scrollbar overscroll-contain">
                             <button 
-                              key={c.id}
-                              onClick={() => { haptics.light(); setSelectedCustomer(c); }}
-                              className={`flex items-center justify-between p-3.5 px-6 transition-all ${
-                                idx !== filteredCustomers.length - 1 ? 'border-b border-glass-border/10' : ''
-                              } ${selectedCustomer?.id === c.id ? 'bg-brand/5' : ''}`}
+                              onClick={() => { haptics.light(); setSelectedCustomer(null); }}
+                              className={`flex items-center justify-between p-4 px-8 transition-all border-b border-glass-border/10 ${!selectedCustomer ? 'bg-brand/5' : ''}`}
                             >
-                              <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-xl bg-brand/10 flex items-center justify-center text-brand">
-                                  <User size={20} />
+                                <div className="flex items-center gap-4">
+                                  <div className="h-10 w-10 rounded-xl bg-surface-muted flex items-center justify-center text-text-secondary">
+                                    <User size={20} />
+                                  </div>
+                                  <div className="text-left overflow-hidden">
+                                    <p className="text-sm font-bold text-text-main truncate">Walk-in Customer</p>
+                                    <p className="text-[10px] font-medium text-text-secondary">Standard Retail Pricing</p>
+                                  </div>
                                 </div>
-                                <div className="text-left overflow-hidden">
-                                  <p className="text-sm font-bold text-text-main truncate">{c.name}</p>
-                                  <p className="text-[10px] font-bold text-text-secondary truncate">{c.phone || 'No phone profile'}</p>
-                                </div>
-                              </div>
-                              {selectedCustomer?.id === c.id && <CheckCircle2 className="text-brand shrink-0" size={18} />}
-                            </button>
-                          ))
-                        )}
-                      </div>
+                                {!selectedCustomer && <CheckCircle2 className="text-brand shrink-0" size={18} />}
+                              </button>
 
-                      <div className="px-6">
-                        <button className="w-full h-14 border-2 border-dashed border-glass-border rounded-3xl flex items-center justify-center gap-2 text-text-secondary text-xs font-bold uppercase tracking-widest hover:border-brand/40 hover:text-brand transition-all">
-                          <UserPlus size={16} /> New Customer
-                        </button>
-                      </div>
+                              {loading ? (
+                                <div className="p-6 space-y-4">
+                                  {[1, 2, 3].map(i => <div key={i} className="h-10 w-full bg-surface-muted/50 rounded-xl animate-pulse" />)}
+                                </div>
+                              ) : (
+                                filteredCustomers.map((c, idx) => (
+                                  <button 
+                                    key={c.id}
+                                    onClick={() => { haptics.light(); setSelectedCustomer(c); }}
+                                    className={`flex items-center justify-between p-4 px-6 transition-all ${
+                                      idx !== filteredCustomers.length - 1 ? 'border-b border-glass-border/10' : ''
+                                    } ${selectedCustomer?.id === c.id ? 'bg-brand/5' : ''}`}
+                                  >
+                                    <div className="flex items-center gap-4">
+                                      <div className="h-10 w-10 rounded-xl bg-brand/10 flex items-center justify-center text-brand">
+                                        <User size={20} />
+                                      </div>
+                                      <div className="text-left overflow-hidden">
+                                        <p className="text-sm font-bold text-text-main truncate">{c.name}</p>
+                                        <p className="text-[10px] font-bold text-text-secondary truncate">{c.phone || 'No phone profile'}</p>
+                                      </div>
+                                    </div>
+                                    {selectedCustomer?.id === c.id && <CheckCircle2 className="text-brand shrink-0" size={18} />}
+                                  </button>
+                                ))
+                              )}
+                            </div>
+
+                          {/* Fixed Footer within Step */}
+                          <div className="px-6 py-4">
+                            <button 
+                              onClick={() => { haptics.medium(); setIsAddingCustomer(true); }}
+                              className="w-full h-14 border-2 border-dashed border-glass-border rounded-3xl flex items-center justify-center gap-2 text-text-secondary text-xs font-bold hover:border-brand/40 hover:text-brand transition-all"
+                            >
+                              <UserPlus size={16} /> New Customer
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="px-6 py-2 flex flex-col gap-5 overflow-y-auto no-scrollbar">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-sm font-bold text-text-main">Quick Registration</h3>
+                            <button onClick={() => setIsAddingCustomer(false)} className="text-[10px] font-bold text-rose-500 uppercase">Cancel</button>
+                          </div>
+                          
+                          <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-[10px] font-bold text-text-secondary pl-1">Full Name *</label>
+                              <input 
+                                type="text"
+                                placeholder="Enter customer name"
+                                value={newCustomer.name}
+                                onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+                                className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-[10px] font-bold text-text-secondary pl-1">Phone Number</label>
+                              <input 
+                                type="tel"
+                                placeholder="07x xxxx xxx"
+                                value={newCustomer.phone}
+                                onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
+                                className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-[10px] font-bold text-text-secondary pl-1">Email Address</label>
+                              <input 
+                                type="email"
+                                placeholder="customer@example.com"
+                                value={newCustomer.email}
+                                onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
+                                className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                              />
+                            </div>
+                          </div>
+
+                          <button 
+                            onClick={handleCreateCustomer}
+                            disabled={!newCustomer.name || loading}
+                            className="btn-primary w-full h-14 text-sm mt-2 disabled:opacity-50"
+                          >
+                            {loading ? 'Registering...' : 'Save & Select Customer'}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
 

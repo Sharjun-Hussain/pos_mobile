@@ -122,7 +122,8 @@ export const api = {
   },
 
   customers: {
-    getActiveList: () => api.get('/customers/active/list')
+    getActiveList: () => api.get('/customers/active/list'),
+    create: (data) => api.post('/customers', data)
   },
   
   getImageUrl: async (imageField) => {

@@ -17,6 +17,7 @@ import {
   Building2,
   Sun,
   RefreshCcw,
+  Percent,
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -24,7 +25,10 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { EditProfileSheet } from '@/components/settings/EditProfileSheet';
-import { TerminalSettingsSheet } from '@/components/settings/TerminalSettingsSheet';
+import { PosTerminalSheet } from '@/components/settings/PosTerminalSheet';
+import { PosReceiptSheet } from '@/components/settings/PosReceiptSheet';
+import { PosPaymentsSheet } from '@/components/settings/PosPaymentsSheet';
+import { PosTaxesSheet } from '@/components/settings/PosTaxesSheet';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useTheme } from 'next-themes';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -82,8 +86,10 @@ export default function SettingsPage() {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [initialProfileTab, setInitialProfileTab] = useState('profile');
 
-  const [isTerminalSheetOpen, setIsTerminalSheetOpen] = useState(false);
-  const [initialTerminalTab, setInitialTerminalTab] = useState('terminal');
+  const [isPosTerminalOpen, setIsPosTerminalOpen] = useState(false);
+  const [isPosReceiptOpen, setIsPosReceiptOpen] = useState(false);
+  const [isPosPaymentsOpen, setIsPosPaymentsOpen] = useState(false);
+  const [isPosTaxesOpen, setIsPosTaxesOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -192,13 +198,7 @@ export default function SettingsPage() {
           onClick={() => { }}
         />
 
-        <SettingItem
-          icon={FileText}
-          label={t('settings.receiptPolicy')}
-          value={`${paperWidth} Thermal • Template optimized`}
-          color="emerald"
-          onClick={() => { setInitialTerminalTab('receipt'); setIsTerminalSheetOpen(true); }}
-        />
+
 
         {/* Theme Switcher */}
         <div className="w-full glass-panel p-5 rounded-[1.75rem] flex flex-col gap-5 border-glass-border/30">
@@ -234,23 +234,42 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Technical Configuration */}
+      {/* POS Configuration */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">{t('settings.technical')}</p>
+        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">POS Configuration</p>
         <SettingItem
           icon={Smartphone}
           label={t('settings.terminalHost')}
           value={terminalName}
           color="amber"
-          onClick={() => { setInitialTerminalTab('terminal'); setIsTerminalSheetOpen(true); }}
+          onClick={() => setIsPosTerminalOpen(true)}
+        />
+        <SettingItem
+          icon={FileText}
+          label={t('settings.receiptPolicy')}
+          value={`${paperWidth} Thermal • Template optimized`}
+          color="emerald"
+          onClick={() => setIsPosReceiptOpen(true)}
         />
         <SettingItem
           icon={CreditCard}
           label={t('settings.paymentProtocol')}
           value={`${activePaymentMethods?.length || 0} Gateway Methods`}
           color="blue"
-          onClick={() => { setInitialTerminalTab('payments'); setIsTerminalSheetOpen(true); }}
+          onClick={() => setIsPosPaymentsOpen(true)}
         />
+        <SettingItem
+          icon={Percent}
+          label="Tax Settings"
+          value="Inland Revenue Compliance"
+          color="rose"
+          onClick={() => setIsPosTaxesOpen(true)}
+        />
+      </section>
+
+      {/* Technical Configuration */}
+      <section className="flex flex-col gap-3">
+        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">{t('settings.technical')}</p>
         <SettingItem
           icon={Database}
           label={t('settings.identityBase')}
@@ -287,10 +306,24 @@ export default function SettingsPage() {
         initialTab={initialProfileTab}
       />
 
-      <TerminalSettingsSheet
-        isOpen={isTerminalSheetOpen}
-        onClose={() => setIsTerminalSheetOpen(false)}
-        initialSection={initialTerminalTab}
+      <PosTerminalSheet
+        isOpen={isPosTerminalOpen}
+        onClose={() => setIsPosTerminalOpen(false)}
+      />
+
+      <PosReceiptSheet
+        isOpen={isPosReceiptOpen}
+        onClose={() => setIsPosReceiptOpen(false)}
+      />
+
+      <PosPaymentsSheet
+        isOpen={isPosPaymentsOpen}
+        onClose={() => setIsPosPaymentsOpen(false)}
+      />
+
+      <PosTaxesSheet
+        isOpen={isPosTaxesOpen}
+        onClose={() => setIsPosTaxesOpen(false)}
       />
 
       <LanguageSelectionSheet

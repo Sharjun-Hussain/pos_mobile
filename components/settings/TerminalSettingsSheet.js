@@ -25,6 +25,7 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
   const { 
     terminalName, 
     enableSound, 
+    showLogo,
     paperWidth, 
     headerText, 
     footerText, 
@@ -48,6 +49,7 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
   const [form, setForm] = useState({
     terminalName: '',
     enableSound: true,
+    showLogo: false,
     showTaxBreakdown: false,
     checkoutPreview: true,
     paperWidth: '80mm',
@@ -65,6 +67,7 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
       setForm({
         terminalName,
         enableSound,
+        showLogo,
         showTaxBreakdown,
         checkoutPreview,
         paperWidth,
@@ -91,6 +94,7 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
     // Sync modular settings with backend
     const res = await updatePOSSettings({
       enableSound: form.enableSound,
+      showLogo: form.showLogo,
       showTaxBreakdown: form.showTaxBreakdown,
       checkoutPreview: form.checkoutPreview,
       paperWidth: form.paperWidth,
@@ -270,6 +274,27 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
 
               {activeTab === 'receipt' && (
                 <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="glass-panel p-5 rounded-3xl flex items-center justify-between border-glass-border/30">
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center">
+                        <Smartphone size={20} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-text-main">Show Business Logo</p>
+                        <p className="text-[10px] font-bold text-text-secondary">Display branding on receipt</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => { haptics.light(); setForm({...form, showLogo: !form.showLogo}); }}
+                      className={`h-8 w-14 rounded-full transition-all flex items-center px-1 ${form.showLogo ? 'bg-brand' : 'bg-surface-muted'}`}
+                    >
+                      <motion.div 
+                        animate={{ x: form.showLogo ? 24 : 0 }}
+                        className="h-6 w-6 rounded-full bg-white shadow-sm"
+                      />
+                    </button>
+                  </div>
+
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-bold text-text-secondary pl-1">Paper Dimension Basis</label>
                     <div className="grid grid-cols-2 gap-3">

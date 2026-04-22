@@ -1,5 +1,7 @@
 "use client";
 
+import { useSettingsStore } from '@/store/useSettingsStore';
+
 /**
  * Receipt Service
  * Handles formatting and printing of professional thermal receipts.
@@ -12,6 +14,8 @@ export const receiptService = {
    */
   print: async (sale) => {
     if (!sale) return;
+
+    const { showLogo, businessLogo } = useSettingsStore.getState();
 
     const formatDate = (dateStr) => {
       try {
@@ -85,6 +89,11 @@ export const receiptService = {
         </style>
       </head>
       <body>
+        ${showLogo && businessLogo ? `
+          <div class="center" style="margin-bottom: 15px;">
+            <img src="${businessLogo}" style="max-width: 150px; max-height: 80px; object-fit: contain;" />
+          </div>
+        ` : ''}
         <div class="header center">
           <div class="bold" style="font-size: 18px; margin-bottom: 4px;">${sale.branch?.organization?.name || 'INZEEDO POS'}</div>
           <div class="bold uppercase">${sale.branch?.name || 'Main Warehouse'}</div>

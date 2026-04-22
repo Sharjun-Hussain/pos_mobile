@@ -13,6 +13,7 @@ export const useSettingsStore = create(
       activeCategory: 'All',
       terminalName: 'Register 01',
       enableSound: true,
+      showLogo: false,
       showTaxBreakdown: false,
       checkoutPreview: true,
       
@@ -29,6 +30,7 @@ export const useSettingsStore = create(
       taxRate: 0,
       vatRate: 18,
       ssclRate: 2.5,
+      businessLogo: '',
       activePaymentMethods: ['cash', 'card'],
       
       // Actions
@@ -46,6 +48,7 @@ export const useSettingsStore = create(
             const d = posRes.data;
             set({
               enableSound: d.enableSound ?? get().enableSound,
+              showLogo: d.showLogo ?? get().showLogo,
               headerText: d.headerText ?? get().headerText,
               footerText: d.footerText ?? get().footerText,
               refundPolicy: d.refundPolicy ?? get().refundPolicy,
@@ -58,10 +61,12 @@ export const useSettingsStore = create(
           const bizRes = await api.settings.getBusiness();
           if (bizRes.status === 'success' && bizRes.data) {
             const b = bizRes.data;
+            const logoUrl = await api.getImageUrl(b.logo);
             set({
               businessName: b.name || '',
               taxId: b.tax_id || '',
-              currency: b.currency || 'LKR'
+              currency: b.currency || 'LKR',
+              businessLogo: logoUrl || ''
             });
           }
            // 3. Fetch General/Finance Settings (Tax Rate, VAT, SSCL)
@@ -87,6 +92,7 @@ export const useSettingsStore = create(
         // We only send some fields to the backend to avoid bloating
         const payload = {
           enableSound: newData.enableSound,
+          showLogo: newData.showLogo,
           headerText: newData.headerText,
           footerText: newData.footerText,
           refundPolicy: newData.refundPolicy,

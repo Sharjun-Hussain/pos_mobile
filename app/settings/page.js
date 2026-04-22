@@ -19,6 +19,8 @@ import { api } from '@/services/api';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
 import { EditProfileSheet } from '@/components/settings/EditProfileSheet';
+import { useTheme } from 'next-themes';
+import { Sun } from 'lucide-react';
 
 const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
   const colors = {
@@ -51,9 +53,15 @@ const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
 export default function SettingsPage() {
   const { openDrawer } = useUIStore();
   const { user } = useAuthStore();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [initialProfileTab, setInitialProfileTab] = useState('profile');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (user?.profile_image) {
@@ -120,7 +128,41 @@ export default function SettingsPage() {
       <section className="flex flex-col gap-3">
         <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">Preferences</p>
         <SettingItem icon={Bell} label="Notifications" value="Enabled" color="blue" />
-        <SettingItem icon={Moon} label="Dark Appearance" value="System Default" color="brand" />
+        
+        {/* Theme Switcher */}
+        <div className="w-full glass-panel p-4 rounded-3xl flex flex-col gap-4 border-glass-border/30">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 rounded-xl bg-brand/10 text-brand">
+              <Moon size={20} strokeWidth={2.5} />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-bold text-text-main">Appearance</p>
+              <p className="text-[10px] font-bold text-text-secondary">System Default</p>
+            </div>
+          </div>
+          
+          <div className="flex bg-surface-muted/50 p-1 rounded-2xl gap-1">
+            {[
+              { id: 'light', label: 'Light', icon: Sun },
+              { id: 'dark', label: 'Dark', icon: Moon },
+              { id: 'system', label: 'System', icon: Smartphone }
+            ].map((t) => (
+              <button
+                key={t.id}
+                onClick={() => { haptics.light(); setTheme(t.id); }}
+                className={`flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[10px] font-bold transition-all ${
+                  mounted && theme === t.id 
+                    ? 'bg-white dark:bg-surface text-brand shadow-sm' 
+                    : 'text-text-secondary opacity-60'
+                }`}
+              >
+                <t.icon size={14} />
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <SettingItem icon={Globe} label="Language" value="English (US)" color="emerald" />
       </section>
 

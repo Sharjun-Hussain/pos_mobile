@@ -2,8 +2,11 @@
 
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { useSettingsStore } from '@/store/useSettingsStore';
 
-export const InvoiceView = ({ sale, business, terminalName = "MOBILE-POS" }) => {
+export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
+  const { showLogo, businessLogo } = useSettingsStore();
+
   if (!sale) return null;
 
   const formatDate = (dateStr) => {
@@ -30,15 +33,24 @@ export const InvoiceView = ({ sale, business, terminalName = "MOBILE-POS" }) => 
 
   return (
     <div className="bg-white text-black p-6 font-mono text-[12px] leading-tight shadow-inner min-h-[500px]">
+      {/* Logo */}
+      {showLogo && businessLogo && (
+        <div className="flex justify-center mb-6">
+          <img src={businessLogo} alt="Business Logo" className="max-w-[140px] max-h-[70px] object-contain" />
+        </div>
+      )}
+
       {/* Header */}
       <div className="text-center space-y-1 mb-6">
         <h1 className="text-lg font-black uppercase tracking-tight">
-          {business?.name || sale.branch?.organization?.name || "Inzeedo POS"}
+          {sale.branch?.organization?.name || "Inzeedo POS"}
         </h1>
         <div className="opacity-80 text-[10px]">
           <p>{sale.branch?.address || "Main Distribution Hub"}</p>
           <p>Tel: {sale.branch?.phone || "+94 112 345 678"}</p>
-          {business?.tax_id && <p>VAT: {business.tax_id}</p>}
+          {(sale.branch?.organization?.tax_id || sale.tax_id) && (
+            <p>TIN: {sale.branch?.organization?.tax_id || sale.tax_id}</p>
+          )}
         </div>
       </div>
 
@@ -109,12 +121,24 @@ export const InvoiceView = ({ sale, business, terminalName = "MOBILE-POS" }) => 
           </div>
         )}
         
-        {sale.tax_amount > 0 && (
+        {sale.sscl_amount > 0 && (
+          <div className="flex justify-between">
+            <span>SSCL:</span>
+            <span>LKR {Math.round(sale.sscl_amount).toLocaleString()}</span>
+          </div>
+        )}
+
+        {sale.vat_amount > 0 ? (
+          <div className="flex justify-between">
+            <span>VAT:</span>
+            <span>LKR {Math.round(sale.vat_amount).toLocaleString()}</span>
+          </div>
+        ) : (sale.tax_amount > 0 && !sale.sscl_amount) ? (
           <div className="flex justify-between">
             <span>TAX:</span>
             <span>LKR {Math.round(sale.tax_amount).toLocaleString()}</span>
           </div>
-        )}
+        ) : null}
 
         {sale.adjustment !== 0 && (
           <div className="flex justify-between">

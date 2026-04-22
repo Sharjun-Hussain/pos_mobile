@@ -139,6 +139,10 @@ export const api = {
   },
 
   sales: {
+    getAll: (params = {}) => {
+      const query = new URLSearchParams(params).toString();
+      return api.get(`/sales?${query}`);
+    },
     create: (data) => api.post('/sales', data)
   },
   

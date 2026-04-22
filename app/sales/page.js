@@ -1,238 +1,164 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { api } from '@/services/api';
+import React, { useState, useEffect } from 'react';
+import { 
+  Search, 
+  Menu, 
+  RefreshCcw, 
+  FileText,
+  ChevronRight,
+  ShoppingBag,
+  Calendar,
+  User,
+  CreditCard
+} from 'lucide-react';
 import { haptics } from '@/services/haptics';
-import { scanner } from '@/services/scanner';
-import { ProductSkeleton } from '@/components/ProductSkeleton';
-import { VariantSelector } from '@/components/VariantSelector';
-import { CheckoutSheet } from '@/components/CheckoutSheet';
-import { useRouter } from 'next/navigation';
+import { api } from '@/services/api';
+import { useUIStore } from '@/store/useUIStore';
 
-// Optimized Sub-Components
-import TerminalHeader from '@/components/pos/TerminalHeader';
-import CategoryBar from '@/components/pos/CategoryBar';
-import ProductCard from '@/components/pos/ProductCard';
-import DockedCart from '@/components/pos/DockedCart';
+const SaleRow = ({ sale }) => {
+  const date = new Date(sale.created_at).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
-// Global Stores
-import { useCartStore } from '@/store/useCartStore';
-import { useSettingsStore } from '@/store/useSettingsStore';
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'paid': return 'text-emerald-500 bg-emerald-50';
+      case 'partially_paid': return 'text-amber-500 bg-amber-50';
+      default: return 'text-rose-500 bg-rose-50';
+    }
+  };
 
-export default function SalesPage() {
-  const router = useRouter();
-  
-  // Zustand States
-  const { cart, addItem, syncPrices } = useCartStore();
-  const { isWholesale, toggleWholesale, activeCategory, setActiveCategory } = useSettingsStore();
+  return (
+    <div className="flex items-center justify-between py-3.5 border-b border-slate-100 px-1 active:bg-brand/5 transition-colors">
+      <div className="flex items-center gap-3 overflow-hidden">
+        <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-400 border border-slate-100">
+          <FileText size={18} />
+        </div>
+        <div className="overflow-hidden">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h4 className="font-bold text-text-main text-[13px] truncate leading-tight">
+              {sale.invoice_number}
+            </h4>
+            <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md ${getStatusColor(sale.payment_status)}`}>
+              {sale.payment_status}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-text-secondary opacity-60">
+              {sale.customer?.name || 'Walk-in Guest'}
+            </span>
+            <div className="h-0.5 w-0.5 rounded-full bg-slate-300" />
+            <span className="text-[10px] font-medium text-slate-400">
+              {date}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="text-right flex-shrink-0 ml-3">
+        <p className="font-black text-brand text-[13px]">LKR {Math.round(sale.payable_amount).toLocaleString()}</p>
+        <p className="text-[9px] font-bold text-slate-300 uppercase mt-0.5">
+          {sale.payment_method || 'Cash'}
+        </p>
+      </div>
+    </div>
+  );
+};
 
-  // Local UI States
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+export default function SalesHistoryPage() {
+  const { openDrawer } = useUIStore();
   const [loading, setLoading] = useState(true);
+  const [sales, setSales] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
-  
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isVariantOpen, setIsVariantOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchSales = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const [pRes, cRes] = await Promise.all([
-        api.products.getActiveList(),
-        api.categories.getActiveList()
-      ]);
-
-      if (pRes.status === 'success') {
-        const rawProducts = pRes.data.data || [];
-        const processed = await Promise.all(rawProducts.map(async (p) => {
-          const imageUrl = await api.getImageUrl(p.image);
-          return {
-            id: p.id,
-            name: p.name,
-            image: imageUrl,
-            category: p.main_category?.name || 'General',
-            variants: (p.variants || []).map(v => {
-              let variantLabel = v.name;
-              if (!variantLabel && v.attribute_values?.length > 0) {
-                variantLabel = v.attribute_values.map(av => av.value).join(' / ');
-              }
-              return {
-                id: v.id,
-                productId: p.id,
-                name: p.name,
-                variantName: variantLabel || 'Default',
-                fullName: variantLabel ? `${p.name} - ${variantLabel}` : p.name,
-                barcode: v.barcode || p.barcode,
-                retailPrice: parseFloat(v.price) || 0,
-                wholesalePrice: parseFloat(v.wholesale_price) || 0,
-                image: imageUrl,
-              };
-            })
-          };
-        }));
-        setProducts(processed);
-      }
-      
-      if (cRes.status === 'success') {
-        setCategories(cRes.data || []);
-      }
+      const res = await api.sales.getAll({ size: 50 });
+      setSales(res.data?.data || res.data || []);
     } catch (err) {
-      setError('Catalog Sync Failed');
+      setError('Connection failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredProducts = useMemo(() => {
-    return products.filter(p => {
-      const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [products, activeCategory, searchQuery]);
-
-  // STABLE HANDLERS
-  const handleAddToCart = useCallback((product) => {
-    if (product.variants?.length > 1) {
-      setSelectedProduct(product);
-      setIsVariantOpen(true);
-    } else if (product.variants?.length === 1) {
-      haptics.light();
-      addItem(product.variants[0], isWholesale);
-    }
-  }, [isWholesale, addItem]);
-
-  const scanBarcode = useCallback(async () => {
-    haptics.medium();
-    const result = await scanner.startScan();
-    if (result) {
-      const allVariants = products.flatMap(p => p.variants);
-      const match = allVariants.find(v => v.barcode === result);
-      
-      if (match) {
-        addItem(match, isWholesale);
-        haptics.heavy();
-      } else {
-        alert('Product Not Found: ' + result);
-      }
-    }
-  }, [products, isWholesale, addItem]);
-
-  const handleVariantSelect = useCallback((variant) => {
-    haptics.medium();
-    addItem(variant, isWholesale);
-  }, [isWholesale, addItem]);
-
-  const handleToggleWholesale = useCallback(() => {
-    haptics.medium();
-    const next = !isWholesale;
-    toggleWholesale();
-    const flatVariants = products.flatMap(p => p.variants);
-    syncPrices(next, flatVariants);
-  }, [isWholesale, products, toggleWholesale, syncPrices]);
-
-  const handleFinishSale = useCallback((customer) => {
-    setIsCheckoutOpen(false);
-    setIsSuccess(true);
-    setTimeout(() => {
-      setIsSuccess(false);
-      // useCartStore clear logic managed in subcomponent normally, or here
-    }, 2500);
+  useEffect(() => {
+    fetchSales();
   }, []);
 
-  const total = useMemo(() => {
-    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  }, [cart]);
-
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center bg-surface animate-in fade-in zoom-in duration-500">
-        <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center text-white mb-6 shadow-xl shadow-emerald-500/20 animate-bounce">
-          <div className="h-10 w-10 border-4 border-white rounded-full border-t-transparent animate-spin" />
-        </div>
-        <h2 className="text-3xl font-bold text-text-main mb-2">Order Confirmed</h2>
-        <p className="text-text-secondary font-bold text-xs">Transaction synchronized successfully</p>
-      </div>
-    );
-  }
+  const filteredSales = Array.isArray(sales) ? sales.filter(s => 
+    (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+  ) : [];
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-surface">
-      
-      <header className="fixed top-0 left-0 right-0 z-50 pt-12 p-4 flex flex-col gap-4 glass-panel border-b border-glass-border">
-        <TerminalHeader 
-          showSearch={showSearch}
-          onToggleSearch={setShowSearch}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onScan={scanBarcode}
-          onToggleWholesale={handleToggleWholesale}
-          isWholesale={isWholesale}
-          onBack={() => router.back()}
-        />
-
-        <CategoryBar 
-          categories={categories}
-          activeCategory={activeCategory}
-          onSelect={setActiveCategory}
-        />
+    <div className="p-6 pb-24 flex flex-col gap-5 min-h-screen bg-white">
+      <header className="flex items-center justify-between pt-4">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => { haptics.light(); openDrawer(); }}
+            className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
+          >
+            <Menu size={24} strokeWidth={2.5} />
+          </button>
+          <div>
+            <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Recent Sales</h1>
+            <p className="text-[10px] font-bold text-text-secondary uppercase leading-none opacity-40">Transaction Ledger</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => { haptics.light(); fetchSales(); }}
+          className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
+        >
+          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+        </button>
       </header>
 
-      {/* Main Grid */}
-      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-44 overscroll-contain no-scrollbar">
+      <section className="flex flex-col gap-3">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <input 
+            type="text" 
+            placeholder="Search invoice or customer..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
+          />
+        </div>
+      </section>
+
+      <section className="flex flex-col">
+        <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
+          <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-30">
+            {loading ? 'Consulting Records...' : `${filteredSales.length} Recent Invoices`}
+          </h2>
+        </div>
+        
         {loading ? (
-          <ProductSkeleton />
-        ) : error ? (
-          <div className="glass-panel p-10 rounded-[3rem] text-center flex flex-col items-center gap-4 border-rose-500/20 mt-10 shadow-2xl">
-            <p className="text-sm font-bold text-text-main">{error}</p>
-            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-bold">Retry Sync</button>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-24 opacity-30">
-            <p className="text-xs font-bold text-text-main">No matches in this shelf</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-3">
-            {filteredProducts.map(p => (
-              <ProductCard 
-                key={p.id}
-                product={p}
-                onAdd={handleAddToCart}
-                isWholesale={isWholesale}
-              />
+          <div className="flex flex-col">
+            {Array(10).fill(0).map((_, i) => (
+              <div key={i} className="h-16 w-full border-b border-slate-50 animate-pulse bg-slate-50/50" />
             ))}
           </div>
+        ) : filteredSales.length > 0 ? (
+          <div className="flex flex-col">
+            {filteredSales.map(sale => (
+              <SaleRow key={sale.id} sale={sale} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 opacity-20">
+            <ShoppingBag size={40} strokeWidth={1} />
+            <p className="text-[11px] font-bold mt-4">No recent sales found</p>
+          </div>
         )}
-      </div>
-
-      <DockedCart 
-        cart={cart}
-        total={total}
-        onClick={() => { haptics.medium(); setIsCheckoutOpen(true); }}
-        isVisible={cart.length > 0}
-      />
-
-      <VariantSelector 
-        isOpen={isVariantOpen}
-        product={selectedProduct}
-        onClose={() => setIsVariantOpen(false)}
-        onSelect={handleVariantSelect}
-      />
-
-      <CheckoutSheet 
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        onFinish={handleFinishSale}
-      />
+      </section>
     </div>
   );
 }

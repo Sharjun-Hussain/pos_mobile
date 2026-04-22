@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@layer utilities {
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
 @theme inline {
   --color-brand: oklch(0.62 0.25 273); /* Electric Indigo */
   

@@ -24,6 +24,7 @@ import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useCartStore } from '@/store/useCartStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const slideVariants = {
   enter: (direction) => ({
@@ -54,6 +55,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     setAdjustment,
     getDiscountAmount 
   } = useCartStore();
+  const { selectedBranch } = useAuthStore();
   const { isWholesale, activePaymentMethods, currency, checkoutPreview } = useSettingsStore();
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
@@ -168,7 +170,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
         adjustment: parseFloat(adjustment || 0) || 0,
         paid_amount: paymentMethod === 'cash' ? (parseFloat(amountTendered) || total) : total,
         status: targetStatus,
-        is_wholesale: isWholesale
+        is_wholesale: isWholesale,
+        branch_id: selectedBranch?.id
       };
 
       const res = await api.sales.create(payload);

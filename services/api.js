@@ -42,8 +42,16 @@ const apiRequest = async (endpoint, options = {}, isRetry = false) => {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  const selectedBranch = useAuthStore.getState().selectedBranch;
+  let finalEndpoint = endpoint;
+  
+  if (selectedBranch?.id) {
+    const separator = finalEndpoint.includes('?') ? '&' : '?';
+    finalEndpoint = `${finalEndpoint}${separator}branch_id=${selectedBranch.id}`;
+  }
+
   try {
-    const response = await fetch(`${baseUrl}${endpoint}`, {
+    const response = await fetch(`${baseUrl}${finalEndpoint}`, {
       ...options,
       headers,
     });

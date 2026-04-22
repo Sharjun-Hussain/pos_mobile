@@ -12,6 +12,12 @@ export const storage = {
   },
   remove: async (key) => {
     await Preferences.remove({ key });
+  },
+  getRootUrl: async () => {
+    const customUrl = await storage.get('custom_api_url');
+    const base = customUrl || API_BASE_URL;
+    // Strip /api/v1 (case insensitive) if present to get the server root
+    return base.replace(/\/api\/v1\/?$/i, '');
   }
 };
 
@@ -75,5 +81,15 @@ export const api = {
   logout: async () => {
     await storage.remove('auth_token');
     await storage.remove('refresh_token');
+  },
+  
+  // Image Helper
+  getImageUrl: async (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const root = await storage.getRootUrl();
+    // Ensure path starts with / if root doesn't end with it
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${root}${cleanPath}`;
   }
 };

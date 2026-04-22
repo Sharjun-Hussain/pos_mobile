@@ -65,6 +65,7 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
   const [user, setUser] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -75,8 +76,15 @@ export default function Home() {
         api.get('/reports/dashboard/summary')
       ]);
       
-      setUser(uRes.data?.user);
+      const userData = uRes.data?.user;
+      setUser(userData);
       setStats(sRes.data);
+      
+      // Resolve profile image URL
+      if (userData?.profile_image) {
+        const resolvedUrl = await api.getImageUrl(userData.profile_image);
+        setProfileImageUrl(resolvedUrl);
+      }
     } catch (err) {
       setError('Could not refresh data');
     } finally {
@@ -87,6 +95,8 @@ export default function Home() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`;
 
   return (
     <div className="p-6 pb-24 flex flex-col gap-8">
@@ -100,10 +110,11 @@ export default function Home() {
             {user ? `Welcome, ${user.name}` : 'Store Dashboard'}
           </p>
         </div>
-        <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand/20 shadow-lg shadow-brand/10">
+        <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand/20 shadow-lg shadow-brand/10 bg-surface-muted">
           <img 
-            src={user?.profile_image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`} 
+            src={avatarSrc} 
             alt="Avatar" 
+            className="w-full h-full object-cover"
           />
         </div>
       </header>

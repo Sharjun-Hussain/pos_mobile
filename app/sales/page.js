@@ -72,6 +72,7 @@ const SaleRow = ({ sale, onClick }) => {
 
 export default function SalesHistoryPage() {
   const { data: salesData, isLoading: salesLoading, error: salesError, mutate: refetchSales } = useFetch('/sales?size=50');
+  const { openDrawer } = useUIStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSaleId, setSelectedSaleId] = useState(null);

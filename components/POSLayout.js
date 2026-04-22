@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { SideDrawer } from './SideDrawer';
 import { haptics } from '@/services/haptics';
+import { useUIStore } from '@/store/useUIStore';
 
 const NavItem = ({ href, icon: Icon, label }) => {
   const pathname = usePathname();
@@ -26,7 +27,7 @@ const NavItem = ({ href, icon: Icon, label }) => {
 import { Preferences } from '@capacitor/preferences';
 
 export default function POSLayout({ children }) {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { isDrawerOpen, closeDrawer } = useUIStore();
   const pathname = usePathname();
   const router = useRouter();
   const isLoginPage = pathname === '/login';
@@ -49,21 +50,13 @@ export default function POSLayout({ children }) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <SideDrawer 
-        isOpen={isDrawerOpen} 
-        onClose={() => setIsDrawerOpen(false)} 
+      <SideDrawer
+        isOpen={isDrawerOpen}
+        onClose={closeDrawer}
       />
 
       <main className={`flex-1 ${(isLoginPage || isSetupPage || isOnboardingPage) ? '' : 'pb-20'}`}>
-        {/* Pass drawer control to children if needed, but easier to use a global icon in a shared header or just in the page */}
-        {React.Children.map(children, child => {
-          if (React.isValidElement(child)) {
-            return React.cloneElement(child, { 
-              onOpenDrawer: () => { haptics.light(); setIsDrawerOpen(true); } 
-            });
-          }
-          return child;
-        })}
+        {children}
       </main>
 
       {!isLoginPage && !isSetupPage && !isOnboardingPage && (

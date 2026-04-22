@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useUIStore } from '@/store/useUIStore';
 
 const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
   const colors = {
@@ -45,7 +46,8 @@ const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
   );
 };
 
-export default function SettingsPage({ onOpenDrawer }) {
+export default function SettingsPage() {
+  const { openDrawer } = useUIStore();
   const { user } = useAuthStore();
 
   return (
@@ -53,7 +55,7 @@ export default function SettingsPage({ onOpenDrawer }) {
       <header className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-4">
           <button 
-            onClick={onOpenDrawer}
+            onClick={() => { haptics.light(); openDrawer(); }}
             className="h-12 w-12 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-main active:scale-90 transition-transform shadow-sm"
           >
             <Menu size={24} strokeWidth={2.5} />

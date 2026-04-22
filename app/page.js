@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
+import { useUIStore } from '@/store/useUIStore';
 
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
@@ -90,7 +91,8 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
   );
 };
 
-export default function Home({ onOpenDrawer }) {
+export default function Home() {
+  const { openDrawer } = useUIStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
@@ -133,7 +135,7 @@ export default function Home({ onOpenDrawer }) {
       <header className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-4">
           <button 
-            onClick={onOpenDrawer}
+            onClick={() => { haptics.light(); openDrawer(); }}
             className="h-12 w-12 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-main active:scale-90 transition-transform shadow-sm"
           >
             <Menu size={24} strokeWidth={2.5} />

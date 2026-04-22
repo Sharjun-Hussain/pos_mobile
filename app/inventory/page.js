@@ -1,9 +1,7 @@
-"use client";
-
-import React, { useState, useEffect } from 'react';
 import { Search, Filter, Plus, Package, AlertCircle, Menu, RefreshCcw, Box } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
+import { useUIStore } from '@/store/useUIStore';
 
 const ProductListItem = ({ product, getImageUrl }) => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -47,7 +45,8 @@ const ProductListItem = ({ product, getImageUrl }) => {
   );
 };
 
-export default function InventoryPage({ onOpenDrawer }) {
+export default function InventoryPage() {
+  const { openDrawer } = useUIStore();
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -88,7 +87,7 @@ export default function InventoryPage({ onOpenDrawer }) {
       <header className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-4">
           <button 
-            onClick={onOpenDrawer}
+            onClick={() => { haptics.light(); openDrawer(); }}
             className="h-12 w-12 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-main active:scale-90 transition-transform shadow-sm"
           >
             <Menu size={24} strokeWidth={2.5} />

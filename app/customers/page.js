@@ -16,6 +16,7 @@ import {
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useUIStore } from '@/store/useUIStore';
 
 const CustomerListItem = ({ customer }) => {
   return (
@@ -48,7 +49,8 @@ const CustomerListItem = ({ customer }) => {
   );
 };
 
-export default function CustomersPage({ onOpenDrawer }) {
+export default function CustomersPage() {
+  const { openDrawer } = useUIStore();
   const [loading, setLoading] = useState(true);
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -105,7 +107,7 @@ export default function CustomersPage({ onOpenDrawer }) {
       <header className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-4">
           <button 
-            onClick={onOpenDrawer}
+            onClick={() => { haptics.light(); openDrawer(); }}
             className="h-12 w-12 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-main active:scale-90 transition-transform shadow-sm"
           >
             <Menu size={24} strokeWidth={2.5} />

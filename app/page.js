@@ -32,11 +32,15 @@ import { LowStockCarousel } from '@/components/dashboard/LowStockCarousel';
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
     return (
-      <div className="glass-panel p-3.5 rounded-[1.75rem] min-w-[160px] animate-pulse flex flex-col gap-3">
-        <div className="h-9 w-9 bg-surface-muted rounded-xl" />
-        <div className="space-y-2">
-          <div className="h-2.5 w-1/2 bg-surface-muted rounded" />
-          <div className="h-5 w-3/4 bg-surface-muted rounded" />
+      <div className="glass-panel p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+        <div className="flex items-start justify-between">
+          <div className="h-10 w-10 bg-brand/10 rounded-xl animate-pulse" />
+          <div className="h-4 w-12 bg-surface-muted rounded animate-pulse" />
+        </div>
+        <div className="space-y-2 mt-1">
+          <div className="h-2.5 w-1/2 bg-surface-muted rounded animate-pulse" />
+          <div className="h-6 w-3/4 bg-surface-muted rounded animate-pulse" />
         </div>
       </div>
     );
@@ -69,11 +73,12 @@ const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient })
 const ActionCard = ({ title, description, icon: Icon, color, isLoading, onClick }) => {
   if (isLoading) {
     return (
-      <div className="glass-panel p-3 rounded-3xl animate-pulse flex items-center gap-4">
-        <div className="h-12 w-12 bg-surface-muted rounded-2xl" />
-        <div className="flex-1 flex flex-col gap-2">
-          <div className="h-4 w-1/3 bg-surface-muted rounded" />
-          <div className="h-3 w-1/2 bg-surface-muted rounded" />
+      <div className="glass-panel p-3 rounded-3xl flex items-center gap-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+        <div className="h-12 w-12 bg-surface-muted rounded-2xl animate-pulse" />
+        <div className="flex-1 flex flex-col gap-2.5">
+          <div className="h-4 w-1/3 bg-surface-muted rounded animate-pulse" />
+          <div className="h-3 w-1/2 bg-surface-muted rounded animate-pulse" />
         </div>
       </div>
     );
@@ -183,9 +188,9 @@ export default function Home() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           {loading ? (
-            <div className="flex flex-col gap-2 animate-pulse">
-              <div className="h-6 w-32 bg-surface-muted rounded-lg" />
-              <div className="h-3 w-24 bg-surface-muted rounded-md" />
+            <div className="flex flex-col gap-2.5 ml-2">
+              <div className="h-6 w-32 bg-surface-muted rounded-lg animate-pulse" />
+              <div className="h-3 w-24 bg-surface-muted rounded-md animate-pulse" />
             </div>
           ) : (
             <div>

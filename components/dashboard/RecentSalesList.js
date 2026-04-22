@@ -12,7 +12,20 @@ export const RecentSalesList = ({ sales = [], isLoading, onSaleClick }) => {
     return (
       <div className="flex flex-col gap-3">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-20 glass-panel rounded-3xl animate-pulse" />
+          <div key={i} className="h-20 glass-panel p-4 rounded-[2rem] flex items-center justify-between relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+            <div className="flex items-center gap-4">
+              <div className="h-11 w-11 rounded-2xl bg-surface-muted animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-4 w-24 bg-surface-muted rounded animate-pulse" />
+                <div className="h-3 w-32 bg-surface-muted rounded animate-pulse" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-16 bg-surface-muted rounded animate-pulse" />
+              <div className="h-2 w-12 bg-surface-muted rounded animate-pulse ml-auto" />
+            </div>
+          </div>
         ))}
       </div>
     );

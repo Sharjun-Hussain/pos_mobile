@@ -9,10 +9,21 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
   
   if (isLoading) {
     return (
-      <div className="glass-panel p-6 rounded-[2.5rem] h-48 animate-pulse flex items-end gap-2">
-        {[...Array(7)].map((_, i) => (
-          <div key={i} className="flex-1 bg-surface-muted rounded-t-xl" style={{ height: `${Math.random() * 60 + 20}%` }} />
-        ))}
+      <div className="glass-panel p-6 rounded-[2.5rem] h-48 flex items-end gap-2 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+        <div className="absolute top-6 left-6 space-y-2">
+          <div className="h-2 w-24 bg-surface-muted rounded animate-pulse" />
+          <div className="h-4 w-32 bg-surface-muted rounded animate-pulse" />
+        </div>
+        <div className="absolute top-6 right-6 space-y-2 flex flex-col items-end">
+          <div className="h-4 w-16 bg-surface-muted rounded animate-pulse" />
+          <div className="h-2 w-12 bg-surface-muted rounded animate-pulse" />
+        </div>
+        <div className="flex w-full items-end gap-2 mt-auto h-24 border-b border-glass-border/40 pb-2">
+          {[...Array(7)].map((_, i) => (
+            <div key={i} className="flex-1 bg-brand/10 rounded-t-xl animate-pulse" style={{ height: `${Math.random() * 60 + 20}%` }} />
+          ))}
+        </div>
       </div>
     );
   }

@@ -30,19 +30,19 @@ const VariantRow = ({ variant, productName, getImageUrl }) => {
           )}
         </div>
         <div className="overflow-hidden">
-          <h4 className="font-bold text-text-main text-[13px] truncate leading-tight">
+          <h4 className="font-bold text-text-main text-sm truncate leading-tight">
             {productName} <span className="font-medium text-slate-400">• {variant.name}</span>
           </h4>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] font-bold text-text-secondary opacity-40">{variant.sku || 'No SKU'}</span>
+            <span className="text-xs font-bold text-text-secondary opacity-40">{variant.sku || 'No SKU'}</span>
             <div className="h-0.5 w-0.5 rounded-full bg-slate-300" />
-            <span className="text-[10px] font-bold text-brand">{variant.barcode || '---'}</span>
+            <span className="text-xs font-bold text-brand">{variant.barcode || '---'}</span>
           </div>
         </div>
       </div>
       <div className="text-right flex-shrink-0 ml-3">
-        <p className="font-black text-brand text-[13px]">LKR {Math.round(variant.price).toLocaleString()}</p>
-        <p className="text-[9px] font-bold text-slate-400 mt-0.5">
+        <p className="font-black text-brand text-sm">LKR {Math.round(variant.price).toLocaleString()}</p>
+        <p className="text-xs font-bold text-slate-400 mt-0.5">
           {variant.stock_quantity || 0} in stock
         </p>
       </div>
@@ -68,11 +68,11 @@ const VariantGridItem = ({ variant, productName, getImageUrl }) => {
         )}
       </div>
       <div className="overflow-hidden">
-        <h4 className="font-bold text-text-main text-[11px] truncate leading-tight mb-1">{productName}</h4>
-        <p className="text-[10px] text-slate-400 font-medium truncate mb-2">{variant.name}</p>
+        <h4 className="font-bold text-text-main text-sm truncate leading-tight mb-1">{productName}</h4>
+        <p className="text-xs text-slate-400 font-medium truncate mb-2">{variant.name}</p>
         <div className="flex items-center justify-between mt-auto">
-          <span className="text-[11px] font-black text-brand">LKR {Math.round(variant.price).toLocaleString()}</span>
-          <span className={`text-[9px] font-black ${isLow ? 'text-rose-500' : 'text-slate-300'}`}>{variant.stock_quantity}q</span>
+          <span className="text-sm font-black text-brand">LKR {Math.round(variant.price).toLocaleString()}</span>
+          <span className={`text-xs font-black ${isLow ? 'text-rose-500' : 'text-slate-300'}`}>{variant.stock_quantity}q</span>
         </div>
       </div>
     </div>
@@ -145,8 +145,8 @@ export default function VariantsPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main leading-none mb-1">Variant Registry</h1>
-            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">SKU-Level Control</p>
+            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Variant Registry</h1>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-40">SKU-Level Control</p>
           </div>
         </div>
         <button 
@@ -165,7 +165,7 @@ export default function VariantsPage() {
             placeholder="Search SKUs, names..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
           />
         </div>
 

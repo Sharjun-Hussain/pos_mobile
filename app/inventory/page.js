@@ -27,8 +27,8 @@ const ProductListItem = ({ product, getImageUrl }) => {
           )}
         </div>
         <div className="overflow-hidden">
-          <h4 className="font-bold text-text-main text-[13px] truncate leading-tight">{product.name || product.fullName}</h4>
-          <p className="text-[10px] font-bold text-text-secondary truncate opacity-60">
+          <h4 className="font-bold text-text-main text-sm truncate leading-tight">{product.name || product.fullName}</h4>
+          <p className="text-xs font-bold text-text-secondary truncate opacity-60">
             {product.sku || product.barcode || 'No SKU'}
           </p>
         </div>
@@ -37,7 +37,7 @@ const ProductListItem = ({ product, getImageUrl }) => {
         <p className="font-black text-brand text-xs">LKR {(parseFloat(product.retailPrice) || 0).toLocaleString()}</p>
         <div className="flex items-center justify-end gap-1 mt-0.5">
           {isLowStock && <AlertCircle size={10} className="text-rose-500 shadow-sm" strokeWidth={3} />}
-          <span className={`text-[10px] font-black ${isLowStock ? 'text-rose-500' : 'text-text-secondary opacity-80'}`}>
+          <span className={`text-xs font-black ${isLowStock ? 'text-rose-500' : 'text-text-secondary opacity-80'}`}>
             {product.stock_quantity || 0} units
           </span>
         </div>
@@ -94,8 +94,8 @@ export default function InventoryPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main leading-none mb-1">Inventory</h1>
-            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">Global Stock Hub</p>
+            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Inventory</h1>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-40">Global Stock Hub</p>
           </div>
         </div>
         <button
@@ -129,7 +129,7 @@ export default function InventoryPage() {
       <section className="overflow-x-auto no-scrollbar flex gap-2 -mx-6 px-6">
         <button
           onClick={() => setSelectedCategory(null)}
-          className={`px-4 h-9 rounded-full text-[10px] font-black transition-all ${!selectedCategory
+          className={`px-4 h-9 rounded-full text-xs font-black transition-all ${!selectedCategory
             ? 'bg-brand text-white shadow-lg shadow-brand/20'
             : 'glass-panel text-text-secondary border-glass-border/40'
             }`}
@@ -140,7 +140,7 @@ export default function InventoryPage() {
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 h-9 rounded-full text-[10px] font-black whitespace-nowrap transition-all ${selectedCategory === cat.id
+            className={`px-4 h-9 rounded-full text-xs font-black whitespace-nowrap transition-all ${selectedCategory === cat.id
               ? 'bg-brand text-white shadow-lg shadow-brand/20'
               : 'glass-panel text-text-secondary border-glass-border/40'
               }`}
@@ -152,7 +152,7 @@ export default function InventoryPage() {
 
       <section className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between mb-1 px-1">
-          <h2 className="text-[10px] font-black text-text-secondary opacity-40">
+          <h2 className="text-xs font-black text-text-secondary opacity-40">
             {loading ? 'Refreshing...' : `${filteredProducts.length} items in stock`}
           </h2>
           {error && <span className="text-[10px] font-black text-rose-500 uppercase">{error}</span>}

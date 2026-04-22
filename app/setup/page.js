@@ -73,8 +73,8 @@ export default function SetupPage() {
           <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />
         </div>
         <div className="text-center px-4">
-          <h1 className="text-3xl font-bold text-text-main">Server Setup</h1>
-          <p className="text-text-secondary text-sm font-medium mt-1 leading-relaxed">
+          <h1 className="text-4xl font-extrabold text-text-main">Server Setup</h1>
+          <p className="text-text-secondary text-base font-medium mt-1 leading-relaxed">
             Configure your self-hosted API endpoint to get started with Inzeedo POS.
           </p>
         </div>
@@ -91,7 +91,7 @@ export default function SetupPage() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               required
-              className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/50 transition-colors placeholder:text-text-secondary/50"
+              className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-base font-bold text-text-main outline-none focus:border-brand/50 transition-colors placeholder:text-text-secondary/50"
             />
           </div>
           {error && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{error}</p>}
@@ -99,7 +99,7 @@ export default function SetupPage() {
 
         <div className="glass-panel p-4 rounded-2xl flex gap-3 items-start">
           <ShieldCheck className="text-brand shrink-0" size={20} />
-          <p className="text-[11px] text-text-secondary leading-relaxed font-medium">
+          <p className="text-xs text-text-secondary leading-relaxed font-medium">
             Your URL is stored locally on this device. We recommend using <span className="text-text-main font-semibold">HTTPS</span> for a secure connection to your self-hosted backend.
           </p>
         </div>
@@ -119,7 +119,7 @@ export default function SetupPage() {
 
       <div className="mt-12 flex items-center justify-center gap-2 text-text-secondary">
         <HelpCircle size={16} />
-        <button className="text-sm font-semibold hover:text-brand transition-colors">Where can I find this?</button>
+        <button className="text-base font-semibold hover:text-brand transition-colors">Where can I find this?</button>
       </div>
     </div>
   );

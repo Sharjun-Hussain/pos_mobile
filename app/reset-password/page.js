@@ -64,8 +64,8 @@ export default function ResetPasswordPage() {
             <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />
           </div>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-text-main">New Password</h1>
-            <p className="text-text-secondary text-sm font-medium mt-1">Secure your account with a strong password.</p>
+            <h1 className="text-4xl font-extrabold text-text-main">New Key</h1>
+            <p className="text-text-secondary text-base font-medium mt-1">Secure your account with a strong password.</p>
           </div>
         </div>
 

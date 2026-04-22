@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Home, ShoppingBag, Box, Settings, User, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -25,18 +25,21 @@ const NavItem = ({ href, icon: Icon, label }) => {
 };
 
 import { Preferences } from '@capacitor/preferences';
+import { App } from '@capacitor/app';
+import { Toast } from '@capacitor/toast';
 
 export default function POSLayout({ children }) {
   const { isDrawerOpen, closeDrawer } = useUIStore();
   const pathname = usePathname();
   const router = useRouter();
+  const lastBackPress = useRef(0);
   const isLoginPage = pathname === '/login';
   const isSetupPage = pathname === '/setup';
   const isOnboardingPage = pathname === '/onboarding';
   const isRecoveryPage = pathname === '/forgot-password' || pathname === '/reset-password';
   const isAuthOptionalPage = isLoginPage || isSetupPage || isOnboardingPage || isRecoveryPage;
 
-  React.useEffect(() => {
+  useEffect(() => {
     const checkConfig = async () => {
       const { value: onboardingComplete } = await Preferences.get({ key: 'onboarding_complete' });
       const { value: serverUrl } = await Preferences.get({ key: 'custom_api_url' });
@@ -58,6 +61,34 @@ export default function POSLayout({ children }) {
       }
     };
     checkConfig();
+  }, [pathname, router]);
+
+  // Handle Android Back Button
+  useEffect(() => {
+    const backListener = App.addListener('backButton', async (data) => {
+      // If we're not on the home page, just go back
+      if (pathname !== '/') {
+        router.back();
+        return;
+      }
+
+      // If we are on home page, handle double tap to exit
+      const now = Date.now();
+      if (now - lastBackPress.current < 2000) {
+        await App.exitApp();
+      } else {
+        lastBackPress.current = now;
+        await Toast.show({
+          text: 'Press back again to exit',
+          duration: 'short',
+          position: 'bottom'
+        });
+      }
+    });
+
+    return () => {
+      backListener.then(l => l.remove());
+    };
   }, [pathname, router]);
 
   return (

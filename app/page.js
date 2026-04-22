@@ -55,16 +55,16 @@ const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient })
           <Icon size={18} />
         </div>
         {trendValue && (
-          <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold ${isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
+          <div className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-xs font-bold ${isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
             }`}>
-            {isUp ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
+            {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
             {trendValue}
           </div>
         )}
       </div>
       <div>
-        <p className="text-text-secondary text-[9px] font-bold">{title}</p>
-        <h3 className="text-lg font-black mt-0.5 text-text-main">{value}</h3>
+        <p className="text-text-secondary text-xs font-bold uppercase tracking-wider">{title}</p>
+        <h3 className="text-xl font-black mt-1 text-text-main">{value}</h3>
       </div>
     </div>
   );
@@ -194,12 +194,12 @@ export default function Home() {
             </div>
           ) : (
             <div>
-              <p className="text-[10px] font-black text-brand uppercase tracking-widest mb-1 opacity-80">{getGreeting()}</p>
-              <h1 className="text-xl font-black text-text-main leading-none mb-1">
+              <p className="text-xs font-black text-brand uppercase tracking-wider mb-1 opacity-80">{getGreeting()}</p>
+              <h1 className="text-2xl font-black text-text-main leading-none mb-1">
                 {displayUser?.name?.split(' ')[0] || "Partner"}
               </h1>
               <div className="flex items-center gap-1.5 opacity-60">
-                <p className="text-[10px] font-bold text-text-secondary leading-none">
+                <p className="text-xs font-bold text-text-secondary leading-none">
                   {selectedBranch?.name || 'Branch Terminal'}
                 </p>
               </div>

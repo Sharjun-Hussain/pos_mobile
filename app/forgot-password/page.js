@@ -51,8 +51,8 @@ export default function ForgotPasswordPage() {
             <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />
           </div>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-text-main">Password Recovery</h1>
-            <p className="text-text-secondary text-sm font-medium mt-1">Enter your email to receive instructions.</p>
+            <h1 className="text-4xl font-extrabold text-text-main">Recovery</h1>
+            <p className="text-text-secondary text-base font-medium mt-1">Enter your email to receive instructions.</p>
           </div>
         </div>
 
@@ -68,8 +68,8 @@ export default function ForgotPasswordPage() {
                 <CheckCircle2 size={32} strokeWidth={2.5} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-text-main">Check your Inbox</h3>
-                <p className="text-xs font-bold text-text-secondary mt-2">
+                <h3 className="text-xl font-black text-text-main">Check your Inbox</h3>
+                <p className="text-sm font-bold text-text-secondary mt-2">
                   We've sent a secure recovery link to<br/>
                   <span className="text-brand">{email}</span>
                 </p>
@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
               {status === 'error' && (
                 <div className="glass-panel p-3 rounded-2xl bg-rose-500/5 text-rose-500 flex items-center gap-2 border-rose-500/10">
                   <AlertCircle size={16} />
-                  <p className="text-[11px] font-bold">{errorMessage}</p>
+                  <p className="text-xs font-bold">{errorMessage}</p>
                 </div>
               )}
 

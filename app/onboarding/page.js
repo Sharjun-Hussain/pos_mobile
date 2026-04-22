@@ -93,10 +93,10 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          <h2 className="text-3xl font-bold text-text-main mb-3 text-center tracking-tight">
+          <h2 className="text-4xl font-black text-text-main mb-4 text-center tracking-tight">
             {activeSlide.title}
           </h2>
-          <p className="text-text-secondary text-base text-center leading-relaxed max-w-[300px] font-medium">
+          <p className="text-text-secondary text-lg text-center leading-relaxed max-w-[320px] font-medium">
             {activeSlide.description}
           </p>
         </motion.div>
@@ -118,7 +118,7 @@ export default function OnboardingPage() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => { haptics.light(); router.push('/setup'); }}
-            className="text-text-secondary font-bold text-sm hover:text-text-main transition-colors"
+            className="text-text-secondary font-bold text-base hover:text-text-main transition-colors"
           >
             Skip
           </button>

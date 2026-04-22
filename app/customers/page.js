@@ -26,15 +26,15 @@ const CustomerRow = ({ customer }) => {
           <Users size={18} strokeWidth={2.5} />
         </div>
         <div className="overflow-hidden">
-          <h4 className="font-bold text-text-main text-[13px] truncate leading-tight mb-0.5">{customer.name}</h4>
+          <h4 className="font-bold text-text-main text-sm truncate leading-tight mb-0.5">{customer.name}</h4>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-text-secondary opacity-60">
+            <span className="text-xs font-bold text-text-secondary opacity-60">
               {customer.phone || 'No Phone'}
             </span>
             {customer.email && (
               <>
                 <div className="h-0.5 w-0.5 rounded-full bg-slate-300" />
-                <span className="text-[10px] font-bold text-text-secondary opacity-40 truncate">
+                <span className="text-xs font-bold text-text-secondary opacity-40 truncate">
                   {customer.email}
                 </span>
               </>
@@ -54,9 +54,9 @@ const CustomerGridItem = ({ customer }) => {
         <Users size={24} strokeWidth={2.5} />
       </div>
       <div className="overflow-hidden w-full">
-        <h4 className="font-bold text-text-main text-[13px] truncate leading-tight mb-1">{customer.name}</h4>
-        <p className="text-[10px] font-bold text-slate-400 truncate">{customer.phone || 'No Phone'}</p>
-        <p className="text-[9px] font-medium text-slate-300 truncate mt-0.5">{customer.email || 'No Email'}</p>
+        <h4 className="font-bold text-text-main text-sm truncate leading-tight mb-1">{customer.name}</h4>
+        <p className="text-xs font-bold text-slate-400 truncate">{customer.phone || 'No Phone'}</p>
+        <p className="text-xs font-medium text-slate-300 truncate mt-0.5">{customer.email || 'No Email'}</p>
       </div>
     </div>
   );
@@ -133,8 +133,8 @@ export default function CustomersPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main leading-none mb-1">Customers</h1>
-            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">Relationship Registry</p>
+            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Customers</h1>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-40">Relationship Registry</p>
           </div>
         </div>
         <button 
@@ -154,7 +154,7 @@ export default function CustomersPage() {
             placeholder="Search by name or phone..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
           />
         </div>
 
@@ -164,7 +164,7 @@ export default function CustomersPage() {
             <select 
               value={sortBy}
               onChange={(e) => { haptics.light(); setSortBy(e.target.value); }}
-              className="h-8 bg-slate-50 border border-slate-100 rounded-lg px-2 text-[10px] font-bold text-text-secondary outline-none appearance-none pr-6 relative"
+              className="h-9 bg-slate-50 border border-slate-100 rounded-lg px-2 text-xs font-bold text-text-secondary outline-none appearance-none pr-6 relative"
               style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
             >
               <option value="name-asc">Name: A-Z</option>
@@ -175,7 +175,7 @@ export default function CustomersPage() {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => { haptics.medium(); setIsAdding(true); }}
-              className="h-8 px-3 rounded-lg bg-brand/5 text-brand text-[10px] font-black flex items-center gap-1.5 active:scale-95 transition-all"
+              className="h-9 px-3 rounded-lg bg-brand/5 text-brand text-xs font-black flex items-center gap-1.5 active:scale-95 transition-all"
             >
               <UserPlus size={12} strokeWidth={2.5} />
               <span>Add New</span>
@@ -200,7 +200,7 @@ export default function CustomersPage() {
 
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
-          <h2 className="text-[10px] font-black text-text-secondary opacity-30">
+          <h2 className="text-xs font-black text-text-secondary opacity-30">
             {loading ? 'Refreshing Registry...' : `${filteredAndSortedCustomers.length} registered customers`}
           </h2>
         </div>
@@ -247,8 +247,8 @@ export default function CustomersPage() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-xl font-black text-text-main">New Customer</h3>
-                  <p className="text-[10px] font-bold text-text-secondary opacity-40">Growth Registry</p>
+                  <h3 className="text-2xl font-black text-text-main">New Customer</h3>
+                  <p className="text-xs font-bold text-text-secondary opacity-40">Growth Registry</p>
                 </div>
                 <button 
                   onClick={() => setIsAdding(false)}

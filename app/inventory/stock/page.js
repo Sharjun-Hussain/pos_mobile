@@ -34,15 +34,15 @@ const StockRow = ({ stock, getImageUrl }) => {
           )}
         </div>
         <div className="overflow-hidden">
-          <h4 className="font-bold text-text-main text-[13px] truncate leading-tight">
+          <h4 className="font-bold text-text-main text-sm truncate leading-tight">
             {stock.product?.name} <span className="font-medium text-slate-400">• {stock.variant?.name || 'Standard'}</span>
           </h4>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] font-bold text-slate-400">{stock.branch?.name || 'Main Warehouse'}</span>
+            <span className="text-xs font-bold text-slate-400">{stock.branch?.name || 'Main Warehouse'}</span>
             {isLow && (
               <div className="flex items-center gap-1 bg-rose-50 px-1.5 py-0.5 rounded-md">
                 <AlertTriangle size={8} className="text-rose-500" strokeWidth={3} />
-                <span className="text-[8px] font-black text-rose-600">low</span>
+                <span className="text-xs font-black text-rose-600">low</span>
               </div>
             )}
           </div>
@@ -52,7 +52,7 @@ const StockRow = ({ stock, getImageUrl }) => {
         <span className={`text-[15px] font-black ${isLow ? 'text-rose-500' : 'text-brand'}`}>
           {parseFloat(stock.quantity).toLocaleString()}
         </span>
-        <p className="text-[9px] font-bold text-slate-300 mt-0.5">qty</p>
+        <p className="text-xs font-bold text-slate-300 mt-0.5">qty</p>
       </div>
     </div>
   );
@@ -76,8 +76,8 @@ const StockGridItem = ({ stock, getImageUrl }) => {
         )}
       </div>
       <div>
-        <h4 className="font-bold text-text-main text-[12px] truncate leading-tight mb-1">{stock.product?.name}</h4>
-        <p className="text-[9px] text-slate-400 font-bold truncate mb-3">{stock.branch?.name || 'Main'}</p>
+        <h4 className="font-bold text-text-main text-sm truncate leading-tight mb-1">{stock.product?.name}</h4>
+        <p className="text-xs text-slate-400 font-bold truncate mb-3">{stock.branch?.name || 'Main'}</p>
         <div className={`h-8 rounded-xl flex items-center justify-center ${isLow ? 'bg-rose-500 text-white' : 'bg-slate-50 text-brand'} transition-colors`}>
           <span className="text-sm font-black">{parseFloat(stock.quantity).toLocaleString()}</span>
         </div>
@@ -136,8 +136,8 @@ export default function StockRegistryPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main leading-none mb-1">Stock Control</h1>
-            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">Global Stock Ledger</p>
+            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Stock Control</h1>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-40">Global Stock Ledger</p>
           </div>
         </div>
         <button 
@@ -156,7 +156,7 @@ export default function StockRegistryPage() {
             placeholder="Search stocks..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
           />
         </div>
 
@@ -166,7 +166,7 @@ export default function StockRegistryPage() {
             <select 
               value={sortBy}
               onChange={(e) => { haptics.light(); setSortBy(e.target.value); }}
-              className="h-8 bg-slate-50 border border-slate-100 rounded-lg px-2 text-[10px] font-bold text-text-secondary outline-none appearance-none pr-6 relative"
+              className="h-9 bg-slate-50 border border-slate-100 rounded-lg px-2 text-xs font-bold text-text-secondary outline-none appearance-none pr-6 relative"
               style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
             >
               <option value="name-asc">Name: A-Z</option>
@@ -194,7 +194,7 @@ export default function StockRegistryPage() {
 
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
-          <h2 className="text-[10px] font-black text-text-secondary opacity-30">
+          <h2 className="text-xs font-black text-text-secondary opacity-30">
             {loading ? 'Consulting Ledger...' : `${filteredAndSortedStocks.length} records`}
           </h2>
         </div>

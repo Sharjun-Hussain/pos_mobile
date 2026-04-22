@@ -24,9 +24,9 @@ const TerminalHeader = memo(({
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h1 className="text-sm font-bold text-text-main leading-none">{t('pos.terminal')}</h1>
-              <p className="text-[10px] font-medium text-emerald-500 mt-1 flex items-center gap-1">
-                <div className="h-1 w-1 bg-emerald-500 rounded-full animate-pulse" /> Live Node
+              <h1 className="text-base font-bold text-text-main">{t('pos.terminal')}</h1>
+              <p className="text-xs font-bold text-emerald-500 mt-0.5 flex items-center gap-1">
+                <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" /> Live Node
               </p>
             </div>
           </div>

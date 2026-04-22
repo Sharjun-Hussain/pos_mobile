@@ -41,27 +41,27 @@ const SaleRow = ({ sale, onClick }) => {
         </div>
         <div className="overflow-hidden">
           <div className="flex items-center gap-2 mb-0.5">
-            <h4 className="font-bold text-text-main text-[13px] truncate leading-tight">
+            <h4 className="font-bold text-text-main text-sm truncate leading-tight">
               {sale.invoice_number}
             </h4>
-            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md ${getStatusColor(sale.payment_status)}`}>
+            <span className={`text-xs font-black px-1.5 py-0.5 rounded-md ${getStatusColor(sale.payment_status)}`}>
               {sale.payment_status}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-text-secondary opacity-60">
+            <span className="text-xs font-bold text-text-secondary opacity-60">
               {sale.customer?.name || 'Walk-in Guest'}
             </span>
             <div className="h-0.5 w-0.5 rounded-full bg-slate-300" />
-            <span className="text-[10px] font-medium text-slate-400">
+            <span className="text-xs font-medium text-slate-400">
               {date}
             </span>
           </div>
         </div>
       </div>
       <div className="text-right flex-shrink-0 ml-3">
-        <p className="font-black text-brand text-[13px]">LKR {Math.round(sale.payable_amount).toLocaleString()}</p>
-        <p className="text-[9px] font-bold text-slate-300 mt-0.5">
+        <p className="font-black text-brand text-sm">LKR {Math.round(sale.payable_amount).toLocaleString()}</p>
+        <p className="text-xs font-bold text-slate-300 mt-0.5">
           {sale.payment_method || 'Cash'}
         </p>
       </div>
@@ -124,8 +124,8 @@ export default function SalesHistoryPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main leading-none mb-1">Recent Sales</h1>
-            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">Transaction Ledger</p>
+            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Recent Sales</h1>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-40">Transaction Ledger</p>
           </div>
         </div>
         <button 
@@ -144,14 +144,14 @@ export default function SalesHistoryPage() {
             placeholder="Search invoice or customer..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
           />
         </div>
       </section>
 
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
-          <h2 className="text-[10px] font-black text-text-secondary opacity-30">
+          <h2 className="text-xs font-black text-text-secondary opacity-30">
             {loading ? 'Consulting Records...' : `${filteredSales.length} Recent Invoices`}
           </h2>
         </div>

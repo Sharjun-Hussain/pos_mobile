@@ -29,9 +29,14 @@ const apiRequest = async (endpoint, options = {}, isRetry = false) => {
   const baseUrl = customUrl || API_BASE_URL;
   
   const headers = {
-    'Content-Type': 'application/json',
     ...options.headers,
   };
+
+  if (options.body && !(options.body instanceof FormData)) {
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  } else if (!options.body) {
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -103,6 +108,13 @@ export const api = {
       return res;
     },
     me: () => api.get('/auth/me'),
+    updateProfile: async (formData) => {
+      // Custom multipart PUT request
+      const res = await apiRequest('/auth/me', { method: 'POST', body: formData, headers: { 'X-HTTP-Method-Override': 'PUT' } }); // Use POST+Override if PUT multipart has issues, or just PUT
+      // Wait, let's just try PUT first:
+      return res;
+    },
+    updatePassword: (data) => api.put('/me', data), // according to old frontend
     logout: async () => {
       await useAuthStore.getState().logout();
     }

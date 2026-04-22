@@ -18,6 +18,7 @@ import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
+import { EditProfileSheet } from '@/components/settings/EditProfileSheet';
 
 const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
   const colors = {
@@ -51,6 +52,8 @@ export default function SettingsPage() {
   const { openDrawer } = useUIStore();
   const { user } = useAuthStore();
   const [profileImageUrl, setProfileImageUrl] = useState(null);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [initialProfileTab, setInitialProfileTab] = useState('profile');
 
   useEffect(() => {
     if (user?.profile_image) {
@@ -98,10 +101,16 @@ export default function SettingsPage() {
         </div>
         
         <div className="flex gap-2">
-          <button className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all">
+          <button 
+            onClick={() => { haptics.light(); setInitialProfileTab('profile'); setIsEditProfileOpen(true); }}
+            className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all"
+          >
             <User size={16} className="text-brand" /> Edit Profile
           </button>
-          <button className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all">
+          <button 
+            onClick={() => { haptics.light(); setInitialProfileTab('security'); setIsEditProfileOpen(true); }} 
+            className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all"
+          >
             <Shield size={16} className="text-amber-500" /> Security
           </button>
         </div>
@@ -128,6 +137,12 @@ export default function SettingsPage() {
           Inzeedo Point of Sale • Build 842-1
         </p>
       </div>
+
+      <EditProfileSheet 
+        isOpen={isEditProfileOpen}
+        onClose={() => setIsEditProfileOpen(false)}
+        initialTab={initialProfileTab}
+      />
     </div>
   );
 }

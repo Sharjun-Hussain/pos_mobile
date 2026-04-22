@@ -107,3 +107,13 @@ body {
   scrollbar-width: none !important;
   scroll-behavior: smooth;
 }
+
+/* Native Scanner Backdrop Support */
+body.scanner-active {
+  background: transparent !important;
+  --surface: transparent !important;
+}
+body.scanner-active main,
+body.scanner-active div {
+  background: transparent !important;
+}

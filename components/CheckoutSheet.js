@@ -250,9 +250,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   )}
 
                   {step === 2 && (
-                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto px-6">
-                      <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto">
+                      <div className="relative px-6">
+                        <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
                         <input 
                           type="text" 
                           placeholder="Find customer..." 
@@ -262,7 +262,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         />
                       </div>
 
-                      <div className="flex flex-col bg-surface-muted/5 border border-glass-border/20 rounded-[2rem] overflow-hidden overflow-y-auto max-h-[45vh] no-scrollbar overscroll-contain">
+                      <div className="flex flex-col bg-surface-muted/5 border-y border-glass-border/20 overflow-hidden overflow-y-auto max-h-[45vh] no-scrollbar overscroll-contain">
                         <button 
                           onClick={() => { haptics.light(); setSelectedCustomer(null); }}
                           className={`flex items-center justify-between p-3.5 px-6 transition-all border-b border-glass-border/10 ${!selectedCustomer ? 'bg-brand/5' : ''}`}
@@ -307,9 +307,11 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         )}
                       </div>
 
-                      <button className="h-14 border-2 border-dashed border-glass-border rounded-3xl flex items-center justify-center gap-2 text-text-secondary text-xs font-bold uppercase tracking-widest hover:border-brand/40 hover:text-brand transition-all">
-                        <UserPlus size={16} /> New Customer
-                      </button>
+                      <div className="px-6">
+                        <button className="w-full h-14 border-2 border-dashed border-glass-border rounded-3xl flex items-center justify-center gap-2 text-text-secondary text-xs font-bold uppercase tracking-widest hover:border-brand/40 hover:text-brand transition-all">
+                          <UserPlus size={16} /> New Customer
+                        </button>
+                      </div>
                     </div>
                   )}
 

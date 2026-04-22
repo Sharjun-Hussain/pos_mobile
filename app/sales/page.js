@@ -6,17 +6,15 @@ import {
   Menu, 
   RefreshCcw, 
   FileText,
-  ChevronRight,
-  ShoppingBag,
-  Calendar,
-  User,
-  CreditCard
+  ShoppingBag
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
+import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
+import { ReturnSheet } from '@/components/sales/ReturnSheet';
 
-const SaleRow = ({ sale }) => {
+const SaleRow = ({ sale, onClick }) => {
   const date = new Date(sale.created_at).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -33,7 +31,10 @@ const SaleRow = ({ sale }) => {
   };
 
   return (
-    <div className="flex items-center justify-between py-3.5 border-b border-slate-100 px-1 active:bg-brand/5 transition-colors">
+    <div 
+      onClick={() => { haptics.light(); onClick(); }}
+      className="flex items-center justify-between py-3.5 border-b border-slate-100 px-1 active:bg-brand/5 transition-colors cursor-pointer"
+    >
       <div className="flex items-center gap-3 overflow-hidden">
         <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-400 border border-slate-100">
           <FileText size={18} />
@@ -73,6 +74,10 @@ export default function SalesHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [sales, setSales] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSaleId, setSelectedSaleId] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isReturnOpen, setIsReturnOpen] = useState(false);
+  const [activeSale, setActiveSale] = useState(null);
   const [error, setError] = useState(null);
 
   const fetchSales = async () => {
@@ -91,6 +96,17 @@ export default function SalesHistoryPage() {
   useEffect(() => {
     fetchSales();
   }, []);
+
+  const handleSaleClick = (saleId) => {
+    setSelectedSaleId(saleId);
+    setIsDetailsOpen(true);
+  };
+
+  const handleReturnTrigger = (sale) => {
+    setIsDetailsOpen(false);
+    setActiveSale(sale);
+    setIsReturnOpen(true);
+  };
 
   const filteredSales = Array.isArray(sales) ? sales.filter(s => 
     (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -149,7 +165,7 @@ export default function SalesHistoryPage() {
         ) : filteredSales.length > 0 ? (
           <div className="flex flex-col">
             {filteredSales.map(sale => (
-              <SaleRow key={sale.id} sale={sale} />
+              <SaleRow key={sale.id} sale={sale} onClick={() => handleSaleClick(sale.id)} />
             ))}
           </div>
         ) : (
@@ -159,6 +175,20 @@ export default function SalesHistoryPage() {
           </div>
         )}
       </section>
+
+      <SaleDetailsSheet 
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        saleId={selectedSaleId}
+        onReturnTrigger={handleReturnTrigger}
+      />
+
+      <ReturnSheet 
+        isOpen={isReturnOpen}
+        onClose={() => setIsReturnOpen(false)}
+        sale={activeSale}
+        onFinish={fetchSales}
+      />
     </div>
   );
 }

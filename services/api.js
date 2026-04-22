@@ -143,7 +143,15 @@ export const api = {
       const query = new URLSearchParams(params).toString();
       return api.get(`/sales?${query}`);
     },
-    create: (data) => api.post('/sales', data)
+    getById: (id) => api.get(`/sales/${id}`),
+    create: (data) => api.post('/sales', data),
+    returns: {
+      create: (data) => api.post('/sales/returns', data),
+      getAll: (params = {}) => {
+        const query = new URLSearchParams(params).toString();
+        return api.get(`/sales/returns/list?${query}`);
+      }
+    }
   },
   
   getImageUrl: async (imageField) => {

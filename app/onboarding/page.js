@@ -5,9 +5,10 @@ import { ShoppingBag, Zap, BarChart3, ChevronRight, Check } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { storage } from '@/services/api';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SellAnywhereSVG = ({ color }) => (
-  <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="240" height="240" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="35" y="15" width="50" height="90" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="2"/>
     <rect x="42" y="25" width="36" height="50" rx="2" fill="white" fillOpacity="0.05"/>
     <circle cx="60" cy="95" r="3" fill="#3f3f46"/>
@@ -18,7 +19,7 @@ const SellAnywhereSVG = ({ color }) => (
 );
 
 const SyncSVG = ({ color }) => (
-  <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="240" height="240" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="20" y="40" width="45" height="45" rx="6" fill="#18181b" stroke="#3f3f46" strokeWidth="2"/>
     <rect x="65" y="25" width="35" height="60" rx="4" fill="#18181b" stroke="#3f3f46" strokeWidth="2"/>
     <path d="M45 30C55 20 75 20 85 30" stroke={color} strokeWidth="2" strokeLinecap="round" strokeDasharray="4 4"/>
@@ -28,7 +29,7 @@ const SyncSVG = ({ color }) => (
 );
 
 const InsightsSVG = ({ color }) => (
-  <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="240" height="240" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="25" y="25" width="70" height="70" rx="8" fill="#18181b" stroke="#3f3f46" strokeWidth="2"/>
     <rect x="35" y="65" width="10" height="20" rx="2" fill={color} fillOpacity="0.6"/>
     <rect x="50" y="45" width="10" height="40" rx="2" fill={color} fillOpacity="0.8"/>
@@ -80,31 +81,52 @@ export default function OnboardingPage() {
     }
   };
 
+  const handleDragEnd = (event, info) => {
+    const swipeThreshold = 50;
+    if (info.offset.x < -swipeThreshold) {
+      if (currentSlide < slides.length - 1) {
+        setCurrentSlide(prev => prev + 1);
+        haptics.medium();
+      }
+    } else if (info.offset.x > swipeThreshold) {
+      if (currentSlide > 0) {
+        setCurrentSlide(prev => prev - 1);
+        haptics.medium();
+      }
+    }
+  };
+
   const activeSlide = slides[currentSlide];
   const Illustration = activeSlide.Illustration;
 
   return (
     <div className="min-h-screen flex flex-col bg-surface overflow-hidden">
-      {/* Brand Header */}
-      <div className="pt-12 flex justify-center">
-        <div className="h-12 w-12 rounded-xl overflow-hidden shadow-lg shadow-brand/10">
-          <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />
-        </div>
-      </div>
 
-      {/* Visual Content Section */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 transition-all duration-500">
-        <div className="mb-12 animate-in zoom-in duration-700">
-          <Illustration color={activeSlide.hex} />
-        </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentSlide}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.2}
+          onDragEnd={handleDragEnd}
+          className="flex-1 flex flex-col items-center justify-center p-8 touch-none"
+        >
+          <div className="mb-12">
+            <Illustration color={activeSlide.hex} />
+          </div>
 
-        <h2 className="text-2xl font-bold text-text-main mb-2 text-center animate-in slide-in-from-bottom duration-500">
-          {activeSlide.title}
-        </h2>
-        <p className="text-text-secondary text-sm text-center leading-relaxed max-w-[240px] animate-in fade-in duration-700 font-medium">
-          {activeSlide.description}
-        </p>
-      </div>
+          <h2 className="text-3xl font-bold text-text-main mb-3 text-center">
+            {activeSlide.title}
+          </h2>
+          <p className="text-text-secondary text-base text-center leading-relaxed max-w-[280px] font-medium">
+            {activeSlide.description}
+          </p>
+        </motion.div>
+      </AnimatePresence>
 
       {/* Controls Section */}
       <div className="p-8 pt-0 flex flex-col gap-10">

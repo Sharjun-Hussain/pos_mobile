@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useReducer, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
 import { scanner } from '@/services/scanner';
@@ -15,80 +15,24 @@ import CategoryBar from '@/components/pos/CategoryBar';
 import ProductCard from '@/components/pos/ProductCard';
 import DockedCart from '@/components/pos/DockedCart';
 
-// Cart Reducer matching legacy POS logic
-function cartReducer(state, action) {
-  switch (action.type) {
-    case 'ADD_ITEM': {
-      const { product, isWholesale } = action.payload;
-      const price = (isWholesale ? (product.wholesalePrice || 0) : (product.retailPrice || 0)) || 0;
-      const existingIndex = state.cart.findIndex(i => i.variantId === product.id);
-      
-      if (existingIndex > -1) {
-        const updated = [...state.cart];
-        updated[existingIndex] = { ...updated[existingIndex], quantity: updated[existingIndex].quantity + 1 };
-        return { ...state, cart: updated };
-      }
-      
-      return {
-        ...state,
-        cart: [
-          ...state.cart,
-          {
-            id: product.id,
-            productId: product.productId,
-            variantId: product.id,
-            barcode: product.barcode,
-            name: product.fullName,
-            size: product.variantName,
-            quantity: 1,
-            price,
-            discount: 0,
-          },
-        ],
-      };
-    }
-    case 'REMOVE_ITEM':
-      return { ...state, cart: state.cart.filter(i => i.id !== action.payload) };
-    case 'UPDATE_QTY':
-      return {
-        ...state,
-        cart: state.cart.map(i => {
-          if (i.id === action.payload.id) {
-            const newQty = Math.max(0, i.quantity + action.payload.delta);
-            return { ...i, quantity: newQty };
-          }
-          return i;
-        }).filter(i => i.quantity > 0)
-      };
-    case 'TOGGLE_WHOLESALE': {
-      const { isWholesale, flatVariants } = action.payload;
-      return {
-        ...state,
-        isWholesale,
-        cart: state.cart.map(item => {
-          const v = flatVariants.find(fv => fv.id === item.variantId);
-          if (!v) return item;
-          return { ...item, price: isWholesale ? (v.wholesalePrice || 0) : (v.retailPrice || 0) };
-        })
-      };
-    }
-    case 'CLEAR_CART':
-      return { ...state, cart: [], isWholesale: false };
-    default:
-      return state;
-  }
-}
+// Global Stores
+import { useCartStore } from '@/store/useCartStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
 
 export default function SalesPage() {
   const router = useRouter();
-  const [state, dispatch] = useReducer(cartReducer, { cart: [], isWholesale: false });
+  
+  // Zustand States
+  const { cart, addItem, syncPrices } = useCartStore();
+  const { isWholesale, toggleWholesale, activeCategory, setActiveCategory } = useSettingsStore();
+
+  // Local UI States
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -156,19 +100,16 @@ export default function SalesPage() {
     });
   }, [products, activeCategory, searchQuery]);
 
-  // STABLE HANDLERS (Optimized for Mobile/Tablet)
+  // STABLE HANDLERS
   const handleAddToCart = useCallback((product) => {
     if (product.variants?.length > 1) {
       setSelectedProduct(product);
       setIsVariantOpen(true);
     } else if (product.variants?.length === 1) {
       haptics.light();
-      dispatch({ 
-        type: 'ADD_ITEM', 
-        payload: { product: product.variants[0], isWholesale: state.isWholesale } 
-      });
+      addItem(product.variants[0], isWholesale);
     }
-  }, [state.isWholesale]);
+  }, [isWholesale, addItem]);
 
   const scanBarcode = useCallback(async () => {
     haptics.medium();
@@ -178,46 +119,39 @@ export default function SalesPage() {
       const match = allVariants.find(v => v.barcode === result);
       
       if (match) {
-        dispatch({ 
-          type: 'ADD_ITEM', 
-          payload: { product: match, isWholesale: state.isWholesale } 
-        });
+        addItem(match, isWholesale);
         haptics.heavy();
       } else {
         alert('Product Not Found: ' + result);
       }
     }
-  }, [products, state.isWholesale]);
+  }, [products, isWholesale, addItem]);
 
   const handleVariantSelect = useCallback((variant) => {
     haptics.medium();
-    dispatch({ 
-      type: 'ADD_ITEM', 
-      payload: { product: variant, isWholesale: state.isWholesale } 
-    });
-  }, [state.isWholesale]);
+    addItem(variant, isWholesale);
+  }, [isWholesale, addItem]);
 
-  const toggleWholesale = useCallback(() => {
+  const handleToggleWholesale = useCallback(() => {
     haptics.medium();
+    const next = !isWholesale;
+    toggleWholesale();
     const flatVariants = products.flatMap(p => p.variants);
-    dispatch({ 
-      type: 'TOGGLE_WHOLESALE', 
-      payload: { isWholesale: !state.isWholesale, flatVariants } 
-    });
-  }, [state.isWholesale, products]);
+    syncPrices(next, flatVariants);
+  }, [isWholesale, products, toggleWholesale, syncPrices]);
 
   const handleFinishSale = useCallback((customer) => {
     setIsCheckoutOpen(false);
     setIsSuccess(true);
     setTimeout(() => {
       setIsSuccess(false);
-      dispatch({ type: 'CLEAR_CART' });
+      // useCartStore clear logic managed in subcomponent normally, or here
     }, 2500);
   }, []);
 
   const total = useMemo(() => {
-    return state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  }, [state.cart]);
+    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  }, [cart]);
 
   if (isSuccess) {
     return (
@@ -241,8 +175,8 @@ export default function SalesPage() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onScan={scanBarcode}
-          onToggleWholesale={toggleWholesale}
-          isWholesale={state.isWholesale}
+          onToggleWholesale={handleToggleWholesale}
+          isWholesale={isWholesale}
           onBack={() => router.back()}
         />
 
@@ -253,14 +187,14 @@ export default function SalesPage() {
         />
       </header>
 
-      {/* Main Grid - Padded for Header and Footer */}
+      {/* Main Grid */}
       <div className="flex-1 overflow-y-auto px-4 pb-48 pt-44 overscroll-contain no-scrollbar">
         {loading ? (
           <ProductSkeleton />
         ) : error ? (
           <div className="glass-panel p-10 rounded-[3rem] text-center flex flex-col items-center gap-4 border-rose-500/20 mt-10 shadow-2xl">
             <p className="text-sm font-bold text-text-main">{error}</p>
-            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-bold transition-all">Retry Sync</button>
+            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-bold">Retry Sync</button>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-24 opacity-30">
@@ -273,7 +207,7 @@ export default function SalesPage() {
                 key={p.id}
                 product={p}
                 onAdd={handleAddToCart}
-                isWholesale={state.isWholesale}
+                isWholesale={isWholesale}
               />
             ))}
           </div>
@@ -281,10 +215,10 @@ export default function SalesPage() {
       </div>
 
       <DockedCart 
-        cart={state.cart}
+        cart={cart}
         total={total}
         onClick={() => { haptics.medium(); setIsCheckoutOpen(true); }}
-        isVisible={state.cart.length > 0}
+        isVisible={cart.length > 0}
       />
 
       <VariantSelector 
@@ -297,11 +231,6 @@ export default function SalesPage() {
       <CheckoutSheet 
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
-        cart={state.cart}
-        isWholesale={state.isWholesale}
-        onUpdateQty={(id, delta) => dispatch({ type: 'UPDATE_QTY', payload: { id, delta } })}
-        onRemove={(id) => dispatch({ type: 'REMOVE_ITEM', payload: id })}
-        onClear={() => dispatch({ type: 'CLEAR_CART' })}
         onFinish={handleFinishSale}
       />
     </div>

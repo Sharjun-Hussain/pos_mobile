@@ -19,6 +19,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
+import { useCartStore } from '@/store/useCartStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
 
 const slideVariants = {
   enter: (direction) => ({
@@ -35,7 +37,11 @@ const slideVariants = {
   })
 };
 
-export const CheckoutSheet = ({ isOpen, onClose, cart, isWholesale, onUpdateQty, onRemove, onClear, onFinish }) => {
+export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
+  // Consume Global Stores
+  const { cart, updateQty, clearCart, getTotal } = useCartStore();
+  const { isWholesale } = useSettingsStore();
+
   const [[step, direction], setStepState] = useState([1, 0]);
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState('');
@@ -67,7 +73,7 @@ export const CheckoutSheet = ({ isOpen, onClose, cart, isWholesale, onUpdateQty,
     (c.phone && c.phone.includes(search))
   );
 
-  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = getTotal();
 
   const handleNext = () => {
     haptics.medium();
@@ -82,10 +88,15 @@ export const CheckoutSheet = ({ isOpen, onClose, cart, isWholesale, onUpdateQty,
   const handleFinish = () => {
     haptics.heavy();
     onFinish(selectedCustomer);
+    // Clear cart on success
+    setTimeout(() => {
+      clearCart();
+      setStepState([1, 0]);
+    }, 500);
   };
 
   const handleClose = () => {
-    setStepState([1, 0]); // Reset to step 1 on close
+    setStepState([1, 0]); 
     onClose();
   };
 
@@ -169,9 +180,9 @@ export const CheckoutSheet = ({ isOpen, onClose, cart, isWholesale, onUpdateQty,
                             <span className="text-[10px] text-text-secondary font-bold">LKR {parseFloat(item.price).toLocaleString()} / Unit</span>
                           </div>
                           <div className="flex items-center gap-4 bg-surface-muted rounded-2xl p-1.5 px-4 border border-glass-border">
-                            <button onClick={() => onUpdateQty(item.id, -1)} className="text-text-secondary active:scale-75 transition-transform"><Minus size={14} /></button>
+                            <button onClick={() => updateQty(item.id, -1)} className="text-text-secondary active:scale-75 transition-transform"><Minus size={14} /></button>
                             <span className="font-bold text-text-main text-sm min-w-[20px] text-center">{item.quantity}</span>
-                            <button onClick={() => onUpdateQty(item.id, 1)} className="text-brand active:scale-125 transition-transform"><Plus size={14} /></button>
+                            <button onClick={() => updateQty(item.id, 1)} className="text-brand active:scale-125 transition-transform"><Plus size={14} /></button>
                           </div>
                         </div>
                       ))}

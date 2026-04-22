@@ -2,8 +2,10 @@
 
 import React, { memo } from 'react';
 import { Package, Maximize2 } from 'lucide-react';
+import { useSettingsStore } from '@/store/useSettingsStore';
 
-const ProductCard = memo(({ product, onAdd, isWholesale }) => {
+const ProductCard = memo(({ product, onAdd }) => {
+  const isWholesale = useSettingsStore((state) => state.isWholesale);
   const price = isWholesale ? product.variants[0]?.wholesalePrice : product.variants[0]?.retailPrice;
   
   return (
@@ -41,9 +43,9 @@ const ProductCard = memo(({ product, onAdd, isWholesale }) => {
     </button>
   );
 }, (prev, next) => {
-  // Only re-render if essential props change
+  // We no longer compare isWholesale here because it's consumed inside via selector
+  // Zustand's selective subscription handles the re-render trigger for us.
   return prev.product.id === next.product.id && 
-         prev.isWholesale === next.isWholesale &&
          prev.product.variants[0]?.retailPrice === next.product.variants[0]?.retailPrice;
 });
 

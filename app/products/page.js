@@ -92,7 +92,7 @@ export default function ProductsPage() {
   const filteredProducts = Array.isArray(products) ? products.filter(p => {
     const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = !selectedCategory || p.main_category_id === selectedCategory;
+    const matchesCategory = !selectedCategory || String(p.main_category_id) === String(selectedCategory);
     return matchesSearch && matchesCategory;
   }) : [];
 
@@ -141,20 +141,20 @@ export default function ProductsPage() {
       {/* Category Filter */}
       <section className="overflow-x-auto no-scrollbar flex gap-2 -mx-6 px-6">
         <button
-          onClick={() => setSelectedCategory(null)}
-          className={`px-4 h-9 rounded-full text-[10px] font-black uppercase transition-all ${
+          onClick={() => { haptics.light(); setSelectedCategory(null); }}
+          className={`px-4 h-9 rounded-full text-[12px] font-bold transition-all ${
             !selectedCategory 
               ? 'bg-brand text-white shadow-lg shadow-brand/20' 
               : 'glass-panel text-text-secondary border-glass-border/40'
           }`}
         >
-          All Categories
+          All
         </button>
         {categories.map(cat => (
           <button
             key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 h-9 rounded-full text-[10px] font-black uppercase whitespace-nowrap tracking-widest transition-all ${
+            onClick={() => { haptics.light(); setSelectedCategory(cat.id); }}
+            className={`px-4 h-9 rounded-full text-[12px] font-bold whitespace-nowrap transition-all ${
               selectedCategory === cat.id
                 ? 'bg-brand text-white shadow-lg shadow-brand/20' 
                 : 'glass-panel text-text-secondary border-glass-border/40'

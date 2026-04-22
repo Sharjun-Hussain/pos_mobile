@@ -41,9 +41,9 @@ export default function POSLayout({ children }) {
       const { value: onboardingStarted } = await Preferences.get({ key: 'onboarding_complete' });
       const { value: serverConfigured } = await Preferences.get({ key: 'custom_api_url' });
 
-      if (!onboardingStarted && !isOnboardingPage && !isLoginPage) {
+      if (!onboardingStarted && !isAuthOptionalPage) {
         router.replace('/onboarding');
-      } else if (onboardingStarted && !serverConfigured && !isSetupPage && !isOnboardingPage && !isLoginPage) {
+      } else if (onboardingStarted && !serverConfigured && !isAuthOptionalPage) {
         router.replace('/setup');
       }
     };

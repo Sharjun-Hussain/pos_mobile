@@ -10,8 +10,8 @@ export default function AuthGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const publicPaths = ['/login', '/setup', '/forgot-password', '/reset-password'];
-  const isPublicPath = publicPaths.includes(pathname);
+  const publicPaths = ['/login', '/setup', '/forgot-password', '/reset-password', '/onboarding'];
+  const isPublicPath = publicPaths.some(path => pathname === path || pathname === `${path}/`);
 
   useEffect(() => {
     // Only redirect once state is hydrated from storage
@@ -19,6 +19,9 @@ export default function AuthGuard({ children }) {
       if (!isAuthenticated && !isPublicPath) {
         router.replace('/login');
       } else if (isAuthenticated && isPublicPath) {
+        // If they are on a public path but authenticated, send them to dashboard
+        // EXCEPTION: Allow /setup even if authenticated if needed? 
+        // Usually, if authenticated, they should go to dashboard.
         router.replace('/');
       }
     }

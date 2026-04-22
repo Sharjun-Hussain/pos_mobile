@@ -495,7 +495,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[40px] -mr-16 -mt-16" />
                         
                         <p className="text-[10px] font-bold text-white/70">Payable Amount</p>
-                        <h3 className="text-4xl font-black text-white">{currency} {total.toLocaleString()}</h3>
+                        <h3 className="text-4xl font-black text-white">{formatCurrency(total)}</h3>
                         
                         {selectedCustomer && (
                           <div className="flex items-center gap-2 mt-2 bg-white/20 px-3.5 py-1.5 rounded-full backdrop-blur-md border border-white/10">
@@ -540,7 +540,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-text-secondary pl-1">Amount Tendered</label>
                             <div className="relative">
-                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-brand">{currency}</span>
+                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-brand">{currentCurrency}</span>
                               <input 
                                 type="number"
                                 placeholder={total.toString()}
@@ -643,7 +643,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                     </>
                   ) : (
                     <div className="bg-surface border-2 border-brand/20 text-brand px-5 h-14 rounded-2xl flex items-center justify-center shadow-sm">
-                      <span className="text-lg font-black text-brand">{currency} {total.toLocaleString()}</span>
+                      <span className="text-lg font-black text-brand">{formatCurrency(total)}</span>
                     </div>
                   )}
                 </div>

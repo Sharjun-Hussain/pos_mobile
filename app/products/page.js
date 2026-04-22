@@ -85,12 +85,12 @@ export default function ProductsPage() {
     fetchData();
   }, []);
 
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredProducts = Array.isArray(products) ? products.filter(p => {
+    const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = !selectedCategory || p.main_category_id === selectedCategory;
     return matchesSearch && matchesCategory;
-  });
+  }) : [];
 
   return (
     <div className="p-6 pb-24 flex flex-col gap-6 min-h-screen bg-surface">

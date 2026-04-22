@@ -95,10 +95,10 @@ export default function StockRegistryPage() {
     fetchStocks();
   }, []);
 
-  const filteredStocks = stocks.filter(s => 
+  const filteredStocks = Array.isArray(stocks) ? stocks.filter(s => 
     (s.product?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
     (s.variant?.sku || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) : [];
 
   const lowStockCount = stocks.filter(s => s.quantity < 5).length;
 

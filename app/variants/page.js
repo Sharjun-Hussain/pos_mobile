@@ -73,9 +73,11 @@ export default function VariantsPage() {
       const res = await api.products.getActiveList();
       const allVariants = [];
       
+      const rawData = Array.isArray(res.data) ? res.data : [];
+      
       // Flatten products to a list of variants
-      (res.data || []).forEach(product => {
-        if (product.variants && product.variants.length > 0) {
+      rawData.forEach(product => {
+        if (product.variants && Array.isArray(product.variants)) {
           product.variants.forEach(variant => {
             allVariants.push({
               ...variant,

@@ -77,13 +77,13 @@ export const BranchSelectionSheet = ({ isOpen, onClose, allowClose = true }) => 
             {/* Search Bar - Standard Style */}
             <div className="px-6 mb-4">
               <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
                 <input 
                   type="text"
                   placeholder="Search branches..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40 transition-all placeholder:text-slate-400 font-bold"
+                  className="w-full h-10 bg-surface-muted border border-glass-border/30 rounded-xl pl-10 pr-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40 transition-all placeholder:text-text-secondary/40"
                 />
               </div>
             </div>
@@ -98,10 +98,10 @@ export const BranchSelectionSheet = ({ isOpen, onClose, allowClose = true }) => 
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.03 }}
                     onClick={() => handleSelect(branch)}
-                    className="flex items-center justify-between py-3.5 border-b border-slate-100 px-1 active:bg-brand/5 transition-colors cursor-pointer group"
+                    className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-400 border border-slate-100 group-hover:text-brand group-hover:bg-brand/10 transition-colors">
+                      <div className="h-10 w-10 rounded-xl bg-surface-muted flex items-center justify-center flex-shrink-0 text-text-secondary group-hover:text-brand group-hover:bg-brand/10 transition-colors border border-glass-border/20">
                         <MapPin size={18} />
                       </div>
                       <div className="overflow-hidden">
@@ -110,7 +110,7 @@ export const BranchSelectionSheet = ({ isOpen, onClose, allowClose = true }) => 
                             {branch.name}
                           </h4>
                           {branch.code && (
-                            <span className="text-[8px] font-black px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 group-hover:bg-brand/10 group-hover:text-brand transition-colors">
+                            <span className="text-[8px] font-black px-1.5 py-0.5 rounded-md bg-surface-muted text-text-secondary group-hover:bg-brand/10 group-hover:text-brand transition-colors">
                               {branch.code}
                             </span>
                           )}
@@ -120,7 +120,7 @@ export const BranchSelectionSheet = ({ isOpen, onClose, allowClose = true }) => 
                         </p>
                       </div>
                     </div>
-                    <ChevronRight size={16} className="text-slate-300 group-hover:text-brand transition-colors ml-3" />
+                    <ChevronRight size={16} className="text-text-secondary opacity-30 group-hover:text-brand transition-colors ml-3" />
                   </motion.div>
                 ))}
 

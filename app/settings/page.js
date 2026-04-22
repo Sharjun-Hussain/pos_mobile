@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Settings as SettingsIcon,
   User,
   Bell,
   Shield,
@@ -12,11 +11,12 @@ import {
   Globe,
   ChevronRight,
   Menu,
-  Server,
   Smartphone,
   FileText,
   CreditCard,
-  Building2
+  Building2,
+  Sun,
+  RefreshCcw,
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -27,12 +27,11 @@ import { EditProfileSheet } from '@/components/settings/EditProfileSheet';
 import { TerminalSettingsSheet } from '@/components/settings/TerminalSettingsSheet';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useTheme } from 'next-themes';
-import { Sun, RefreshCcw } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LanguageSelectionSheet } from '@/components/settings/LanguageSelectionSheet';
 import { CurrencySelectionSheet } from '@/components/settings/CurrencySelectionSheet';
 
-const SettingItem = ({ icon: Icon, label, value, color = 'brand', onClick }) => {
+const SettingItem = memo(({ icon: Icon, label, value, color = 'brand', onClick }) => {
   const colors = {
     brand: 'bg-brand/10 text-brand',
     blue: 'bg-blue-500/10 text-blue-500',
@@ -44,30 +43,28 @@ const SettingItem = ({ icon: Icon, label, value, color = 'brand', onClick }) => 
   return (
     <button
       onClick={() => { haptics.light(); onClick?.(); }}
-      className="w-full glass-panel p-4 rounded-3xl flex items-center justify-between active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border/30"
+      className="w-full glass-panel p-4 rounded-[1.75rem] flex items-center justify-between active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border/30"
     >
       <div className="flex items-center gap-4">
         <div className={`p-2.5 rounded-xl ${colors[color]}`}>
-          <Icon size={20} strokeWidth={2.5} />
+          <Icon size={18} strokeWidth={2.5} />
         </div>
         <div className="text-left">
-          <p className="text-sm font-bold text-text-main">{label}</p>
-          {value && <p className="text-[10px] font-bold text-text-secondary">{value}</p>}
+          <p className="text-[14px] font-bold text-text-main leading-tight">{label}</p>
+          {value && <p className="text-[11px] font-medium text-text-secondary mt-0.5 opacity-60 italic">{value}</p>}
         </div>
       </div>
-      <ChevronRight size={16} className="text-text-secondary opacity-30" />
+      <ChevronRight size={14} className="text-text-secondary opacity-30" />
     </button>
   );
-};
+});
+SettingItem.displayName = 'SettingItem';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { openDrawer } = useUIStore();
-  const { user, selectedBranch, logout } = useAuthStore();
-  const {
-    theme,
-    setTheme
-  } = useTheme();
+  const { user, selectedBranch, syncUser } = useAuthStore();
+  const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
 
   const {
@@ -97,11 +94,11 @@ export default function SettingsPage() {
     handleSync();
   }, []);
 
-  const handleSync = async () => {
+  const handleSync = useCallback(async () => {
     setIsSyncing(true);
-    await syncSettings();
+    await Promise.all([syncSettings(), syncUser()]);
     setIsSyncing(false);
-  };
+  }, [syncSettings, syncUser]);
 
   useEffect(() => {
     if (user?.profile_image) {
@@ -112,8 +109,8 @@ export default function SettingsPage() {
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`;
 
   return (
-    <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
-      <header className="flex items-center justify-between">
+    <div className="px-4 pb-24 flex flex-col gap-6 min-h-[100dvh] bg-surface pt-[calc(var(--sat)+1rem)] overflow-y-auto no-scrollbar pb-[calc(var(--sab)+2rem)]">
+      <header className="flex items-center justify-between mt-2">
         <div className="flex items-center gap-4">
           <button
             onClick={() => { haptics.light(); openDrawer(); }}
@@ -122,85 +119,75 @@ export default function SettingsPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main leading-none mb-1">{t('settings.title')}</h1>
-            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40 uppercase tracking-widest">System Control</p>
+            <h1 className="text-xl font-bold text-text-main leading-none mb-1">{t('settings.title')}</h1>
+            <p className="text-[10px] font-black text-text-secondary leading-none opacity-40 uppercase tracking-widest">System Control</p>
           </div>
         </div>
-        
         <button 
           onClick={() => { haptics.medium(); handleSync(); }} 
-          className={`h-10 w-10 glass-panel border border-glass-border/30 rounded-xl flex items-center justify-center text-brand active:scale-90 transition-all ${isSyncing ? 'rotate-180' : ''}`}
+          className={`h-11 w-11 glass-panel border border-glass-border/30 rounded-2xl flex items-center justify-center text-brand active:scale-90 transition-all ${isSyncing ? 'rotate-180' : ''}`}
         >
           <RefreshCcw size={18} strokeWidth={2.5} className={isSyncing ? 'animate-spin' : ''} />
         </button>
       </header>
 
       {/* Profile Section */}
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-col items-center justify-center py-6 gap-3">
-          <div className="h-24 w-24 rounded-[2.5rem] bg-brand shadow-2xl shadow-brand/20 flex items-center justify-center text-white border-4 border-white">
-            <div className="w-full h-full rounded-[2.2rem] bg-brand flex items-center justify-center overflow-hidden">
-              {profileImageUrl ? (
-                <img src={avatarSrc} alt={user?.name || "Profile"} className="w-full h-full object-cover" />
-              ) : (
-                <User size={40} strokeWidth={2.5} />
-              )}
-            </div>
+      <section className="flex flex-col gap-5 mt-2">
+        <div className="flex flex-col items-center justify-center py-4 gap-4">
+          <div className="relative h-28 w-28 rounded-[2.75rem] border-4 border-white dark:border-white/5 shadow-2xl overflow-hidden bg-brand/5">
+             <img src={avatarSrc} alt={user?.name || "Profile"} className="w-full h-full object-cover" />
           </div>
           <div className="text-center">
-            <h3 className="text-xl font-black text-text-main">{user?.name || 'Inzeedo Admin'}</h3>
-            <div className="flex flex-col items-center gap-1 mt-1">
-              <p className="text-[10px] font-bold text-text-secondary bg-surface-muted px-4 py-1 rounded-full border border-glass-border/30">
+            <h3 className="text-lg font-black text-text-main leading-tight">{user?.name || 'Inzeedo Admin'}</h3>
+            <div className="flex flex-col items-center gap-1.5 mt-2">
+              <p className="text-[10px] font-bold text-text-secondary bg-surface-muted px-4 py-1.5 rounded-full border border-glass-border/20 uppercase tracking-wide">
                 {user?.organization?.name || 'Enterprise Manager'}
-              </p>
-              <p className="text-[9px] font-black text-brand opacity-70">
-                {selectedBranch?.name || 'Main Warehouse'}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex bg-surface-muted/30 p-2 rounded-3xl mx-2 mt-2 gap-3 items-center justify-between border border-glass-border/30">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-brand/10 text-brand">
+        <div className="flex bg-surface-muted/30 p-2 rounded-[2rem] mx-1 gap-3 items-center justify-between border border-glass-border/30">
+          <div className="flex items-center gap-3 ml-1">
+            <div className="p-3 rounded-2xl bg-brand/10 text-brand">
               <Building2 size={20} strokeWidth={2.5} />
             </div>
             <div className="text-left">
-              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Active Branch</p>
-              <p className="text-sm font-black text-text-main">{selectedBranch?.name || 'Not Selected'}</p>
+              <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Active Branch</p>
+              <p className="text-[14px] font-bold text-text-main">{selectedBranch?.name || 'Not Selected'}</p>
             </div>
           </div>
           <button
             onClick={() => { haptics.light(); setIsBranchSheetOpen(true); }}
-            className="px-4 py-2 bg-brand text-white text-xs font-bold rounded-xl active:scale-95 transition-all shadow-sm"
+            className="px-5 h-11 bg-brand text-white text-sm font-bold rounded-2xl active:scale-95 transition-all shadow-lg shadow-brand/20 mr-1"
           >
             Switch
           </button>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3 px-1">
           <button
             onClick={() => { haptics.light(); setInitialProfileTab('profile'); setIsEditProfileOpen(true); }}
-            className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all"
+            className="flex-1 h-14 bg-surface-muted/50 border border-glass-border/20 rounded-[1.25rem] flex items-center justify-center gap-2.5 text-sm font-bold text-text-main active:scale-95 transition-all"
           >
-            <User size={16} className="text-brand" /> {t('settings.editProfile')}
+            <User size={17} className="text-brand" /> {t('settings.editProfile')}
           </button>
           <button
             onClick={() => { haptics.light(); setInitialProfileTab('security'); setIsEditProfileOpen(true); }}
-            className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all"
+            className="flex-1 h-14 bg-surface-muted/50 border border-glass-border/20 rounded-[1.25rem] flex items-center justify-center gap-2.5 text-sm font-bold text-text-main active:scale-95 transition-all"
           >
-            <Shield size={16} className="text-amber-500" /> {t('settings.security')}
+            <Shield size={17} className="text-amber-500" /> {t('settings.security')}
           </button>
         </div>
       </section>
 
       {/* Global Preferences */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">{t('settings.preferences')}</p>
+        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">{t('settings.preferences')}</p>
         <SettingItem
           icon={Bell}
           label={t('settings.notifications')}
-          value="Enabled"
+          value="Standard Alerts Active"
           color="blue"
           onClick={() => { }}
         />
@@ -208,39 +195,39 @@ export default function SettingsPage() {
         <SettingItem
           icon={FileText}
           label={t('settings.receiptPolicy')}
-          value={`${paperWidth} Thermal • Template active`}
+          value={`${paperWidth} Thermal • Template optimized`}
           color="emerald"
           onClick={() => { setInitialTerminalTab('receipt'); setIsTerminalSheetOpen(true); }}
         />
 
         {/* Theme Switcher */}
-        <div className="w-full glass-panel p-4 rounded-3xl flex flex-col gap-4 border-glass-border/30">
+        <div className="w-full glass-panel p-5 rounded-[1.75rem] flex flex-col gap-5 border-glass-border/30">
           <div className="flex items-center gap-4">
             <div className="p-2.5 rounded-xl bg-brand/10 text-brand">
-              <Moon size={20} strokeWidth={2.5} />
+              <Moon size={18} strokeWidth={2.5} />
             </div>
             <div className="text-left">
-              <p className="text-sm font-bold text-text-main">{t('settings.appearance')}</p>
-              <p className="text-[10px] font-bold text-text-secondary">{mounted ? theme.charAt(0).toUpperCase() + theme.slice(1) : 'System'} Default</p>
+              <p className="text-[14px] font-bold text-text-main">{t('settings.appearance')}</p>
+              <p className="text-[11px] font-medium text-text-secondary opacity-60 italic">{mounted ? theme.charAt(0).toUpperCase() + theme.slice(1) : 'System'} Default Mode</p>
             </div>
           </div>
 
-          <div className="flex bg-surface-muted/50 p-1 rounded-2xl gap-1">
+          <div className="flex bg-surface-muted/50 p-1.5 rounded-[1.25rem] gap-1.5">
             {[
               { id: 'light', label: 'Light', icon: Sun },
               { id: 'dark', label: 'Dark', icon: Moon },
               { id: 'system', label: 'System', icon: Smartphone }
-            ].map((t) => (
+            ].map((item) => (
               <button
-                key={t.id}
-                onClick={() => { haptics.light(); setTheme(t.id); }}
-                className={`flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-[10px] font-bold transition-all ${mounted && theme === t.id
-                  ? 'bg-white dark:bg-surface text-brand shadow-sm'
-                  : 'text-text-secondary opacity-60'
+                key={item.id}
+                onClick={() => { haptics.light(); setTheme(item.id); }}
+                className={`flex-1 h-11 rounded-xl flex items-center justify-center gap-2.5 text-[10px] font-bold transition-all ${mounted && theme === item.id
+                  ? 'bg-white dark:bg-surface text-brand shadow-md shadow-black/5'
+                  : 'text-text-secondary opacity-60 hover:opacity-100'
                   }`}
               >
-                <t.icon size={14} />
-                {t.label}
+                <item.icon size={15} />
+                {item.label}
               </button>
             ))}
           </div>
@@ -249,7 +236,7 @@ export default function SettingsPage() {
 
       {/* Technical Configuration */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">{t('settings.technical')}</p>
+        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">{t('settings.technical')}</p>
         <SettingItem
           icon={Smartphone}
           label={t('settings.terminalHost')}
@@ -260,39 +247,40 @@ export default function SettingsPage() {
         <SettingItem
           icon={CreditCard}
           label={t('settings.paymentProtocol')}
-          value={`${activePaymentMethods?.length || 0} Methods Active`}
+          value={`${activePaymentMethods?.length || 0} Gateway Methods`}
           color="blue"
           onClick={() => { setInitialTerminalTab('payments'); setIsTerminalSheetOpen(true); }}
         />
         <SettingItem
           icon={Database}
           label={t('settings.identityBase')}
-          value={businessName || 'Syncing...'}
+          value={businessName || 'Synchronizing...'}
           color="emerald"
           onClick={() => { }}
         />
         <SettingItem
           icon={Globe}
-          label="Language Basis"
-          value={language === 'en' ? 'English' : language === 'si' ? 'සිංහල' : 'தமிழ்'}
+          label="Interface Language"
+          value={language === 'en' ? 'English (Global)' : language === 'si' ? 'Sinhala (Local)' : 'Tamil (Local)'}
           color="brand"
           onClick={() => setIsLanguageOpen(true)}
         />
         <SettingItem
           icon={CreditCard}
-          label="Currency Basis"
-          value={`${currency} (Standard Format)`}
+          label="Currency Context"
+          value={`${currency} (Standard Billing)`}
           color="emerald"
           onClick={() => setIsCurrencyOpen(true)}
         />
       </section>
 
-      <div className="mt-4 opacity-30 text-center">
-        <p className="text-[10px] font-bold text-text-secondary">
+      <div className="mt-8 pb-4 opacity-30 text-center">
+        <p className="text-[10px] font-bold text-text-secondary tracking-widest uppercase">
           Inzeedo Point of Sale • Build 842-1
         </p>
       </div>
 
+      {/* Sheets using Vaul mapping */}
       <EditProfileSheet
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}

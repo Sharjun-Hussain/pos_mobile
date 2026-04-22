@@ -1,95 +1,92 @@
 "use client";
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Globe } from 'lucide-react';
+import React, { useCallback, memo } from 'react';
+import { Globe, ChevronRight, Check, X } from 'lucide-react';
+import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
 
-const LANGUAGES = [
-  { id: 'en', label: 'English', sub: 'Default' },
-  { id: 'si', label: 'සිංහල', sub: 'Sinhala' },
-  { id: 'ta', label: 'தமிழ்', sub: 'Tamil' }
-];
-
-export const LanguageSelectionSheet = ({ isOpen, onClose }) => {
+export const LanguageSelectionSheet = memo(({ isOpen, onClose }) => {
   const { language, setLanguage } = useSettingsStore();
 
-  const handleSelect = (langId) => {
-    haptics.medium();
+  const handleSelect = useCallback((langId) => {
+    haptics.heavy();
     setLanguage(langId);
-    setTimeout(onClose, 300);
-  };
+    // Give a small delay for the user to see the selection before closing
+    setTimeout(onClose, 200);
+  }, [setLanguage, onClose]);
+
+  const languages = [
+    { id: 'en', name: 'English', detail: 'Global Standard', flag: '🇺🇸' },
+    { id: 'si', name: 'සිංහල', detail: 'Sri Lankan Local', flag: '🇱🇰' },
+    { id: 'ta', name: 'தமிழ்', detail: 'South Asian Local', flag: '🇮🇳' }
+  ];
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[120] flex items-end justify-center pointer-events-none">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto" 
-            onClick={onClose} 
-          />
-          
-          <motion.div 
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 350, mass: 1 }}
-            className="relative w-full max-w-xl bg-surface rounded-t-[3rem] pb-8 shadow-2xl border-t border-glass-border pointer-events-auto flex flex-col"
-          >
-            <div className="flex justify-center pb-4 pt-3">
-              <div className="w-14 h-1.5 bg-text-secondary/20 rounded-full" />
-            </div>
+    <Drawer.Root open={isOpen} onOpenChange={(c) => !c && onClose()}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[600]" />
+        <Drawer.Content className="bg-surface flex flex-col rounded-t-[3rem] fixed bottom-0 left-0 right-0 z-[601] outline-none shadow-2xl max-h-[85dvh]">
+          {/* Drag Handle */}
+          <div className="mx-auto w-14 h-1.5 flex-shrink-0 rounded-full bg-text-secondary/20 mt-4 mb-2" />
 
-            <div className="flex items-center justify-between mb-6 px-8 pt-4">
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex items-center justify-between mb-4 px-8 pt-4">
               <div>
-                <h2 className="text-xl font-bold text-text-main leading-none">Language Basis</h2>
-                <p className="text-xs font-bold text-text-secondary opacity-40 mt-1">Select your preferred locale</p>
+                <h2 className="text-xl font-bold text-text-main leading-none">Language</h2>
+                <p className="text-[10px] font-bold text-text-secondary opacity-40 mt-1.5 uppercase tracking-widest">
+                  Interface Basis
+                </p>
               </div>
               <button 
                 onClick={onClose} 
-                className="h-10 w-10 glass-panel border border-glass-border rounded-full flex items-center justify-center text-text-secondary"
+                className="h-11 w-11 bg-surface-muted rounded-2xl flex items-center justify-center text-text-secondary active:scale-90 transition-transform"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="px-6 flex flex-col gap-2">
-              {LANGUAGES.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => handleSelect(lang.id)}
-                  className={`w-full p-5 rounded-3xl border flex items-center justify-between transition-all active:scale-[0.98] ${
-                    language === lang.id 
-                      ? 'border-brand bg-brand/5 shadow-sm shadow-brand/5' 
-                      : 'border-glass-border bg-surface-muted/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`h-11 w-11 rounded-2xl flex items-center justify-center transition-all ${
-                      language === lang.id ? 'bg-brand text-white' : 'bg-surface text-text-secondary'
-                    }`}>
-                      <Globe size={20} />
+            <div className="flex-1 overflow-y-auto px-6 pb-12 no-scrollbar min-h-[30vh] pb-[calc(var(--sab)+2rem)]">
+              <div className="flex flex-col gap-1.5 mt-2">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.id}
+                    onClick={() => handleSelect(lang.id)}
+                    className={`flex items-center justify-between p-4 rounded-2xl transition-all active:scale-[0.98] group ${
+                        language === lang.id 
+                        ? 'bg-brand/5 border border-brand/20' 
+                        : 'border border-transparent hover:bg-surface-muted/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-surface-muted flex items-center justify-center text-xl shadow-sm border border-glass-border/10">
+                        {lang.flag}
+                      </div>
+                      <div className="text-left">
+                        <h4 className={`font-bold text-[15px] leading-tight ${language === lang.id ? 'text-brand' : 'text-text-main'}`}>
+                          {lang.name}
+                        </h4>
+                        <p className="text-[11px] font-medium text-text-secondary opacity-60 mt-0.5">
+                          {lang.detail}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-left">
-                      <p className={`font-bold ${language === lang.id ? 'text-brand' : 'text-text-main'}`}>{lang.label}</p>
-                      <p className="text-[10px] font-bold text-text-secondary opacity-50 uppercase">{lang.sub}</p>
-                    </div>
-                  </div>
-                  {language === lang.id && (
-                    <div className="h-6 w-6 rounded-full bg-brand flex items-center justify-center text-white">
-                      <Check size={14} strokeWidth={3} />
-                    </div>
-                  )}
-                </button>
-              ))}
+                    {language === lang.id ? (
+                      <div className="h-8 w-8 rounded-full bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/20 animate-in zoom-in duration-300">
+                        <Check size={16} strokeWidth={3} />
+                      </div>
+                    ) : (
+                      <ChevronRight size={16} className="text-text-secondary opacity-20 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
-};
+});
+
+LanguageSelectionSheet.displayName = 'LanguageSelectionSheet';

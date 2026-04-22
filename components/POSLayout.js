@@ -61,19 +61,19 @@ export default function POSLayout({ children }) {
 
       {!isLoginPage && !isSetupPage && !isOnboardingPage && (
         <nav className="bottom-nav">
-          <NavItem href="/pos" icon={Home} label="Main" />
-          <NavItem href="/sales" icon={ShoppingBag} label="POS" />
+          <NavItem href="/" icon={Home} label="Home" />
+          <NavItem href="/sales" icon={ShoppingBag} label="History" />
           <div className="relative -top-6">
             <Link 
               href="/pos"
               onClick={() => haptics.medium()}
               className="flex h-16 w-16 items-center justify-center rounded-full bg-brand text-white shadow-lg shadow-brand/20 active:scale-90 transition-transform"
             >
-              <ShoppingBag size={28} />
+              <Box size={28} />
             </Link>
           </div>
           <NavItem href="/inventory" icon={Box} label="Items" />
-          <NavItem href="/profile" icon={User} label="Profile" />
+          <NavItem href="/settings" icon={Settings} label="Settings" />
         </nav>
       )}
     </div>

@@ -22,8 +22,8 @@ const StatCard = ({ title, value, trend, icon: Icon }) => (
       </span>
     </div>
     <div>
-      <p className="text-text-secondary text-[10px] font-bold uppercase tracking-widest">{title}</p>
-      <h3 className="text-xl font-extrabold mt-0.5 text-text-main">{value}</h3>
+      <p className="text-text-secondary text-xs font-semibold">{title}</p>
+      <h3 className="text-xl font-bold mt-0.5 text-text-main">{value}</h3>
     </div>
   </div>
 );
@@ -35,7 +35,7 @@ const ActionCard = ({ title, description, icon: Icon, color }) => (
     </div>
     <div>
       <h4 className="font-bold text-text-main text-sm">{title}</h4>
-      <p className="text-[11px] text-text-secondary leading-tight mt-0.5">{description}</p>
+      <p className="text-xs text-text-secondary leading-tight mt-0.5">{description}</p>
     </div>
   </button>
 );
@@ -46,10 +46,10 @@ export default function Home() {
       {/* Header */}
       <header className="flex items-center justify-between pt-4">
         <div>
-          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase">
-            {process.env.NEXT_PUBLIC_APP_NAME || "Inzeedo"}
+          <h1 className="text-2xl font-bold text-text-main">
+            {process.env.NEXT_PUBLIC_APP_NAME || "Inzeedo POS"}
           </h1>
-          <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Dashboard</p>
+          <p className="text-text-secondary text-sm font-medium">Store Dashboard</p>
         </div>
         <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand/20 shadow-lg shadow-brand/10">
           <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" />
@@ -58,7 +58,7 @@ export default function Home() {
 
       {/* Stats Grid */}
       <section className="grid grid-cols-2 gap-4">
-        <StatCard title="Sales" value="$4,280" trend="12" icon={TrendingUp} />
+        <StatCard title="Total Sales" value="$4,280" trend="12" icon={TrendingUp} />
         <StatCard title="Customers" value="142" trend="8" icon={Users} />
       </section>
 
@@ -76,7 +76,7 @@ export default function Home() {
 
       {/* Quick Actions */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Quick Actions</h2>
+        <h2 className="text-sm font-bold text-text-secondary ml-1">Quick Actions</h2>
         <div className="flex flex-col gap-3">
           <ActionCard 
             title="New Sale" 

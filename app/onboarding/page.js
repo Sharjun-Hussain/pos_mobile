@@ -91,10 +91,10 @@ export default function OnboardingPage() {
           <Illustration color={activeSlide.hex} />
         </div>
 
-        <h2 className="text-2xl font-extrabold text-text-main mb-2 text-center tracking-tight animate-in slide-in-from-bottom duration-500 uppercase">
+        <h2 className="text-2xl font-bold text-text-main mb-2 text-center animate-in slide-in-from-bottom duration-500">
           {activeSlide.title}
         </h2>
-        <p className="text-text-secondary text-sm text-center leading-relaxed max-w-[240px] animate-in fade-in duration-700">
+        <p className="text-text-secondary text-sm text-center leading-relaxed max-w-[240px] animate-in fade-in duration-700 font-medium">
           {activeSlide.description}
         </p>
       </div>
@@ -115,7 +115,7 @@ export default function OnboardingPage() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => { haptics.light(); router.push('/setup'); }}
-            className="text-text-secondary font-bold uppercase tracking-widest text-xs hover:text-text-main transition-colors"
+            className="text-text-secondary font-bold text-sm hover:text-text-main transition-colors"
           >
             Skip
           </button>

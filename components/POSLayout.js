@@ -12,11 +12,11 @@ const NavItem = ({ href, icon: Icon, label }) => {
   return (
     <Link
       href={href}
-      className={`flex flex-col items-center justify-center gap-1 transition-colors ${isActive ? 'text-brand' : 'text-zinc-500'
+      className={`flex flex-col items-center justify-center gap-1 transition-colors ${isActive ? 'text-brand' : 'text-text-secondary'
         }`}
     >
-      <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-      <span className="text-[10px] font-medium uppercase tracking-wider">{label}</span>
+      <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+      <span className="text-[11px] font-bold">{label}</span>
     </Link>
   );
 };

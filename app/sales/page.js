@@ -54,8 +54,8 @@ export default function SalesPage() {
         <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center text-white mb-6 shadow-xl shadow-emerald-500/20 animate-bounce">
           <CheckCircle2 size={40} />
         </div>
-        <h2 className="text-3xl font-black text-text-main mb-2 tracking-tighter uppercase">Done!</h2>
-        <p className="text-text-secondary font-bold uppercase text-[10px] tracking-widest">Transaction Successful</p>
+        <h2 className="text-3xl font-bold text-text-main mb-2">Order Complete</h2>
+        <p className="text-text-secondary font-medium">Transaction successful</p>
       </div>
     );
   }
@@ -64,8 +64,8 @@ export default function SalesPage() {
     <div className="h-screen flex flex-col overflow-hidden bg-surface">
       <div className="flex-1 overflow-y-auto p-6 pb-64">
         <header className="pt-4 mb-8">
-          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase">Quick Sale</h1>
-          <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Select Items</p>
+          <h1 className="text-2xl font-bold text-text-main">Quick Sale</h1>
+          <p className="text-text-secondary text-sm font-medium">Select items to add</p>
         </header>
         
         {/* Product Grid */}
@@ -81,7 +81,7 @@ export default function SalesPage() {
               </div>
               <div className="text-center">
                 <span className="font-bold text-text-main text-sm block">{p.name}</span>
-                <span className="text-[11px] font-black text-brand uppercase tracking-tighter mt-1 block">${p.price.toFixed(2)}</span>
+                <span className="text-xs font-semibold text-brand mt-1 block">${p.price.toFixed(2)}</span>
               </div>
             </button>
           ))}
@@ -93,17 +93,17 @@ export default function SalesPage() {
         <div className="glass-panel rounded-[2.5rem] p-6 shadow-2xl border-glass-border">
           <div className="flex flex-col gap-4 max-h-40 overflow-y-auto mb-5 pr-2 custom-scrollbar">
             {cart.length === 0 ? (
-              <p className="text-center text-text-secondary py-4 italic text-xs font-bold uppercase tracking-widest opacity-50">Cart is empty</p>
+              <p className="text-center text-text-secondary py-4 font-medium text-sm">Cart is empty</p>
             ) : (
               cart.map(item => (
                 <div key={item.id} className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="font-bold text-text-main text-sm">{item.name}</span>
-                    <span className="text-[10px] text-text-secondary font-bold uppercase tracking-tighter">${item.price.toFixed(2)} / unit</span>
+                    <span className="text-xs text-text-secondary font-medium">${item.price.toFixed(2)} / unit</span>
                   </div>
                   <div className="flex items-center gap-4 bg-surface-muted rounded-2xl p-1.5 px-3 border border-glass-border">
                     <button onClick={() => updateQty(item.id, -1)} className="text-text-secondary hover:text-red-500 transition-colors"><Minus size={14} /></button>
-                    <span className="font-black text-text-main text-xs min-w-[12px] text-center">{item.qty}</span>
+                    <span className="font-bold text-text-main text-xs min-w-[12px] text-center">{item.qty}</span>
                     <button onClick={() => updateQty(item.id, 1)} className="text-brand hover:scale-110 transition-transform"><Plus size={14} /></button>
                   </div>
                 </div>
@@ -113,8 +113,8 @@ export default function SalesPage() {
 
           <div className="border-t border-glass-border pt-5 flex flex-col gap-5">
             <div className="flex items-center justify-between">
-              <span className="text-text-secondary text-[11px] font-black uppercase tracking-[0.2em]">Total</span>
-              <span className="text-2xl font-black text-text-main tracking-tighter">${total.toFixed(2)}</span>
+              <span className="text-text-secondary text-sm font-bold">Total Amount</span>
+              <span className="text-2xl font-bold text-text-main">${total.toFixed(2)}</span>
             </div>
             
             <div className="flex gap-3">
@@ -124,7 +124,7 @@ export default function SalesPage() {
               <button 
                 onClick={handleCheckout}
                 disabled={cart.length === 0}
-                className="btn-primary flex-1 h-14 text-sm uppercase tracking-widest font-black"
+                className="btn-primary flex-1 h-14 text-base font-bold"
               >
                 Checkout <CreditCard size={18} />
               </button>

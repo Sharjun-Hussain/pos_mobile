@@ -23,14 +23,14 @@ const ProductListItem = ({ product }) => {
         </div>
         <div>
           <h4 className="font-bold text-text-main text-sm">{product.name}</h4>
-          <p className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">{product.sku}</p>
+          <p className="text-xs text-text-secondary font-medium">{product.sku}</p>
         </div>
       </div>
       <div className="text-right">
-        <p className="font-black text-text-main text-sm">${product.price.toFixed(2)}</p>
+        <p className="font-bold text-text-main text-sm">${product.price.toFixed(2)}</p>
         <div className="flex items-center justify-end gap-1 mt-0.5">
-          {isLowStock && <AlertCircle size={9} className="text-amber-500" strokeWidth={3} />}
-          <span className={`text-[9px] font-black uppercase tracking-tighter ${isLowStock ? 'text-amber-500' : 'text-text-secondary'}`}>
+          {isLowStock && <AlertCircle size={10} className="text-amber-500" strokeWidth={2.5} />}
+          <span className={`text-xs font-semibold ${isLowStock ? 'text-amber-500' : 'text-text-secondary'}`}>
             {product.stock} Units
           </span>
         </div>
@@ -51,8 +51,8 @@ export default function InventoryPage() {
     <div className="p-6 pb-24 flex flex-col gap-6">
       <header className="flex items-center justify-between pt-4">
         <div>
-          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase">Inventory</h1>
-          <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Manage Stock</p>
+          <h1 className="text-2xl font-bold text-text-main tracking-tight">Inventory</h1>
+          <p className="text-text-secondary text-sm font-medium">Manage Stock</p>
         </div>
         <button 
           onClick={() => haptics.medium()}
@@ -67,7 +67,7 @@ export default function InventoryPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
           <input 
             type="text" 
-            placeholder="Search SKU or Name..." 
+            placeholder="Search SKU or name..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/40 transition-all text-sm font-medium placeholder:text-text-secondary/50"
@@ -80,7 +80,7 @@ export default function InventoryPage() {
 
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">
+          <h2 className="text-sm font-bold text-text-secondary ml-1">
             {filteredProducts.length} Results
           </h2>
         </div>

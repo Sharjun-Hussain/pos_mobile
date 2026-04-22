@@ -42,13 +42,9 @@ export default function SetupPage() {
       const id = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
       try {
-        const response = await fetch(`${formattedUrl}/common/health-check`, { signal: controller.signal });
-        // Even if 404, we check if the host exists. 
-        // In this project, let's just assume if fetch doesn't throw, host is alive.
+        await fetch(`${formattedUrl}/common/health-check`, { signal: controller.signal });
       } catch (err) {
-        // console.error('Connection test failed', err);
-        // We will allow saving even if test fails, but warn. 
-        // For strictness, you could throw here.
+        // We will allow saving even if test fails
       }
       clearTimeout(id);
 
@@ -71,15 +67,15 @@ export default function SetupPage() {
         <div className="p-3 w-fit rounded-xl bg-brand/10 text-brand mb-4">
           <Server size={24} />
         </div>
-        <h1 className="text-3xl font-bold text-text-main tracking-tight">Server Setup</h1>
-        <p className="text-text-muted font-medium leading-relaxed">
+        <h1 className="text-3xl font-bold text-text-main">Server Setup</h1>
+        <p className="text-text-secondary font-medium leading-relaxed">
           Configure your self-hosted API endpoint to get started with Inzeedo POS.
         </p>
       </div>
 
       <form onSubmit={handleSave} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-text-secondary uppercase tracking-widest ml-1">Server API URL</label>
+          <label className="text-sm font-semibold text-text-secondary ml-1">Server API URL</label>
           <div className="relative">
             <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
             <input
@@ -96,7 +92,7 @@ export default function SetupPage() {
 
         <div className="glass-panel p-4 rounded-2xl flex gap-3 items-start">
           <ShieldCheck className="text-brand shrink-0" size={20} />
-          <p className="text-[11px] text-text-muted leading-relaxed">
+          <p className="text-[11px] text-text-secondary leading-relaxed font-medium">
             Your URL is stored locally on this device. We recommend using <span className="text-text-main font-semibold">HTTPS</span> for a secure connection to your self-hosted backend.
           </p>
         </div>
@@ -116,7 +112,7 @@ export default function SetupPage() {
 
       <div className="mt-12 flex items-center justify-center gap-2 text-text-secondary">
         <HelpCircle size={16} />
-        <button className="text-sm font-medium hover:text-brand transition-colors">Where can I find this?</button>
+        <button className="text-sm font-semibold hover:text-brand transition-colors">Where can I find this?</button>
       </div>
     </div>
   );

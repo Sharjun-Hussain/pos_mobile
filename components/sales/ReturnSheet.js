@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Drawer } from 'vaul';
 import { 
   X, 
   RotateCcw, 
@@ -91,22 +91,12 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
   if (!isOpen || !sale) return null;
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[600] flex flex-col justify-end">
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-        />
-        <motion.div 
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-          className="relative bg-surface rounded-t-[2.5rem] w-full max-h-[94vh] flex flex-col shadow-2xl safe-area-inset-bottom"
-        >
+    <Drawer.Root open={isOpen} onOpenChange={(c) => !c && onClose()}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md z-[600]" />
+        <Drawer.Content className="bg-surface flex flex-col rounded-t-[3rem] fixed bottom-0 left-0 right-0 z-[601] outline-none shadow-2xl max-h-[95dvh] pb-[calc(var(--sab)+1rem)]">
+          <div className="mx-auto w-14 h-1.5 flex-shrink-0 rounded-full bg-text-secondary/20 mt-4 mb-2" />
+          <div className="flex flex-col h-full overflow-hidden">
           {/* Header */}
           <div className="p-6 pb-4 flex items-center justify-between border-b border-glass-border/30">
             <div className="flex items-center gap-3 text-rose-500">
@@ -228,8 +218,9 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
               )}
             </button>
           </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 };

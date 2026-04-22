@@ -18,7 +18,7 @@ import {
   Percent,
   Calculator
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Drawer } from 'vaul';
 import { App } from '@capacitor/app';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -27,21 +27,6 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
-
-const slideVariants = {
-  enter: (direction) => ({
-    x: direction > 0 ? "50%" : "-50%",
-    opacity: 0
-  }),
-  center: {
-    x: 0,
-    opacity: 1
-  },
-  exit: (direction) => ({
-    x: direction < 0 ? "50%" : "-50%",
-    opacity: 0
-  })
-};
 
 export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   // Consume Global Stores
@@ -217,38 +202,12 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-end justify-center pointer-events-none">
-          {/* Backdrop */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto" 
-            onClick={handleClose} 
-          />
-          
-          {/* Draggable Container */}
-          <motion.div 
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 350, mass: 1 }}
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.05}
-            onDragEnd={(e, info) => {
-              if (info.offset.y > 150 || info.velocity.y > 800) {
-                handleClose();
-              }
-            }}
-            className="relative w-full max-w-xl bg-surface rounded-t-[3rem] pb-6 shadow-2xl border-t border-glass-border pointer-events-auto flex flex-col max-h-[90vh] touch-none"
-          >
-            {/* Native Drag Handle */}
-            <div className="flex justify-center pb-4 -mt-2 cursor-grab active:cursor-grabbing">
-              <div className="w-14 h-1.5 bg-text-secondary/20 rounded-full" />
-            </div>
+    <Drawer.Root open={isOpen} onOpenChange={(c) => !c && onClose()}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md z-[110]" />
+        <Drawer.Content className="bg-surface flex flex-col rounded-t-[3rem] fixed bottom-0 left-0 right-0 z-[111] outline-none shadow-2xl h-[95dvh] pb-[calc(var(--sab)+1rem)]">
+          <div className="mx-auto w-14 h-1.5 flex-shrink-0 rounded-full bg-text-secondary/20 mt-4 mb-2" />
+          <div className="flex flex-col h-full overflow-hidden">
 
             {/* Header / Stepper */}
             <div className="flex items-center justify-between mb-6 px-6 pt-2">
@@ -276,19 +235,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
             {/* Animated Content Wizard */}
             <div className="flex-1 overflow-hidden relative min-h-[40vh]">
-              <AnimatePresence initial={false} custom={direction} mode="wait">
-                <motion.div
-                  key={step}
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                  className="w-full h-full flex flex-col"
-                >
-                  {step === 1 && (
-                    <div className="flex-1 flex flex-col pointer-events-auto">
+              {step === 1 && (
+                <div className="w-full h-full flex flex-col animate-in fade-in slide-in-from-right-4 duration-300 pointer-events-auto">
                       {/* Financial Adjustments Bar */}
                       <div className="flex items-center gap-3 px-6 mb-5">
                         <div className="flex-1 glass-panel bg-surface-muted/30 border-glass-border/40 p-2.5 px-4 rounded-2xl flex items-center gap-3">
@@ -367,7 +315,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   )}
 
                   {step === 2 && (
-                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto">
+                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto animate-in fade-in slide-in-from-right-4 duration-300">
                       {!isAddingCustomer ? (
                         <>
                           <div className="relative px-6">
@@ -489,7 +437,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   )}
 
                   {step === 3 && (
-                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto px-6 overflow-y-auto no-scrollbar max-h-[60vh]">
+                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto px-6 overflow-y-auto no-scrollbar max-h-[60vh] animate-in fade-in slide-in-from-right-4 duration-300">
                       {/* Summary Card - High Contrast Glass Panel */}
                       <div className="p-6 rounded-[2.5rem] bg-brand shadow-2xl shadow-brand/20 flex flex-col items-center text-center gap-1 border border-white/20 relative overflow-hidden">
                         {/* Decorative Blur */}
@@ -594,8 +542,6 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       </div>
                     </div>
                   )}
-                </motion.div>
-              </AnimatePresence>
             </div>
 
             {/* Footer Actions with DYNAMIC TOOLBAR */}
@@ -612,14 +558,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         <span className="text-sm font-bold">{t('checkout.more')}</span>
                       </button>
 
-                      <AnimatePresence>
                         {showActions && (
-                          <motion.div 
-                            initial={{ y: 10, opacity: 0, scale: 0.95 }}
-                            animate={{ y: -4, opacity: 1, scale: 1 }}
-                            exit={{ y: 10, opacity: 0, scale: 0.95 }}
-                            className="absolute bottom-full left-0 w-48 bg-surface rounded-2xl shadow-2xl p-1.5 border border-glass-border mb-2 z-[200]"
-                          >
+                          <div className="absolute bottom-full left-0 w-48 bg-surface rounded-2xl shadow-2xl p-1.5 border border-glass-border mb-2 z-[200] animate-in fade-in slide-in-from-bottom-2 duration-200">
                             <button 
                               onClick={() => { haptics.medium(); handleFinish('draft'); }}
                               className="w-full p-3 rounded-xl flex items-center gap-3 text-text-main hover:bg-brand/5 active:bg-brand/10 transition-colors"
@@ -638,9 +578,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               </div>
                               <span className="text-xs font-bold">Clear Cart</span>
                             </button>
-                          </motion.div>
+                          </div>
                         )}
-                      </AnimatePresence>
                     </>
                   ) : (
                     <div className="bg-surface border-2 border-brand/20 text-brand px-5 h-14 rounded-2xl flex items-center justify-center shadow-sm">
@@ -674,22 +613,15 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
             </div>
 
             {/* Syncing Overlay */}
-            <AnimatePresence>
-              {isSyncing && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] z-[150] flex flex-col items-center justify-center gap-4 rounded-t-[3rem]"
-                >
-                  <div className="h-16 w-16 border-4 border-brand border-t-transparent rounded-full animate-spin" />
-                  <p className="text-sm font-black text-brand">Synchronizing Order</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+            {isSyncing && (
+              <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] z-[150] flex flex-col items-center justify-center gap-4 rounded-t-[3rem] animate-in fade-in duration-200">
+                <div className="h-16 w-16 border-4 border-brand border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm font-black text-brand">Synchronizing Order</p>
+              </div>
+            )}
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 };

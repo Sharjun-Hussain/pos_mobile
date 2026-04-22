@@ -111,7 +111,7 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading, onClick 
 export default function Home() {
   const router = useRouter();
   const { openDrawer } = useUIStore();
-  const { user, selectedBranch, isAuthenticated } = useAuthStore();
+  const { user, selectedBranch, isAuthenticated, isHydrated } = useAuthStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
   const [loading, setLoading] = useState(true);
@@ -161,10 +161,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated && !selectedBranch && (localUser?.branches?.length > 1 || user?.branches?.length > 1)) {
+    if (isHydrated && isAuthenticated && !selectedBranch && (localUser?.branches?.length > 1 || user?.branches?.length > 1)) {
       setIsBranchSheetOpen(true);
     }
-  }, [isAuthenticated, selectedBranch, localUser?.branches?.length, user?.branches?.length]);
+  }, [isHydrated, isAuthenticated, selectedBranch, localUser?.branches?.length, user?.branches?.length]);
 
   const displayUser = localUser || user;
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUser?.name || 'Felix'}`;

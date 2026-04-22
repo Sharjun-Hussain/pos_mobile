@@ -50,7 +50,17 @@ export const useAuthStore = create(
         await storage.remove('refresh_token');
       },
 
-      setHydrated: () => set({ isHydrated: true }),
+      setHydrated: () => {
+        const { isAuthenticated, selectedBranch, lastSelectedBranchId, user } = get();
+        
+        // Recover branch selection if authenticated but missing selection
+        if (isAuthenticated && !selectedBranch && lastSelectedBranchId && user?.branches) {
+          const found = user.branches.find(b => String(b.id) === String(lastSelectedBranchId));
+          if (found) set({ selectedBranch: found });
+        }
+        
+        set({ isHydrated: true });
+      },
     }),
     {
       name: 'inzeedo-auth-storage',

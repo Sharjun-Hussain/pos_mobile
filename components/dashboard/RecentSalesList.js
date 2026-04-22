@@ -1,11 +1,10 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { memo } from 'react';
 import { Clock, ChevronRight, User } from 'lucide-react';
 import { useCurrency } from '@/hooks/useCurrency';
 
-export const RecentSalesList = ({ sales = [], isLoading, onSaleClick }) => {
+export const RecentSalesList = memo(({ sales = [], isLoading, onSaleClick }) => {
   const { formatCurrency } = useCurrency();
 
   if (isLoading) {
@@ -52,21 +51,18 @@ export const RecentSalesList = ({ sales = [], isLoading, onSaleClick }) => {
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      {sales.map((sale, idx) => (
-        <motion.button
+    <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      {sales.map((sale) => (
+        <button
           key={sale.id}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: idx * 0.1 }}
           onClick={() => onSaleClick?.(sale)}
-          className="glass-panel p-4 rounded-[2rem] flex items-center justify-between active:scale-[0.98] transition-all"
+          className="glass-panel p-4 rounded-[2rem] flex items-center justify-between active:scale-[0.98] transition-all hover:bg-surface-muted/30"
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 text-left">
             <div className="h-11 w-11 rounded-2xl bg-brand/10 text-brand flex items-center justify-center">
               <User size={20} />
             </div>
-            <div className="text-left">
+            <div>
               <h5 className="text-sm font-bold text-text-main line-clamp-1">
                 {sale.customer?.name || "Walk-in Guest"}
               </h5>
@@ -88,8 +84,10 @@ export const RecentSalesList = ({ sales = [], isLoading, onSaleClick }) => {
             </div>
             <ChevronRight size={16} className="text-text-secondary opacity-30" />
           </div>
-        </motion.button>
+        </button>
       ))}
     </div>
   );
-};
+});
+
+RecentSalesList.displayName = 'RecentSalesList';

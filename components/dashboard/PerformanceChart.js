@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useCurrency } from '@/hooks/useCurrency';
 
 export const PerformanceChart = ({ data = [], isLoading }) => {
@@ -17,9 +16,9 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
         </div>
         <div className="absolute top-6 right-6 space-y-2 flex flex-col items-end">
           <div className="h-4 w-16 bg-surface-muted rounded animate-pulse" />
-          <div className="h-2 w-12 bg-surface-muted rounded animate-pulse" />
+          <div className="h-2 w-12 bg-surface-muted rounded animate-pulse ml-auto" />
         </div>
-        <div className="flex w-full items-end gap-2 mt-auto h-24 border-b border-glass-border/40 pb-2">
+        <div className="flex w-full items-end gap-2 mt-auto h-24 border-b border-glass-border/40 pb-2 px-1">
           {[...Array(7)].map((_, i) => (
             <div key={i} className="flex-1 bg-brand/10 rounded-t-xl animate-pulse" style={{ height: `${Math.random() * 60 + 20}%` }} />
           ))}
@@ -28,7 +27,7 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
     );
   }
 
-  // Sample data if none provided (Mocking trends for 7 days)
+  // Sample data if none provided
   const chartData = data.length > 0 ? data : [
     { label: 'Mon', value: 12500 },
     { label: 'Tue', value: 18000 },
@@ -39,11 +38,10 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
     { label: 'Sun', value: 22000 },
   ];
 
-  const maxVal = Math.max(...chartData.map(d => d.value));
+  const maxVal = Math.max(...chartData.map(d => d.value)) || 1;
   const height = 120;
   const width = 300;
   
-  // Create path points
   const points = chartData.map((d, i) => ({
     x: (i / (chartData.length - 1)) * width,
     y: height - (d.value / maxVal) * height
@@ -53,10 +51,10 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
   const areaData = `${pathData} L ${width},${height} L 0,${height} Z`;
 
   return (
-    <div className="glass-panel p-6 pb-4 rounded-[2.5rem] flex flex-col gap-4 overflow-hidden relative">
+    <div className="glass-panel p-6 pb-4 rounded-[2.5rem] flex flex-col gap-4 overflow-hidden relative animate-in fade-in duration-700">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none mb-1">Weekly Performance</h4>
+          <h4 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none mb-1 opacity-60">Weekly Performance</h4>
           <p className="text-sm font-black text-text-main leading-none">Sales Revenue</p>
         </div>
         <div className="text-right">
@@ -67,45 +65,34 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
 
       <div className="relative h-32 w-full mt-2">
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
-          {/* Grid Lines */}
           <line x1="0" y1="0" x2={width} y2="0" stroke="currentColor" strokeWidth="0.5" className="text-text-secondary/5" />
           <line x1="0" y1={height/2} x2={width} y2={height/2} stroke="currentColor" strokeWidth="0.5" className="text-text-secondary/5" />
           <line x1="0" y1={height} x2={width} y2={height} stroke="currentColor" strokeWidth="1" className="text-text-secondary/10" />
 
-          {/* Area under the curve */}
-          <motion.path
-            initial={{ opacity: 0, d: `M 0,${height} L ${width},${height} L ${width},${height} L 0,${height} Z` }}
-            animate={{ opacity: 1, d: areaData }}
-            transition={{ duration: 1, ease: "easeOut" }}
+          {/* Static Path (Removed motion for performance) */}
+          <path
+            d={areaData}
             fill="url(#gradient)"
-            className="opacity-20"
+            className="opacity-20 transition-opacity duration-1000 ease-out"
           />
 
-          {/* Main Path */}
-          <motion.path
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
+          <path
             d={pathData}
             fill="none"
             stroke="currentColor"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-brand"
+            className="text-brand transition-all duration-1000 ease-out"
           />
 
-          {/* Points */}
           {points.map((p, i) => (
-            <motion.circle
+            <circle
               key={i}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.5 + i * 0.1 }}
               cx={p.x}
               cy={p.y}
               r="4"
-              className="fill-brand stroke-surface stroke-2"
+              className="fill-brand stroke-surface stroke-2 transition-transform duration-500"
             />
           ))}
 

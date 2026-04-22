@@ -1,13 +1,12 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { memo } from 'react';
 import { AlertTriangle, Plus, Package } from 'lucide-react';
 
-export const LowStockCarousel = ({ items = [], isLoading, onRestock }) => {
+export const LowStockCarousel = memo(({ items = [], isLoading, onRestock }) => {
   if (isLoading) {
     return (
-      <div className="flex gap-4 overflow-hidden -mx-4 px-4">
+      <div className="flex gap-4 overflow-hidden -mx-4 px-4 no-scrollbar">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="min-w-[220px] h-40 glass-panel p-5 rounded-[2.5rem] flex flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
@@ -28,14 +27,11 @@ export const LowStockCarousel = ({ items = [], isLoading, onRestock }) => {
   if (items.length === 0) return null;
 
   return (
-      <div className="flex overflow-x-auto gap-4 no-scrollbar -mx-4 px-4 snap-x snap-mandatory">
-      {items.map((item, idx) => (
-        <motion.div
+    <div className="flex overflow-x-auto gap-4 no-scrollbar -mx-4 px-4 snap-x snap-mandatory animate-in fade-in slide-in-from-right-4 duration-700">
+      {items.map((item) => (
+        <div
           key={item.id}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: idx * 0.1 }}
-          className="min-w-[220px] glass-panel p-5 rounded-[2.5rem] bg-rose-500/5 snap-center border-rose-500/10 flex flex-col justify-between"
+          className="min-w-[220px] glass-panel p-5 rounded-[2.5rem] bg-rose-500/5 snap-center border-rose-500/10 flex flex-col justify-between active:scale-[0.98] transition-transform"
         >
           <div className="flex items-start justify-between">
             <div className="h-10 w-10 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
@@ -58,8 +54,10 @@ export const LowStockCarousel = ({ items = [], isLoading, onRestock }) => {
           >
             <Plus size={14} strokeWidth={3} /> Restock Now
           </button>
-        </motion.div>
+        </div>
       ))}
     </div>
   );
-};
+});
+
+LowStockCarousel.displayName = 'LowStockCarousel';

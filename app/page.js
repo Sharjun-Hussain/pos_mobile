@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   TrendingUp,
   TrendingDown,
   Users,
   Package,
-  ArrowUpRight,
   Plus,
-  Search,
-  ScanBarcode,
   RefreshCcw,
   AlertCircle,
   DollarSign,
@@ -30,8 +27,10 @@ import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
 import { RecentSalesList } from '@/components/dashboard/RecentSalesList';
 import { LowStockCarousel } from '@/components/dashboard/LowStockCarousel';
 import { useFetch } from '@/hooks/useFetch';
+import Image from 'next/image';
 
-const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
+// Memoized Stat Card
+const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
     return (
       <div className="glass-panel p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 overflow-hidden relative">
@@ -51,28 +50,29 @@ const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient })
   const isUp = trendValue && trendValue.startsWith('+');
 
   return (
-    <div className="glass-panel p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5">
+    <div className="glass-panel p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 transition-all active:scale-[0.97]">
       <div className="flex items-start justify-between">
         <div className={`p-2 rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md`}>
           <Icon size={18} />
         </div>
         {trendValue && (
-          <div className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-xs font-bold ${isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
+          <div className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-[10px] font-bold ${isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
             }`}>
-            {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
             {trendValue}
           </div>
         )}
       </div>
       <div>
-        <p className="text-text-secondary text-xs font-bold uppercase tracking-wider">{title}</p>
-        <h3 className="text-xl font-black mt-1 text-text-main">{value}</h3>
+        <p className="text-text-secondary text-[10px] font-bold uppercase tracking-wider opacity-60">{title}</p>
+        <h3 className="text-lg font-black mt-1 text-text-main tracking-tight">{value}</h3>
       </div>
     </div>
   );
-};
+});
+StatCard.displayName = 'StatCard';
 
-const ActionCard = ({ title, description, icon: Icon, color, isLoading, onClick }) => {
+// Memoized Action Card
+const ActionCard = memo(({ title, description, icon: Icon, color, isLoading, onClick }) => {
   if (isLoading) {
     return (
       <div className="glass-panel p-3 rounded-3xl flex items-center gap-4 relative overflow-hidden">
@@ -97,18 +97,19 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading, onClick 
   return (
     <button
       onClick={() => { haptics.light(); onClick?.(); }}
-      className="glass-panel p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-all duration-200 hover:bg-surface-muted/30"
+      className="glass-panel p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-all hover:bg-surface-muted/30"
     >
       <div className={`p-3 rounded-2xl ${activeColor}`}>
         <Icon size={22} strokeWidth={2.5} />
       </div>
       <div>
         <h4 className="font-bold text-text-main text-sm">{title}</h4>
-        <p className="text-xs text-text-secondary leading-tight mt-0.5">{description}</p>
+        <p className="text-[11px] text-text-secondary leading-tight mt-0.5 opacity-70">{description}</p>
       </div>
     </button>
   );
-};
+});
+ActionCard.displayName = 'ActionCard';
 
 export default function Home() {
   const router = useRouter();
@@ -147,17 +148,16 @@ export default function Home() {
   }, [isHydrated, isAuthenticated, selectedBranch, userData?.user?.branches?.length, user?.branches?.length]);
 
   const loading = userLoading || statsLoading || salesLoading || productsLoading;
-  const error = statsError;
-  const stats = statsData;
   const recentSales = salesData?.data || salesData || [];
   const lowStockItems = (productsData?.data || productsData || []).filter(p => p.stock <= (p.reorder_level || 5));
   const displayUser = userData?.user || user;
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUser?.name || 'Felix'}`;
-  const handleSaleClick = (sale) => {
+  
+  const handleSaleClick = useCallback((sale) => {
     haptics.medium();
     setSelectedSaleId(sale.id);
     setIsDetailsOpen(true);
-  };
+  }, []);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -167,9 +167,9 @@ export default function Home() {
   };
 
   return (
-    <div className="px-4 pb-24 flex flex-col gap-8 pt-[calc(var(--sat)+1.5rem)]">
+    <div className="h-[100dvh] overflow-y-auto no-scrollbar px-4 pb-24 flex flex-col gap-8 pt-[var(--sat)] pb-[var(--sab)] animate-in fade-in duration-700">
       {/* Header */}
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between mt-6">
         <div className="flex items-center gap-4">
           <button
             onClick={() => { haptics.light(); openDrawer(); }}
@@ -184,18 +184,23 @@ export default function Home() {
             </div>
           ) : (
             <div>
-              <p className="text-xs font-black text-brand uppercase tracking-wider mb-1 opacity-100">{getGreeting()}</p>
-              <h1 className="text-2xl font-black text-text-main leading-none mb-1">
+              <p className="text-[10px] font-black text-brand uppercase tracking-wider mb-1 opacity-70">{getGreeting()}</p>
+              <h1 className="text-xl font-bold text-text-main leading-none">
                 {displayUser?.name || "Partner"}
               </h1>
             </div>
           )}
         </div>
-        <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand/20 shadow-lg shadow-brand/10 bg-white">
+        <div className="relative h-10 w-10 rounded-full overflow-hidden border-2 border-brand/20 shadow-lg shadow-brand/10 bg-white">
           {loading ? (
             <div className="w-full h-full animate-pulse" />
           ) : (
-            <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
+            <Image 
+              src={avatarSrc} 
+              alt="Avatar" 
+              fill
+              className="object-cover" 
+            />
           )}
         </div>
       </header>
@@ -205,32 +210,32 @@ export default function Home() {
         <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-4 px-4">
           <StatCard
             title={t('pos.total')}
-            value={stats?.todayRevenue?.value ? formatCurrency(parseFloat(stats.todayRevenue.value)) : formatCurrency(0)}
-            trendValue={stats?.todayRevenue?.change}
+            value={statsData?.todayRevenue?.value ? formatCurrency(parseFloat(statsData.todayRevenue.value)) : formatCurrency(0)}
+            trendValue={statsData?.todayRevenue?.change}
             icon={DollarSign}
             gradient="from-emerald-500 to-teal-400"
             isLoading={loading}
           />
           <StatCard
             title={t('settings.notifications')}
-            value={stats?.pendingInvoices?.value || '0'}
-            trendValue={stats?.pendingInvoices?.change}
+            value={statsData?.pendingInvoices?.value || '0'}
+            trendValue={statsData?.pendingInvoices?.change}
             icon={FileText}
             gradient="from-blue-500 to-indigo-400"
             isLoading={loading}
           />
           <StatCard
             title="Low Stock"
-            value={stats?.lowStockCount?.value || '0'}
-            trendValue={stats?.lowStockCount?.change}
+            value={statsData?.lowStockCount?.value || '0'}
+            trendValue={statsData?.lowStockCount?.change}
             icon={Package}
             gradient="from-amber-500 to-orange-400"
             isLoading={loading}
           />
           <StatCard
             title={t('checkout.walkIn')}
-            value={stats?.newCustomers?.value || '0'}
-            trendValue={stats?.newCustomers?.change}
+            value={statsData?.newCustomers?.value || '0'}
+            trendValue={statsData?.newCustomers?.change}
             icon={Users}
             gradient="from-violet-500 to-purple-400"
             isLoading={loading}
@@ -238,22 +243,21 @@ export default function Home() {
         </div>
       </section>
 
-      {error && (
+      {statsError && (
         <div className="glass-panel p-4 rounded-2xl flex items-center justify-between bg-rose-500/5 border-rose-500/10">
           <div className="flex items-center gap-3 text-rose-500">
             <AlertCircle size={18} />
-            <span className="text-xs font-bold">Could not refresh data</span>
+            <span className="text-xs font-bold">Refresh failed</span>
           </div>
-          <button onClick={() => { haptics.medium(); window.location.reload(); }} className="p-2 rounded-xl bg-surface-muted text-text-main active:rotate-180 transition-transform duration-500">
+          <button onClick={() => { haptics.medium(); router.refresh(); }} className="p-2 rounded-xl bg-surface-muted text-text-main active:rotate-180 transition-transform duration-500">
             <RefreshCcw size={16} />
           </button>
         </div>
       )}
 
-
       {/* Quick Actions */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-bold text-text-secondary ml-1">Quick Actions</h2>
+        <h2 className="text-xs font-bold text-text-secondary ml-1 uppercase tracking-widest opacity-60">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-3">
           <ActionCard
             title={t('checkout.finalizeSale')}
@@ -268,23 +272,23 @@ export default function Home() {
 
       {/* Performance Section */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-bold text-text-secondary ml-1">Business Pulse</h2>
-        <PerformanceChart isLoading={loading} />
+        <h2 className="text-xs font-bold text-text-secondary ml-1 uppercase tracking-widest opacity-60">Business Pulse</h2>
+        <PerformanceChart data={statsData?.chartData} isLoading={loading} />
       </section>
 
       {/* Recent Activity */}
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-bold text-text-secondary">Recent Transactions</h2>
+          <h2 className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60">Recent Transactions</h2>
           <button
             onClick={() => { haptics.light(); router.push('/sales'); }}
-            className="text-xs font-black text-brand uppercase tracking-wider"
+            className="text-[10px] font-black text-brand uppercase tracking-wider"
           >
             See All
           </button>
         </div>
         <RecentSalesList
-          sales={recentSales.slice(0, 5)}
+          sales={recentSales}
           isLoading={loading}
           onSaleClick={handleSaleClick}
         />
@@ -294,8 +298,13 @@ export default function Home() {
       {lowStockItems.length > 0 && (
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm font-bold text-rose-500">Inventory Alerts</h2>
-            <button className="text-xs font-black text-rose-500 uppercase tracking-wider">Manage</button>
+            <h2 className="text-xs font-bold text-rose-500 uppercase tracking-widest opacity-80">Inventory Alerts</h2>
+            <button 
+              onClick={() => router.push('/inventory?filter=low-stock')}
+              className="text-[10px] font-black text-rose-500 uppercase tracking-wider"
+            >
+              Manage
+            </button>
           </div>
           <LowStockCarousel items={lowStockItems} isLoading={loading} />
         </section>

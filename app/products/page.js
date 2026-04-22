@@ -80,7 +80,7 @@ const ProductGridItem = ({ product, getImageUrl }) => {
 
 export default function ProductsPage() {
   const { openDrawer } = useUIStore();
-  const { data: productsData, isLoading: productsLoading, error: productsError, refetch: refetchProducts } = useFetch('/products?size=100');
+  const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateProducts } = useFetch('/products?size=100');
   const { data: categoriesData, isLoading: categoriesLoading } = useFetch('/main-categories/active/list');
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -123,7 +123,7 @@ export default function ProductsPage() {
           </div>
         </div>
         <button 
-          onClick={() => { haptics.light(); fetchData(); }}
+          onClick={() => { haptics.light(); mutateProducts(); }}
           className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
         >
           <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />

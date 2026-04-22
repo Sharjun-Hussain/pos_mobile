@@ -144,6 +144,7 @@ export default function Home() {
   }, [isHydrated, isAuthenticated, selectedBranch, userData?.user?.branches?.length, user?.branches?.length]);
 
   const loading = userLoading || statsLoading || salesLoading || productsLoading;
+  const error = statsError;
   const stats = statsData;
   const recentSales = salesData?.data || salesData || [];
   const lowStockItems = (productsData?.data || productsData || []).filter(p => p.stock <= (p.reorder_level || 5));
@@ -177,13 +178,8 @@ export default function Home() {
             <div>
               <p className="text-xs font-black text-brand uppercase tracking-wider mb-1 opacity-80">{getGreeting()}</p>
               <h1 className="text-2xl font-black text-text-main leading-none mb-1">
-                {displayUser?.name?.split(' ')[0] || "Partner"}
+                {displayUser?.name || "Partner"}
               </h1>
-              <div className="flex items-center gap-1.5 opacity-60">
-                <p className="text-xs font-bold text-text-secondary leading-none">
-                  {selectedBranch?.name || 'Branch Terminal'}
-                </p>
-              </div>
             </div>
           )}
         </div>
@@ -238,9 +234,9 @@ export default function Home() {
         <div className="glass-panel p-4 rounded-2xl flex items-center justify-between bg-rose-500/5 border-rose-500/10">
           <div className="flex items-center gap-3 text-rose-500">
             <AlertCircle size={18} />
-            <span className="text-xs font-bold">{error}</span>
+            <span className="text-xs font-bold">Could not refresh data</span>
           </div>
-          <button onClick={() => { haptics.medium(); fetchDashboardData(); }} className="p-2 rounded-xl bg-surface-muted text-text-main active:rotate-180 transition-transform duration-500">
+          <button onClick={() => { haptics.medium(); window.location.reload(); }} className="p-2 rounded-xl bg-surface-muted text-text-main active:rotate-180 transition-transform duration-500">
             <RefreshCcw size={16} />
           </button>
         </div>

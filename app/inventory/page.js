@@ -48,8 +48,8 @@ const ProductListItem = ({ product, getImageUrl }) => {
 };
 
 export default function InventoryPage() {
-  const { data: productsData, isLoading: productsLoading, error: productsError } = useFetch('/products/active/list');
-  const { data: categoriesData, isLoading: categoriesLoading } = useFetch('/main-categories/active/list');
+  const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateProducts } = useFetch('/products/active/list');
+  const { data: categoriesData, isLoading: categoriesLoading, mutate: mutateCategories } = useFetch('/main-categories/active/list');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -101,7 +101,7 @@ export default function InventoryPage() {
           />
         </div>
         <button
-          onClick={() => { haptics.light(); fetchData(); }}
+          onClick={() => { haptics.light(); mutateProducts(); mutateCategories(); }}
           className="h-14 w-14 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand"
         >
           <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />

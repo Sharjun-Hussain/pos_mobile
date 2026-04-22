@@ -81,7 +81,7 @@ const VariantGridItem = ({ variant, productName, getImageUrl }) => {
 };
 
 export default function VariantsPage() {
-  const { data: productsData, isLoading: productsLoading, error: productsError } = useFetch('/products/active/list');
+  const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateVariants } = useFetch('/products/active/list');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
@@ -138,7 +138,7 @@ export default function VariantsPage() {
           </div>
         </div>
         <button 
-          onClick={() => { haptics.light(); fetchVariants(); }}
+          onClick={() => { haptics.light(); mutateVariants(); }}
           className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
         >
           <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />

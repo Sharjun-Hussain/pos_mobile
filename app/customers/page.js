@@ -124,7 +124,7 @@ export default function CustomersPage() {
           </div>
         </div>
         <button 
-          onClick={() => { haptics.light(); fetchCustomers(); }}
+          onClick={() => { haptics.light(); refetchCustomers(); }}
           className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
         >
           <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />

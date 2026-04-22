@@ -28,6 +28,8 @@ import { TerminalSettingsSheet } from '@/components/settings/TerminalSettingsShe
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useTheme } from 'next-themes';
 import { Sun, RefreshCcw } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { LanguageSelectionSheet } from '@/components/settings/LanguageSelectionSheet';
 
 const SettingItem = ({ icon: Icon, label, value, color = 'brand', onClick }) => {
   const colors = {
@@ -65,6 +67,7 @@ export default function SettingsPage() {
     theme,
     setTheme
   } = useTheme();
+  const { t } = useTranslation();
 
   const {
     terminalName,
@@ -72,7 +75,8 @@ export default function SettingsPage() {
     businessName,
     currency,
     paperWidth,
-    activePaymentMethods
+    activePaymentMethods,
+    language
   } = useSettingsStore();
 
   const [mounted, setMounted] = useState(false);
@@ -82,6 +86,7 @@ export default function SettingsPage() {
 
   const [isTerminalSheetOpen, setIsTerminalSheetOpen] = useState(false);
   const [initialTerminalTab, setInitialTerminalTab] = useState('terminal');
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
 
@@ -115,7 +120,7 @@ export default function SettingsPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-xl font-black text-text-main leading-none mb-1">Settings</h1>
+            <h1 className="text-xl font-black text-text-main leading-none mb-1">{t('settings.title')}</h1>
             <div className="flex items-center gap-2">
               <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">System Control</p>
               <button onClick={() => { haptics.medium(); handleSync(); }} className={`text-brand active:rotate-180 transition-transform duration-700 ${isSyncing ? 'animate-spin' : ''}`}>
@@ -156,23 +161,23 @@ export default function SettingsPage() {
             onClick={() => { haptics.light(); setInitialProfileTab('profile'); setIsEditProfileOpen(true); }}
             className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all"
           >
-            <User size={16} className="text-brand" /> Edit Profile
+            <User size={16} className="text-brand" /> {t('settings.editProfile')}
           </button>
           <button
             onClick={() => { haptics.light(); setInitialProfileTab('security'); setIsEditProfileOpen(true); }}
             className="flex-1 h-14 glass-panel rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-text-main active:scale-95 transition-all"
           >
-            <Shield size={16} className="text-amber-500" /> Security
+            <Shield size={16} className="text-amber-500" /> {t('settings.security')}
           </button>
         </div>
       </section>
 
       {/* Global Preferences */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">Preferences</p>
+        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">{t('settings.preferences')}</p>
         <SettingItem
           icon={Bell}
-          label="Notifications"
+          label={t('settings.notifications')}
           value="Enabled"
           color="blue"
           onClick={() => { }}
@@ -180,7 +185,7 @@ export default function SettingsPage() {
 
         <SettingItem
           icon={FileText}
-          label="Receipt & Policy"
+          label={t('settings.receiptPolicy')}
           value={`${paperWidth} Thermal • Template active`}
           color="emerald"
           onClick={() => { setInitialTerminalTab('receipt'); setIsTerminalSheetOpen(true); }}
@@ -193,7 +198,7 @@ export default function SettingsPage() {
               <Moon size={20} strokeWidth={2.5} />
             </div>
             <div className="text-left">
-              <p className="text-sm font-bold text-text-main">Appearance</p>
+              <p className="text-sm font-bold text-text-main">{t('settings.appearance')}</p>
               <p className="text-[10px] font-bold text-text-secondary">{mounted ? theme.charAt(0).toUpperCase() + theme.slice(1) : 'System'} Default</p>
             </div>
           </div>
@@ -222,39 +227,39 @@ export default function SettingsPage() {
 
       {/* Technical Configuration */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">Technical</p>
+        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1">{t('settings.technical')}</p>
         <SettingItem
           icon={Smartphone}
-          label="Terminal Host"
+          label={t('settings.terminalHost')}
           value={terminalName}
           color="amber"
           onClick={() => { setInitialTerminalTab('terminal'); setIsTerminalSheetOpen(true); }}
         />
         <SettingItem
           icon={CreditCard}
-          label="Payment Protocol"
+          label={t('settings.paymentProtocol')}
           value={`${activePaymentMethods?.length || 0} Methods Active`}
           color="blue"
           onClick={() => { setInitialTerminalTab('payments'); setIsTerminalSheetOpen(true); }}
         />
         <SettingItem
           icon={Database}
-          label="Identity Base"
+          label={t('settings.identityBase')}
           value={businessName || 'Syncing...'}
           color="emerald"
           onClick={() => { }}
         />
         <SettingItem
           icon={Globe}
-          label="Locale & Currency"
-          value={`${currency} basis • English`}
+          label={t('settings.localeCurrency')}
+          value={`${currency} basis • ${language === 'en' ? 'English' : language === 'si' ? 'සිංහල' : 'தமிழ்'}`}
           color="brand"
-          onClick={() => { }}
+          onClick={() => setIsLanguageOpen(true)}
         />
         {user?.branches?.length > 1 && (
           <SettingItem
             icon={Building2}
-            label="Switch Branch"
+            label={t('settings.switchBranch')}
             value="Change working location"
             color="rose"
             onClick={() => { setIsBranchSheetOpen(true); }}
@@ -278,6 +283,11 @@ export default function SettingsPage() {
         isOpen={isTerminalSheetOpen}
         onClose={() => setIsTerminalSheetOpen(false)}
         initialSection={initialTerminalTab}
+      />
+
+      <LanguageSelectionSheet
+        isOpen={isLanguageOpen}
+        onClose={() => setIsLanguageOpen(false)}
       />
 
       <BranchSelectionSheet 

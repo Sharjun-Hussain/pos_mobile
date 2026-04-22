@@ -2,8 +2,10 @@
 
 import React, { memo } from 'react';
 import { ShoppingCart, ChevronRight } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const DockedCart = memo(({ cart, total, onClick, isVisible }) => {
+  const { t } = useTranslation();
   if (!isVisible) return null;
 
   return (
@@ -17,12 +19,12 @@ const DockedCart = memo(({ cart, total, onClick, isVisible }) => {
             <ShoppingCart size={20} strokeWidth={2.5} />
           </div>
           <div className="text-left">
-            <p className="text-xs font-bold text-text-main">{cart.length} Items Selected</p>
+            <p className="text-xs font-bold text-text-main">{cart.length} {t('pos.itemsSelected')}</p>
             <p className="text-[10px] font-medium text-text-secondary mt-0.5">LKR {total.toLocaleString()}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 pr-2">
-          <span className="text-[10px] font-bold text-brand">Review Cart</span>
+          <span className="text-[10px] font-bold text-brand">{t('pos.reviewCart')}</span>
           <ChevronRight size={16} className="text-brand opacity-50" />
         </div>
       </button>

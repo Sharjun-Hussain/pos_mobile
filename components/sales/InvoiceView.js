@@ -3,9 +3,11 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
   const { showLogo, businessLogo } = useSettingsStore();
+  const { t } = useTranslation();
 
   if (!sale) return null;
 
@@ -49,7 +51,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
           <p>{sale.branch?.address || "Main Distribution Hub"}</p>
           <p>Tel: {sale.branch?.phone || "+94 112 345 678"}</p>
           {(sale.branch?.organization?.tax_id || sale.tax_id) && (
-            <p>TIN: {sale.branch?.organization?.tax_id || sale.tax_id}</p>
+            <p>{t('checkout.tin')}: {sale.branch?.organization?.tax_id || sale.tax_id}</p>
           )}
         </div>
       </div>
@@ -57,7 +59,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
       {/* Stats / Info */}
       <div className="border-y border-dashed border-black/30 py-3 my-4 space-y-1">
         <div className="flex justify-between">
-          <span className="font-bold">INVOICE:</span>
+          <span className="font-bold uppercase">{t('common.search')}:</span>
           <span className="font-black">{sale.invoice_number}</span>
         </div>
         <div className="flex justify-between">
@@ -148,7 +150,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
         )}
 
         <div className="flex justify-between text-base font-black border-t-2 border-black pt-2 mt-2">
-          <span>GRAND TOTAL:</span>
+          <span>{t('checkout.payableAmount')}:</span>
           <span>LKR {Math.round(sale.payable_amount).toLocaleString()}</span>
         </div>
       </div>

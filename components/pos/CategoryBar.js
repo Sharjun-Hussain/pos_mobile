@@ -2,8 +2,10 @@
 
 import React, { memo } from 'react';
 import { haptics } from '@/services/haptics';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CategoryBar = memo(({ categories, activeCategory, onSelect }) => {
+  const { t } = useTranslation();
   return (
     <div className="flex overflow-x-auto gap-1.5 no-scrollbar -mx-2 px-2">
       <button 
@@ -14,7 +16,7 @@ const CategoryBar = memo(({ categories, activeCategory, onSelect }) => {
             : 'bg-surface-muted/30 text-text-secondary border-glass-border'
         }`}
       >
-        All
+        {t('pos.allCategories')}
       </button>
       {categories.map(cat => (
         <button 

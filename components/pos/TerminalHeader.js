@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react';
 import { Search, Camera, Tag, ArrowLeft, X } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const TerminalHeader = memo(({ 
   showSearch, 
@@ -13,6 +14,7 @@ const TerminalHeader = memo(({
   isWholesale,
   onBack 
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between">
       {!showSearch ? (
@@ -22,7 +24,7 @@ const TerminalHeader = memo(({
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h1 className="text-sm font-bold text-text-main leading-none">POS Terminal</h1>
+              <h1 className="text-sm font-bold text-text-main leading-none">{t('pos.terminal')}</h1>
               <p className="text-[10px] font-medium text-emerald-500 mt-1 flex items-center gap-1">
                 <div className="h-1 w-1 bg-emerald-500 rounded-full animate-pulse" /> Live Node
               </p>
@@ -35,7 +37,7 @@ const TerminalHeader = memo(({
               className="h-10 px-3 bg-brand text-white rounded-xl flex items-center gap-1.5 shadow-lg shadow-brand/20 active:scale-95 transition-all"
             >
               <Camera size={16} strokeWidth={2.5} />
-              <span className="text-[10px] font-bold hidden sm:inline">Scan</span>
+              <span className="text-[10px] font-bold hidden sm:inline">{t('pos.scan')}</span>
             </button>
             <button 
               onClick={() => onToggleSearch(true)}
@@ -51,7 +53,7 @@ const TerminalHeader = memo(({
                   : 'bg-surface-muted/50 border-glass-border text-text-secondary'
               }`}
             >
-              <Tag size={16} /> <span className="hidden xs:inline">{isWholesale ? 'Wholesale' : 'Retail'}</span>
+              <Tag size={16} /> <span className="hidden xs:inline">{isWholesale ? t('pos.wholesale') : t('pos.retail')}</span>
             </button>
           </div>
         </>
@@ -62,7 +64,7 @@ const TerminalHeader = memo(({
             <input 
               autoFocus
               type="text" 
-              placeholder="Quick Search Product..." 
+              placeholder={t('pos.searchProducts')} 
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full h-12 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-xs font-bold text-text-main outline-none focus:border-brand/40 shadow-inner"

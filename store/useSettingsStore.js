@@ -12,6 +12,7 @@ export const useSettingsStore = create(
       isWholesale: false,
       activeCategory: 'All',
       terminalName: 'Register 01',
+      language: 'en',
       enableSound: true,
       showLogo: false,
       showTaxBreakdown: false,
@@ -48,6 +49,7 @@ export const useSettingsStore = create(
             const d = posRes.data;
             set({
               enableSound: d.enableSound ?? get().enableSound,
+              language: d.language ?? get().language,
               showLogo: d.showLogo ?? get().showLogo,
               headerText: d.headerText ?? get().headerText,
               footerText: d.footerText ?? get().footerText,
@@ -92,6 +94,7 @@ export const useSettingsStore = create(
         // We only send some fields to the backend to avoid bloating
         const payload = {
           enableSound: newData.enableSound,
+          language: newData.language,
           showLogo: newData.showLogo,
           headerText: newData.headerText,
           footerText: newData.footerText,
@@ -107,6 +110,11 @@ export const useSettingsStore = create(
         } catch (err) {
           return { success: false, error: err.message };
         }
+      },
+
+      setLanguage: (lang) => {
+        set({ language: lang });
+        get().updatePOSSettings({ language: lang });
       },
 
       updateTaxSettings: async ({ vatRate, ssclRate, taxId }) => {

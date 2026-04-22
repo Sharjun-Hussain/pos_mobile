@@ -23,6 +23,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
@@ -102,6 +103,7 @@ export default function Home() {
   const router = useRouter();
   const { openDrawer } = useUIStore();
   const { user, selectedBranch, isAuthenticated } = useAuthStore();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
   const [error, setError] = useState(null);
@@ -194,7 +196,7 @@ export default function Home() {
       <section>
         <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-6 px-6">
           <StatCard
-            title="Revenue"
+            title={t('pos.total')}
             value={stats?.todayRevenue?.value ? `LKR ${parseFloat(stats.todayRevenue.value).toLocaleString()}` : 'LKR 0.00'}
             trendValue={stats?.todayRevenue?.change}
             icon={DollarSign}
@@ -202,7 +204,7 @@ export default function Home() {
             isLoading={loading}
           />
           <StatCard
-            title="Invoices"
+            title={t('settings.notifications')}
             value={stats?.pendingInvoices?.value || '0'}
             trendValue={stats?.pendingInvoices?.change}
             icon={FileText}
@@ -218,7 +220,7 @@ export default function Home() {
             isLoading={loading}
           />
           <StatCard
-            title="Customers"
+            title={t('checkout.walkIn')}
             value={stats?.newCustomers?.value || '0'}
             trendValue={stats?.newCustomers?.change}
             icon={Users}
@@ -246,7 +248,7 @@ export default function Home() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
           <input
             type="text"
-            placeholder="Search products or SKU..."
+            placeholder={t('pos.searchProducts')}
             className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/40 transition-all placeholder:text-text-secondary/50 text-sm font-medium"
           />
         </div>
@@ -257,7 +259,7 @@ export default function Home() {
         <h2 className="text-sm font-bold text-text-secondary ml-1">Quick Actions</h2>
         <div className="flex flex-col gap-3">
           <ActionCard
-            title="New Sale"
+            title={t('checkout.finalizeSale')}
             description="Start a checkout transaction"
             icon={Plus}
             color="brand"

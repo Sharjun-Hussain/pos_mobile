@@ -18,9 +18,11 @@ import DockedCart from '@/components/pos/DockedCart';
 // Global Stores
 import { useCartStore } from '@/store/useCartStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function SalesPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   
   // Zustand States
   const { cart, addItem, syncPrices } = useCartStore();
@@ -159,7 +161,7 @@ export default function SalesPage() {
         <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center text-white mb-6 shadow-xl shadow-emerald-500/20 animate-bounce">
           <div className="h-10 w-10 border-4 border-white rounded-full border-t-transparent animate-spin" />
         </div>
-        <h2 className="text-3xl font-bold text-text-main mb-2">Order Confirmed</h2>
+        <h2 className="text-3xl font-bold text-text-main mb-2">{t('common.success')}</h2>
         <p className="text-text-secondary font-bold text-xs">Transaction synchronized successfully</p>
       </div>
     );
@@ -193,12 +195,12 @@ export default function SalesPage() {
           <ProductSkeleton />
         ) : error ? (
           <div className="glass-panel p-10 rounded-[3rem] text-center flex flex-col items-center gap-4 border-rose-500/20 mt-10 shadow-2xl">
-            <p className="text-sm font-bold text-text-main">{error}</p>
-            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-bold">Retry Sync</button>
+            <p className="text-sm font-bold text-text-main">{t('common.error')}</p>
+            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-bold">{t('pos.retry')}</button>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-24 opacity-30">
-            <p className="text-xs font-bold text-text-main">No matches in this shelf</p>
+            <p className="text-xs font-bold text-text-main">{t('pos.noMatches')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-3">

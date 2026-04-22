@@ -25,6 +25,7 @@ import { api } from '@/services/api';
 import { useCartStore } from '@/store/useCartStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const slideVariants = {
   enter: (direction) => ({
@@ -60,6 +61,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   } = useCartStore();
   const { selectedBranch } = useAuthStore();
   const { isWholesale, activePaymentMethods, currency, checkoutPreview, vatRate, ssclRate } = useSettingsStore();
+  const { t } = useTranslation();
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
   const [customers, setCustomers] = useState([]);
@@ -354,7 +356,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         {cart.length === 0 && (
                           <div className="text-center py-20 opacity-30 flex flex-col items-center">
                             <ShoppingCart size={64} className="mb-4" />
-                            <p className="text-sm font-bold">Cart is empty</p>
+                            <p className="text-sm font-bold">{t('pos.cartEmpty')}</p>
                           </div>
                         )}
                       </div>
@@ -369,7 +371,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
                             <input 
                               type="text" 
-                              placeholder="Find customer..." 
+                              placeholder={t('common.search')}
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
                               className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
@@ -386,7 +388,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                     <User size={20} />
                                   </div>
                                   <div className="text-left overflow-hidden">
-                                    <p className="text-sm font-bold text-text-main truncate">Walk-in Customer</p>
+                                    <p className="text-sm font-bold text-text-main truncate">{t('checkout.walkIn')}</p>
                                     <p className="text-[10px] font-medium text-text-secondary">Standard Retail Pricing</p>
                                   </div>
                                 </div>
@@ -427,7 +429,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               onClick={() => { haptics.medium(); setIsAddingCustomer(true); }}
                               className="w-full h-14 border-2 border-dashed border-glass-border rounded-3xl flex items-center justify-center gap-2 text-text-secondary text-xs font-bold hover:border-brand/40 hover:text-brand transition-all"
                             >
-                              <UserPlus size={16} /> New Customer
+                              <UserPlus size={16} /> {t('checkout.newCustomer')}
                             </button>
                           </div>
                         </>
@@ -559,7 +561,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       {/* Small Breakdown - High Density */}
                       <div className="space-y-1.5 border-t border-glass-border/30 pt-3 px-1">
                         <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-text-secondary font-bold">Subtotal</span>
+                          <span className="text-text-secondary font-bold">{t('checkout.subtotal')}</span>
                           <span className="text-text-main font-black">{currency} {subtotal.toLocaleString()}</span>
                         </div>
                         {discount > 0 && (
@@ -604,7 +606,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         className="w-full h-14 glass-panel border-2 border-glass-border/30 rounded-2xl flex items-center justify-center gap-2 text-text-main hover:border-brand/40 transition-all active:scale-95"
                       >
                         <Calculator size={16} className="text-text-secondary" />
-                        <span className="text-sm font-bold">More</span>
+                        <span className="text-sm font-bold">{t('checkout.more')}</span>
                       </button>
 
                       <AnimatePresence>

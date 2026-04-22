@@ -76,7 +76,7 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
               </div>
               <div>
                 <h3 className="text-base font-black text-text-main leading-none mb-1">Invoice Details</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{sale?.invoice_number || 'Loading...'}</p>
+                <p className="text-[10px] font-bold text-slate-400">{sale?.invoice_number || 'Loading...'}</p>
               </div>
             </div>
             <button 
@@ -98,17 +98,17 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
               <div className="p-12 text-center flex flex-col items-center gap-4 text-rose-500">
                 <AlertTriangle size={48} strokeWidth={1} />
                 <p className="font-bold text-sm">{error}</p>
-                <button onClick={fetchSaleDetails} className="bg-rose-50 px-6 h-10 rounded-xl text-xs font-black uppercase">Retry</button>
+                <button onClick={fetchSaleDetails} className="bg-rose-50 px-6 h-10 rounded-xl text-xs font-black">Retry</button>
               </div>
             ) : (
               <div className="p-6 flex flex-col gap-6">
                 {/* Status & Highlights */}
                 <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between border border-slate-100">
                   <div className="flex flex-col gap-1">
-                    <p className="text-[9px] font-black text-slate-400 uppercase">Total Amount</p>
+                    <p className="text-[9px] font-black text-slate-400">Total Amount</p>
                     <p className="text-xl font-black text-brand">LKR {Math.round(sale.payable_amount).toLocaleString()}</p>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+                  <div className={`px-3 py-1 rounded-full text-[10px] font-black ${
                     sale.payment_status === 'paid' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
                   }`}>
                     {sale.payment_status}
@@ -120,7 +120,7 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
                   <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-2 mb-2 text-slate-400">
                       <Clock size={12} />
-                      <p className="text-[9px] font-black uppercase">Date & Time</p>
+                      <p className="text-[9px] font-black">Date & Time</p>
                     </div>
                     <p className="text-[11px] font-bold text-text-main">
                       {new Date(sale.created_at).toLocaleString()}
@@ -129,7 +129,7 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
                   <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-2 mb-2 text-slate-400">
                       <MapPin size={12} />
-                      <p className="text-[9px] font-black uppercase">Branch</p>
+                      <p className="text-[9px] font-black">Branch</p>
                     </div>
                     <p className="text-[11px] font-bold text-text-main">
                       {sale.branch?.name || 'Main Warehouse'}
@@ -138,7 +138,7 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
                   <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-2 mb-2 text-slate-400">
                       <User size={12} />
-                      <p className="text-[9px] font-black uppercase">Customer</p>
+                      <p className="text-[9px] font-black">Customer</p>
                     </div>
                     <p className="text-[11px] font-bold text-text-main">
                       {sale.customer?.name || 'Walk-in Guest'}
@@ -147,9 +147,9 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
                   <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-2 mb-2 text-slate-400">
                       <Database size={12} />
-                      <p className="text-[9px] font-black uppercase">Payment</p>
+                      <p className="text-[9px] font-black">Payment</p>
                     </div>
-                    <p className="text-[11px] font-bold text-text-main uppercase">
+                    <p className="text-[11px] font-bold text-text-main">
                       {sale.payment_method}
                     </p>
                   </div>
@@ -157,7 +157,7 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
 
                 {/* Items List */}
                 <div className="flex flex-col gap-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 mb-1">Items Purchased</p>
+                  <p className="text-[10px] font-black text-slate-400 pl-1 mb-1">Items Purchased</p>
                   <div className="bg-slate-50/30 rounded-2xl border border-slate-100 overflow-hidden">
                     {sale.items?.map((item, idx) => (
                       <div key={item.id} className={`flex items-center justify-between p-4 ${idx !== sale.items.length - 1 ? 'border-b border-slate-100' : ''}`}>
@@ -178,23 +178,23 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
                 </div>
 
                 {/* Order Summary */}
-                <div className="bg-slate-900 rounded-3xl p-6 text-white flex flex-col gap-3 shadow-xl">
-                  <div className="flex justify-between items-center opacity-60">
-                    <span className="text-[10px] font-black uppercase">Subtotal</span>
+                <div className="bg-brand rounded-3xl p-6 text-white flex flex-col gap-3 shadow-xl shadow-brand/20">
+                  <div className="flex justify-between items-center opacity-70">
+                    <span className="text-[10px] font-black">Subtotal</span>
                     <span className="text-xs font-bold">LKR {Math.round(sale.total_amount).toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center text-rose-400">
-                    <span className="text-[10px] font-black uppercase">Total Discount</span>
+                  <div className="flex justify-between items-center text-white/90">
+                    <span className="text-[10px] font-black">Total Discount</span>
                     <span className="text-xs font-bold">- LKR {Math.round(sale.discount_amount).toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center opacity-60">
-                    <span className="text-[10px] font-black uppercase">Tax Contribution</span>
+                  <div className="flex justify-between items-center opacity-70">
+                    <span className="text-[10px] font-black">Tax Contribution</span>
                     <span className="text-xs font-bold">LKR {Math.round(sale.tax_amount).toLocaleString()}</span>
                   </div>
-                  <div className="h-[1px] bg-white/10 my-1" />
+                  <div className="h-[1px] bg-white/20 my-1" />
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-black uppercase">Final Net</span>
-                    <span className="text-lg font-black text-brand-light">LKR {Math.round(sale.payable_amount).toLocaleString()}</span>
+                    <span className="text-[11px] font-black">Final Net</span>
+                    <span className="text-xl font-black">LKR {Math.round(sale.payable_amount).toLocaleString()}</span>
                   </div>
                 </div>
               </div>

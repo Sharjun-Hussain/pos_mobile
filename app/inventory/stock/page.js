@@ -89,6 +89,7 @@ const StockGridItem = ({ stock, getImageUrl }) => {
 
 export default function StockRegistryPage() {
   const { data: stocksData, isLoading: stocksLoading, error: stocksError, mutate: refetchStocks } = useFetch('/stocks?size=100');
+  const { openDrawer } = useUIStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'

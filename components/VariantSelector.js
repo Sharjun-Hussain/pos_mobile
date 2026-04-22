@@ -16,31 +16,31 @@ export const VariantSelector = ({ product, isOpen, onClose, onSelect }) => {
       />
       
       {/* Bottom Sheet */}
-      <div className="relative w-full max-w-lg bg-surface rounded-t-[2.5rem] sm:rounded-[2.5rem] p-6 shadow-2xl border border-glass-border animate-in slide-in-from-bottom duration-500 flex flex-col max-h-[85vh]">
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-2xl bg-brand/10 flex items-center justify-center overflow-hidden border border-brand/20">
+      <div className="relative w-full max-w-lg bg-surface rounded-t-[2.5rem] sm:rounded-[2.5rem] p-5 shadow-2xl border border-glass-border animate-in slide-in-from-bottom duration-500 flex flex-col max-h-[85vh]">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="h-10 w-10 rounded-xl bg-brand/10 flex items-center justify-center overflow-hidden border border-brand/20">
               {product.image ? (
                 <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
               ) : (
-                <Package className="h-8 w-8 text-brand" />
+                <Package className="h-5 w-5 text-brand" />
               )}
             </div>
             <div>
-              <h3 className="text-xl font-bold text-text-main leading-tight">{product.name}</h3>
-              <p className="text-sm text-text-secondary font-medium mt-0.5">Select a variant</p>
+              <h3 className="text-base font-bold text-text-main leading-tight">{product.name}</h3>
+              <p className="text-[10px] text-text-secondary font-bold opacity-60">Select a variation</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="h-10 w-10 glass-panel rounded-full flex items-center justify-center text-text-secondary active:scale-90 transition-transform"
+            className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-rose-500 active:scale-90 transition-transform"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
-          <div className="grid gap-3">
+        <div className="overflow-y-auto pr-1 no-scrollbar flex-1 pb-4">
+          <div className="grid grid-cols-2 gap-2">
             {product.variants?.map((v) => (
               <button
                 key={v.id}
@@ -49,35 +49,30 @@ export const VariantSelector = ({ product, isOpen, onClose, onSelect }) => {
                   onSelect(v);
                   onClose();
                 }}
-                className="glass-panel p-4 rounded-2xl flex items-center justify-between text-left active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border group"
+                className="glass-panel p-3 rounded-2xl flex flex-col items-start gap-1 text-left active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border group relative"
               >
-                <div className="flex flex-col">
-                  <span className="font-bold text-text-main group-hover:text-brand transition-colors">
-                    {v.variantName || 'Default'}
-                  </span>
-                  <span className="text-[10px] text-text-secondary font-mono mt-0.5 uppercase tracking-wider">
-                    {v.barcode || 'NO BARCODE'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-lg font-black text-brand tracking-tight">
-                      LKR {parseFloat(v.retailPrice || 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="h-10 w-10 rounded-xl bg-brand/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100 shadow-lg shadow-brand/10">
-                    <Plus className="h-5 w-5 text-brand" strokeWidth={3} />
-                  </div>
+                <span className="font-bold text-text-main group-hover:text-brand transition-colors text-xs line-clamp-1">
+                  {v.variantName || 'Default'}
+                </span>
+                <span className="text-[10px] font-black text-brand tracking-tighter">
+                  LKR {parseFloat(v.retailPrice || 0).toLocaleString()}
+                </span>
+                <span className="text-[8px] text-text-secondary font-medium font-mono opacity-50">
+                  {v.barcode || 'No SKU'}
+                </span>
+                
+                <div className="absolute bottom-2 right-2 h-6 w-6 rounded-lg bg-brand/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100">
+                  <Plus className="h-3.5 w-3.5 text-brand" strokeWidth={3} />
                 </div>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="pt-4 border-t border-glass-border">
+        <div className="pt-2">
           <button 
             onClick={onClose}
-            className="w-full h-14 glass-panel rounded-2xl text-sm font-bold text-text-secondary hover:text-text-main transition-colors"
+            className="w-full h-12 glass-panel rounded-xl text-xs font-bold text-text-secondary hover:text-text-main transition-colors"
           >
             Cancel
           </button>

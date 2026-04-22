@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  TrendingUp, 
+import {
+  TrendingUp,
   TrendingDown,
-  Users, 
-  Package, 
-  ArrowUpRight, 
-  Plus, 
+  Users,
+  Package,
+  ArrowUpRight,
+  Plus,
   Search,
   ScanBarcode,
   RefreshCcw,
@@ -40,9 +40,8 @@ const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient })
           <Icon size={18} />
         </div>
         {trendValue && (
-          <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold ${
-            isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
-          }`}>
+          <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold ${isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
+            }`}>
             {isUp ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
             {trendValue}
           </div>
@@ -105,11 +104,11 @@ export default function Home() {
         api.auth.me(),
         api.reports.getDashboardSummary()
       ]);
-      
+
       const userData = uRes.data?.user;
       setUser(userData);
       setStats(sRes.data);
-      
+
       if (userData?.profile_image) {
         const resolvedUrl = await api.getImageUrl(userData.profile_image);
         setProfileImageUrl(resolvedUrl);
@@ -158,35 +157,35 @@ export default function Home() {
       {/* Scrollable Stats Section */}
       <section>
         <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-6 px-6">
-          <StatCard 
-            title="Revenue" 
-            value={stats?.todayRevenue?.value ? `LKR ${parseFloat(stats.todayRevenue.value).toLocaleString()}` : 'LKR 0.00'} 
+          <StatCard
+            title="Revenue"
+            value={stats?.todayRevenue?.value ? `LKR ${parseFloat(stats.todayRevenue.value).toLocaleString()}` : 'LKR 0.00'}
             trendValue={stats?.todayRevenue?.change}
-            icon={DollarSign} 
+            icon={DollarSign}
             gradient="from-emerald-500 to-teal-400"
             isLoading={loading}
           />
-          <StatCard 
-            title="Invoices" 
-            value={stats?.pendingInvoices?.value || '0'} 
+          <StatCard
+            title="Invoices"
+            value={stats?.pendingInvoices?.value || '0'}
             trendValue={stats?.pendingInvoices?.change}
-            icon={FileText} 
+            icon={FileText}
             gradient="from-blue-500 to-indigo-400"
             isLoading={loading}
           />
-          <StatCard 
-            title="Low Stock" 
-            value={stats?.lowStockCount?.value || '0'} 
+          <StatCard
+            title="Low Stock"
+            value={stats?.lowStockCount?.value || '0'}
             trendValue={stats?.lowStockCount?.change}
-            icon={Package} 
+            icon={Package}
             gradient="from-amber-500 to-orange-400"
             isLoading={loading}
           />
-          <StatCard 
-            title="Customers" 
-            value={stats?.newCustomers?.value || '0'} 
+          <StatCard
+            title="Customers"
+            value={stats?.newCustomers?.value || '0'}
             trendValue={stats?.newCustomers?.change}
-            icon={Users} 
+            icon={Users}
             gradient="from-violet-500 to-purple-400"
             isLoading={loading}
           />
@@ -209,9 +208,9 @@ export default function Home() {
       <section>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search products or SKU..." 
+          <input
+            type="text"
+            placeholder="Search products or SKU..."
             className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/40 transition-all placeholder:text-text-secondary/50 text-sm font-medium"
           />
         </div>

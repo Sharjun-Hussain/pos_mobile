@@ -78,25 +78,37 @@ export const useCartStore = create(
 
       getTotal: () => {
         const { cart, discount, adjustment } = get();
-        const { taxRate } = require('./useSettingsStore').useSettingsStore.getState();
+        const { vatRate, ssclRate } = require('./useSettingsStore').useSettingsStore.getState();
         
         const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const discountAmount = subtotal * (discount / 100);
         const taxableAmount = subtotal - discountAmount;
-        const taxAmount = taxableAmount * (taxRate / 100);
         
-        return Math.max(0, taxableAmount + taxAmount + adjustment);
+        const ssclAmount = taxableAmount * (ssclRate / 100);
+        const vatAmount = (taxableAmount + ssclAmount) * (vatRate / 100);
+        
+        return Math.max(0, taxableAmount + ssclAmount + vatAmount + adjustment);
       },
 
       getTaxAmount: () => {
+        return get().getSSCLAmount() + get().getVATAmount();
+      },
+
+      getSSCLAmount: () => {
         const { cart, discount } = get();
-        const { taxRate } = require('./useSettingsStore').useSettingsStore.getState();
-        
+        const { ssclRate } = require('./useSettingsStore').useSettingsStore.getState();
         const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        const discountAmount = subtotal * (discount / 100);
-        const taxableAmount = subtotal - discountAmount;
-        
-        return taxableAmount * (taxRate / 100);
+        const taxableAmount = subtotal - (subtotal * (discount / 100));
+        return taxableAmount * (ssclRate / 100);
+      },
+
+      getVATAmount: () => {
+        const { cart, discount } = get();
+        const { vatRate, ssclRate } = require('./useSettingsStore').useSettingsStore.getState();
+        const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const taxableAmount = subtotal - (subtotal * (discount / 100));
+        const ssclAmount = taxableAmount * (ssclRate / 100);
+        return (taxableAmount + ssclAmount) * (vatRate / 100);
       },
 
       getDiscountAmount: () => {

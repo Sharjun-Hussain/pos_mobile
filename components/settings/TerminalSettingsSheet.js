@@ -14,7 +14,9 @@ import {
   Check,
   ToggleLeft,
   ToggleRight,
-  ChevronRight
+  ChevronRight,
+  Percent,
+  Hash
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -31,7 +33,11 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
     showTaxBreakdown,
     checkoutPreview,
     updatePOSSettings,
-    setTerminalSetting
+    setTerminalSetting,
+    vatRate,
+    ssclRate,
+    taxId,
+    updateTaxSettings
   } = useSettingsStore();
 
   const [activeTab, setActiveTab] = useState(initialSection); // terminal, receipt, payments
@@ -48,7 +54,10 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
     headerText: '',
     footerText: '',
     refundPolicy: '',
-    activePaymentMethods: []
+    activePaymentMethods: [],
+    vatRate: 18,
+    ssclRate: 2.5,
+    taxId: ''
   });
 
   useEffect(() => {
@@ -62,12 +71,15 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
         headerText,
         footerText,
         refundPolicy,
-        activePaymentMethods: [...activePaymentMethods]
+        activePaymentMethods: [...activePaymentMethods],
+        vatRate,
+        ssclRate,
+        taxId
       });
       setSuccess(false);
       setActiveTab(initialSection);
     }
-  }, [isOpen, terminalName, enableSound, paperWidth, headerText, footerText, refundPolicy, activePaymentMethods, initialSection]);
+  }, [isOpen, terminalName, enableSound, paperWidth, headerText, footerText, refundPolicy, activePaymentMethods, initialSection, vatRate, ssclRate, taxId]);
 
   const handleSave = async () => {
     setLoading(true);
@@ -88,7 +100,14 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
       activePaymentMethods: form.activePaymentMethods
     });
 
-    if (res.success) {
+    // Save Tax Settings
+    const taxRes = await updateTaxSettings({
+      vatRate: parseFloat(form.vatRate),
+      ssclRate: parseFloat(form.ssclRate),
+      taxId: form.taxId
+    });
+
+    if (res.success && taxRes.success) {
       haptics.heavy();
       setSuccess(true);
       setTimeout(() => {
@@ -153,7 +172,8 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
               {[
                 { id: 'terminal', label: 'Terminal', icon: Smartphone },
                 { id: 'receipt', label: 'Receipt', icon: FileText },
-                { id: 'payments', label: 'Payments', icon: CreditCard }
+                { id: 'payments', label: 'Payments', icon: CreditCard },
+                { id: 'taxes', label: 'Taxes', icon: Percent }
               ].map(tab => (
                 <button 
                   key={tab.id}
@@ -329,6 +349,70 @@ export const TerminalSettingsSheet = ({ isOpen, onClose, initialSection = 'termi
                         </div>
                       </button>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'taxes' && (
+                <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="bg-brand/5 border border-brand/10 p-4 rounded-2xl">
+                    <p className="text-[10px] font-bold text-brand uppercase tracking-wider mb-1">Sri Lankan Compliance</p>
+                    <p className="text-xs text-text-secondary leading-relaxed">
+                      Configuration for VAT (Value Added Tax) and SSCL (Social Security Contribution Levy) as per legal requirements.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-text-secondary pl-1">Taxpayer Identification Number (TIN)</label>
+                    <div className="relative">
+                      <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                      <input 
+                        type="text"
+                        placeholder="e.g. 123456789-0000"
+                        value={form.taxId}
+                        onChange={(e) => setForm({...form, taxId: e.target.value})}
+                        className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-base font-bold text-text-main outline-none focus:border-brand/40"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-text-secondary pl-1">VAT Rate (%)</label>
+                      <div className="relative">
+                        <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={16} />
+                        <input 
+                          type="number"
+                          value={form.vatRate}
+                          onChange={(e) => setForm({...form, vatRate: e.target.value})}
+                          className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-base font-bold text-text-main outline-none focus:border-brand/40"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-text-secondary pl-1">SSCL Rate (%)</label>
+                      <div className="relative">
+                        <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={16} />
+                        <input 
+                          type="number"
+                          value={form.ssclRate}
+                          onChange={(e) => setForm({...form, ssclRate: e.target.value})}
+                          className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-base font-bold text-text-main outline-none focus:border-brand/40"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="glass-panel p-5 rounded-3xl border-glass-border/30">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-bold text-text-main">Effective Tax Rate</p>
+                      <p className="text-lg font-black text-brand">
+                        {(parseFloat(form.ssclRate || 0) + (1 + parseFloat(form.ssclRate || 0)/100) * parseFloat(form.vatRate || 0)).toFixed(2)}%
+                      </p>
+                    </div>
+                    <p className="text-[10px] text-text-secondary leading-relaxed">
+                      Calculated as: SSCL + (Base + SSCL) × VAT. This matches the Sri Lankan Inland Revenue calculation for compound taxes.
+                    </p>
                   </div>
                 </div>
               )}

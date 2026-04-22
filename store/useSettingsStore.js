@@ -27,6 +27,8 @@ export const useSettingsStore = create(
       businessName: '',
       taxId: '',
       taxRate: 0,
+      vatRate: 18,
+      ssclRate: 2.5,
       activePaymentMethods: ['cash', 'card'],
       
       // Actions
@@ -62,12 +64,14 @@ export const useSettingsStore = create(
               currency: b.currency || 'LKR'
             });
           }
-           // 3. Fetch General/Finance Settings (Tax Rate)
+           // 3. Fetch General/Finance Settings (Tax Rate, VAT, SSCL)
           const genRes = await api.settings.getModule('general');
           if (genRes.status === 'success' && genRes.data) {
-            const tax = genRes.data?.finance?.taxRate;
+            const finance = genRes.data?.finance || {};
             set({
-              taxRate: (tax !== undefined && tax !== null && tax !== '') ? parseFloat(tax) : 0
+              taxRate: (finance.taxRate !== undefined && finance.taxRate !== null && finance.taxRate !== '') ? parseFloat(finance.taxRate) : 0,
+              vatRate: (finance.vatRate !== undefined && finance.vatRate !== null && finance.vatRate !== '') ? parseFloat(finance.vatRate) : 18,
+              ssclRate: (finance.ssclRate !== undefined && finance.ssclRate !== null && finance.ssclRate !== '') ? parseFloat(finance.ssclRate) : 2.5,
             });
           }
           return { success: true };
@@ -95,6 +99,29 @@ export const useSettingsStore = create(
           set(updates);
           return { success: true };
         } catch (err) {
+          return { success: false, error: err.message };
+        }
+      },
+
+      updateTaxSettings: async ({ vatRate, ssclRate, taxId }) => {
+        try {
+          // 1. Update General (Rates)
+          // Note: We also update taxRate for backward compatibility
+          await api.settings.updateModule('general', {
+            finance: {
+              vatRate,
+              ssclRate,
+              taxRate: vatRate 
+            }
+          });
+          
+          // 2. Update Business (TIN)
+          await api.settings.updateBusiness({ tax_id: taxId });
+          
+          set({ vatRate, ssclRate, taxId, taxRate: vatRate });
+          return { success: true };
+        } catch (err) {
+          console.error('Update Tax Settings Failed:', err);
           return { success: false, error: err.message };
         }
       }

@@ -54,10 +54,12 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     setDiscount, 
     setAdjustment,
     getDiscountAmount,
-    getTaxAmount 
+    getTaxAmount,
+    getVATAmount,
+    getSSCLAmount 
   } = useCartStore();
   const { selectedBranch } = useAuthStore();
-  const { isWholesale, activePaymentMethods, currency, checkoutPreview, taxRate } = useSettingsStore();
+  const { isWholesale, activePaymentMethods, currency, checkoutPreview, vatRate, ssclRate } = useSettingsStore();
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
   const [customers, setCustomers] = useState([]);
@@ -572,10 +574,16 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} {currency} {Math.abs(adjustment).toLocaleString()}</span>
                           </div>
                         )}
-                        {taxRate > 0 && (
+                        {ssclRate > 0 && (
                           <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
-                            <span className="text-text-secondary font-bold">Tax ({taxRate}%)</span>
-                            <span className="text-text-main font-black">{currency} {getTaxAmount().toLocaleString()}</span>
+                            <span className="text-text-secondary font-bold">SSCL ({ssclRate}%)</span>
+                            <span className="text-text-main font-black">{currency} {getSSCLAmount().toLocaleString()}</span>
+                          </div>
+                        )}
+                        {vatRate > 0 && (
+                          <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
+                            <span className="text-text-secondary font-bold">VAT ({vatRate}%)</span>
+                            <span className="text-text-main font-black">{currency} {getVATAmount().toLocaleString()}</span>
                           </div>
                         )}
                       </div>

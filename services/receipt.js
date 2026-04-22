@@ -90,6 +90,7 @@ export const receiptService = {
           <div class="bold uppercase">${sale.branch?.name || 'Main Warehouse'}</div>
           <div>${sale.branch?.address || ''}</div>
           <div>TEL: ${sale.branch?.phone || ''}</div>
+          ${sale.branch?.organization?.tax_id || sale.tax_id ? `<div>TIN: ${sale.branch?.organization?.tax_id || sale.tax_id}</div>` : ''}
         </div>
 
         <div class="divider"></div>
@@ -150,7 +151,18 @@ export const receiptService = {
             <span>- ${Math.round(sale.discount_amount).toLocaleString()}</span>
           </div>
         ` : ''}
-        ${sale.tax_amount > 0 ? `
+        ${sale.sscl_amount > 0 ? `
+          <div class="row">
+            <span>SSCL:</span>
+            <span>${Math.round(sale.sscl_amount).toLocaleString()}</span>
+          </div>
+        ` : ''}
+        ${sale.vat_amount > 0 ? `
+          <div class="row">
+            <span>VAT:</span>
+            <span>${Math.round(sale.vat_amount).toLocaleString()}</span>
+          </div>
+        ` : (sale.tax_amount > 0 && !sale.sscl_amount) ? `
           <div class="row">
             <span>TAX:</span>
             <span>${Math.round(sale.tax_amount).toLocaleString()}</span>

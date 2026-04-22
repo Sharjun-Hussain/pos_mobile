@@ -19,6 +19,7 @@ import {
   Calculator
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { App } from '@capacitor/app';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useCartStore } from '@/store/useCartStore';
@@ -72,6 +73,27 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       fetchCustomers();
     }
   }, [isOpen, step]);
+
+  // Handle Native Hardware Back Button
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const backListener = App.addListener('backButton', () => {
+      // Logic: Form -> Steps -> Close
+      if (isAddingCustomer) {
+        haptics.light();
+        setIsAddingCustomer(false);
+      } else if (step > 1) {
+        handleBack();
+      } else {
+        handleClose();
+      }
+    });
+
+    return () => {
+      backListener.then(l => l.remove());
+    };
+  }, [isOpen, step, isAddingCustomer]);
 
   const fetchCustomers = async () => {
     setLoading(true);

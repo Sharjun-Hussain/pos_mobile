@@ -14,7 +14,9 @@ import {
   CheckCircle2,
   Trash2,
   UserPlus,
-  ShoppingCart
+  ShoppingCart,
+  Percent,
+  Calculator
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { haptics } from '@/services/haptics';
@@ -39,7 +41,7 @@ const slideVariants = {
 
 export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   // Consume Global Stores
-  const { cart, updateQty, clearCart, getTotal } = useCartStore();
+  const { cart, updateQty, clearCart, getTotal, getSubtotal, discount, adjustment, setDiscount, setAdjustment } = useCartStore();
   const { isWholesale } = useSettingsStore();
 
   const [[step, direction], setStepState] = useState([1, 0]);
@@ -73,6 +75,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     (c.phone && c.phone.includes(search))
   );
 
+  const subtotal = getSubtotal();
   const total = getTotal();
 
   const handleNext = () => {
@@ -88,7 +91,6 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const handleFinish = () => {
     haptics.heavy();
     onFinish(selectedCustomer);
-    // Clear cart on success
     setTimeout(() => {
       clearCart();
       setStepState([1, 0]);
@@ -135,7 +137,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
             </div>
 
             {/* Header / Stepper */}
-            <div className="flex items-center justify-between mb-6 px-6 pt-6">
+            <div className="flex items-center justify-between mb-6 px-6 pt-2">
               <div className="flex items-center gap-4">
                 {step > 1 && (
                   <button onClick={handleBack} className="h-10 w-10 glass-panel rounded-full flex items-center justify-center text-text-secondary">
@@ -169,51 +171,76 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   animate="center"
                   exit="exit"
                   transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                  className="w-full"
+                  className="w-full h-full flex flex-col"
                 >
                   {step === 1 && (
-                    <div className="flex flex-col overflow-y-auto max-h-[55vh] no-scrollbar overscroll-contain bg-surface-muted/5 border-y border-glass-border/20">
-                      {cart.map((item, idx) => (
-                        <div 
-                          key={item.id} 
-                          className={`flex items-center justify-between p-4 px-6 pointer-events-auto gap-4 ${
-                            idx !== cart.length - 1 ? 'border-b border-glass-border/20' : ''
-                          }`}
-                        >
-                          <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                            <span className="font-bold text-text-main text-[14px] leading-snug line-clamp-2">
-                              {item.name}
-                            </span>
-                            <span className="text-[11px] text-text-secondary font-medium">
-                              LKR {parseFloat(item.price).toLocaleString()}
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center gap-0.5 flex-shrink-0 bg-surface-muted/40 rounded-xl p-0.5 px-0.5 border border-glass-border/40 scale-[0.85] origin-right">
-                            <button 
-                              onClick={() => updateQty(item.id, -1)} 
-                              className="h-8 w-8 rounded-lg flex items-center justify-center text-text-secondary active:text-brand transition-colors"
-                            >
-                              <Minus size={13} strokeWidth={2.5} />
-                            </button>
-                            <span className="font-bold text-text-main text-xs min-w-[20px] text-center">
-                              {item.quantity}
-                            </span>
-                            <button 
-                              onClick={() => updateQty(item.id, 1)} 
-                              className="h-8 w-8 rounded-lg flex items-center justify-center text-brand active:scale-110 active:text-brand transition-all"
-                            >
-                              <Plus size={13} strokeWidth={3} />
-                            </button>
+                    <div className="flex-1 flex flex-col pointer-events-auto">
+                      {/* Financial Adjustments Bar */}
+                      <div className="flex items-center gap-2 px-6 mb-4">
+                        <div className="flex-1 flex flex-col gap-1.5">
+                          <label className="text-[9px] font-bold text-text-secondary uppercase tracking-widest pl-1">Discount (LKR)</label>
+                          <div className="relative">
+                            <Percent className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={12} />
+                            <input 
+                              type="number" 
+                              placeholder="0" 
+                              value={discount || ''}
+                              onChange={(e) => setDiscount(e.target.value)}
+                              className="w-full h-10 bg-surface-muted/50 border border-glass-border/30 rounded-xl pl-8 pr-3 text-xs font-bold text-text-main outline-none focus:border-brand/40 shadow-inner"
+                            />
                           </div>
                         </div>
-                      ))}
-                      {cart.length === 0 && (
-                        <div className="text-center py-20 opacity-30 flex flex-col items-center">
-                          <ShoppingCart size={64} className="mb-4" />
-                          <p className="text-sm font-bold tracking-tight">Cart is empty</p>
+                        <div className="flex-1 flex flex-col gap-1.5">
+                          <label className="text-[9px] font-bold text-text-secondary uppercase tracking-widest pl-1">Adjust (+/-)</label>
+                          <div className="relative">
+                            <Calculator className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={12} />
+                            <input 
+                              type="number" 
+                              placeholder="0" 
+                              value={adjustment || ''}
+                              onChange={(e) => setAdjustment(e.target.value)}
+                              className="w-full h-10 bg-surface-muted/50 border border-glass-border/30 rounded-xl pl-8 pr-3 text-xs font-bold text-text-main outline-none focus:border-brand/40 shadow-inner"
+                            />
+                          </div>
                         </div>
-                      )}
+                      </div>
+
+                      {/* Wide-Format List */}
+                      <div className="flex-1 overflow-y-auto max-h-[50vh] no-scrollbar overscroll-contain bg-surface-muted/5 border-y border-glass-border/20">
+                        {cart.map((item, idx) => (
+                          <div 
+                            key={item.id} 
+                            className={`flex items-center justify-between p-4 px-6 pointer-events-auto gap-4 ${
+                              idx !== cart.length - 1 ? 'border-b border-glass-border/20' : ''
+                            }`}
+                          >
+                            <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                              <span className="font-bold text-text-main text-[14px] leading-snug line-clamp-2">
+                                {item.name}
+                              </span>
+                              <span className="text-[11px] text-text-secondary font-medium">
+                                LKR {parseFloat(item.price).toLocaleString()}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-0.5 flex-shrink-0 bg-surface-muted/40 rounded-xl p-0.5 px-0.5 border border-glass-border/40 scale-[0.85] origin-right">
+                              <button onClick={() => updateQty(item.id, -1)} className="h-8 w-8 rounded-lg flex items-center justify-center text-text-secondary active:text-brand transition-colors">
+                                <Minus size={13} strokeWidth={2.5} />
+                              </button>
+                              <span className="font-bold text-text-main text-xs min-w-[20px] text-center">{item.quantity}</span>
+                              <button onClick={() => updateQty(item.id, 1)} className="h-8 w-8 rounded-lg flex items-center justify-center text-brand active:scale-110 active:text-brand transition-all">
+                                <Plus size={13} strokeWidth={3} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                        {cart.length === 0 && (
+                          <div className="text-center py-20 opacity-30 flex flex-col items-center">
+                            <ShoppingCart size={64} className="mb-4" />
+                            <p className="text-sm font-bold tracking-tight">Cart is empty</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -293,17 +320,23 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
                       <div className="grid gap-3">
                         <div className="flex items-center justify-between px-4">
-                          <span className="text-[10px] font-bold text-text-secondary uppercase">Customer</span>
-                          <span className="text-sm font-bold text-text-main">{selectedCustomer ? selectedCustomer.name : 'Walk-in'}</span>
+                          <span className="text-[10px] font-bold text-text-secondary uppercase">Subtotal</span>
+                          <span className="text-sm font-bold text-text-main">LKR {subtotal.toLocaleString()}</span>
                         </div>
-                        <div className="flex items-center justify-between px-4">
-                          <span className="text-[10px] font-bold text-text-secondary uppercase">Items</span>
-                          <span className="text-sm font-bold text-text-main">{cart.length} Products</span>
-                        </div>
-                        <div className="flex items-center justify-between px-4">
-                          <span className="text-[10px] font-bold text-text-secondary uppercase">Pricing</span>
-                          <span className="text-sm font-bold text-amber-500">{isWholesale ? 'Wholesale' : 'Retail'}</span>
-                        </div>
+                        {discount > 0 && (
+                          <div className="flex items-center justify-between px-4">
+                            <span className="text-[10px] font-bold text-rose-500 uppercase">Discount</span>
+                            <span className="text-sm font-bold text-rose-500">- LKR {discount.toLocaleString()}</span>
+                          </div>
+                        )}
+                        {adjustment !== 0 && (
+                          <div className="flex items-center justify-between px-4">
+                            <span className="text-[10px] font-bold text-amber-600 uppercase">Adjustment</span>
+                            <span className={`text-sm font-bold ${adjustment > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                              {adjustment > 0 ? '+ ' : '- '} LKR {Math.abs(adjustment).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="mt-4 p-4 glass-panel rounded-3xl bg-surface-muted/50 border-glass-border">
@@ -323,25 +356,27 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
               </AnimatePresence>
             </div>
 
-            {/* Footer Actions */}
+            {/* Footer Actions with HIGHLIGHTED GRAND TOTAL */}
             <div className="pt-6 border-t border-glass-border flex flex-col gap-4 pointer-events-auto px-6">
-              <div className="flex items-center justify-between px-2">
+              <div className="flex items-center justify-between px-1">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-text-secondary leading-none">Grand Total</span>
-                  <span className="text-lg font-bold text-text-main">LKR {total.toLocaleString()}</span>
+                  <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest pl-0.5 mb-1">Grand Total</span>
+                  <div className="bg-brand text-white px-4 py-2 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50">
+                    <span className="text-lg font-black tracking-tight">LKR {total.toLocaleString()}</span>
+                  </div>
                 </div>
                 {step < 3 ? (
                   <button 
                     onClick={handleNext}
                     disabled={cart.length === 0}
-                    className="h-14 px-8 btn-primary rounded-2xl text-sm font-bold flex items-center gap-2 group transition-all"
+                    className="h-16 px-8 btn-primary rounded-[2rem] text-sm font-bold flex items-center gap-2 group transition-all"
                   >
                     {step === 1 ? 'Customer' : 'Payment'} <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </button>
                 ) : (
                   <button 
                     onClick={handleFinish}
-                    className="h-14 px-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl text-sm font-bold flex items-center gap-2 group transition-all shadow-xl shadow-emerald-500/20"
+                    className="h-16 px-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] text-sm font-bold flex items-center gap-2 group transition-all shadow-xl shadow-emerald-500/20"
                   >
                     Sync Order <Check size={18} strokeWidth={3} />
                   </button>

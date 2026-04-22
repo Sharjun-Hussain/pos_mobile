@@ -8,6 +8,8 @@ export const useCartStore = create(
   persist(
     (set, get) => ({
       cart: [],
+      discount: 0,
+      adjustment: 0,
       
       // Actions
       addItem: (product, isWholesale) => {
@@ -63,12 +65,21 @@ export const useCartStore = create(
         }));
       },
 
-      clearCart: () => set({ cart: [] }),
+      setDiscount: (val) => set({ discount: parseFloat(val) || 0 }),
+      setAdjustment: (val) => set({ adjustment: parseFloat(val) || 0 }),
 
-      // Computed Selectors (internal)
-      getTotal: () => {
+      clearCart: () => set({ cart: [], discount: 0, adjustment: 0 }),
+
+      // Calculated State
+      getSubtotal: () => {
         const { cart } = get();
         return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      },
+
+      getTotal: () => {
+        const { cart, discount, adjustment } = get();
+        const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        return Math.max(0, subtotal - discount + adjustment);
       },
 
       getItemCount: () => {
@@ -93,8 +104,11 @@ export const useCartStore = create(
     {
       name: 'inzeedo-cart-storage',
       storage: createJSONStorage(() => capacitorStorage),
-      // Only keep the cart in persistence, not temporary UI state if we had any
-      partialize: (state) => ({ cart: state.cart }),
+      partialize: (state) => ({ 
+        cart: state.cart,
+        discount: state.discount,
+        adjustment: state.adjustment
+      }),
     }
   )
 );

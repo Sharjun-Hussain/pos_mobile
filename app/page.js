@@ -22,6 +22,7 @@ import { useUIStore } from '@/store/useUIStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
+import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -121,6 +122,8 @@ export default function Home() {
   const { data: productsData, isLoading: productsLoading } = useFetch('/products?limit=5');
 
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedSaleId, setSelectedSaleId] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
 
   useEffect(() => {
@@ -150,6 +153,11 @@ export default function Home() {
   const lowStockItems = (productsData?.data || productsData || []).filter(p => p.stock <= (p.reorder_level || 5));
   const displayUser = userData?.user || user;
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUser?.name || 'Felix'}`;
+  const handleSaleClick = (sale) => {
+    haptics.medium();
+    setSelectedSaleId(sale.id);
+    setIsDetailsOpen(true);
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -286,7 +294,11 @@ export default function Home() {
             See All
           </button>
         </div>
-        <RecentSalesList sales={recentSales.slice(0, 5)} isLoading={loading} />
+        <RecentSalesList 
+          sales={recentSales.slice(0, 5)} 
+          isLoading={loading} 
+          onSaleClick={handleSaleClick}
+        />
       </section>
 
       {/* Low Stock Section */}
@@ -304,6 +316,12 @@ export default function Home() {
         isOpen={isBranchSheetOpen}
         onClose={() => setIsBranchSheetOpen(false)}
         allowClose={!!selectedBranch}
+      />
+
+      <SaleDetailsSheet
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        saleId={selectedSaleId}
       />
     </div>
   );

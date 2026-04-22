@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  Menu, 
-  RefreshCcw, 
+import {
+  Search,
+  Menu,
+  RefreshCcw,
   FileText,
   ShoppingBag
 } from 'lucide-react';
@@ -24,7 +24,7 @@ const SaleRow = ({ sale, onClick }) => {
   });
 
   const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
       case 'paid': return 'text-emerald-500 bg-emerald-500/10';
       case 'partially_paid': return 'text-amber-500 bg-amber-500/10';
       default: return 'text-rose-500 bg-rose-500/10';
@@ -32,7 +32,7 @@ const SaleRow = ({ sale, onClick }) => {
   };
 
   return (
-    <div 
+    <div
       onClick={() => { haptics.light(); onClick(); }}
       className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer"
     >
@@ -94,7 +94,7 @@ export default function SalesHistoryPage() {
     setIsReturnOpen(true);
   };
 
-  const filteredSales = Array.isArray(sales) ? sales.filter(s => 
+  const filteredSales = Array.isArray(sales) ? sales.filter(s =>
     (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   ) : [];
@@ -103,7 +103,7 @@ export default function SalesHistoryPage() {
     <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => { haptics.light(); openDrawer(); }}
             className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
           >
@@ -114,7 +114,7 @@ export default function SalesHistoryPage() {
             <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Transaction Ledger</p>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => { haptics.light(); refetchSales(); }}
           className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
         >
@@ -125,9 +125,9 @@ export default function SalesHistoryPage() {
       <section className="flex flex-col gap-3">
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
-          <input 
-            type="text" 
-            placeholder="Search invoice or customer..." 
+          <input
+            type="text"
+            placeholder="Search invoice or customer..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
@@ -141,7 +141,7 @@ export default function SalesHistoryPage() {
             {loading ? 'Consulting Records...' : `${filteredSales.length} Recent Invoices`}
           </h2>
         </div>
-        
+
         {loading ? (
           <div className="flex flex-col">
             {Array(10).fill(0).map((_, i) => (
@@ -162,14 +162,14 @@ export default function SalesHistoryPage() {
         )}
       </section>
 
-      <SaleDetailsSheet 
+      <SaleDetailsSheet
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         saleId={selectedSaleId}
         onReturnTrigger={handleReturnTrigger}
       />
 
-      <ReturnSheet 
+      <ReturnSheet
         isOpen={isReturnOpen}
         onClose={() => setIsReturnOpen(false)}
         sale={activeSale}

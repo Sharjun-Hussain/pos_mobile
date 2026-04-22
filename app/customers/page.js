@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  Users, 
-  UserPlus, 
-  ChevronRight, 
-  Menu, 
+import {
+  Search,
+  Users,
+  UserPlus,
+  ChevronRight,
+  Menu,
   RefreshCcw,
   List,
   LayoutGrid,
@@ -70,7 +70,7 @@ export default function CustomersPage() {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [sortBy, setSortBy] = useState('name-asc');
   const [isAdding, setIsAdding] = useState(false);
-  
+
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '' });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -98,8 +98,8 @@ export default function CustomersPage() {
   };
 
   const filteredAndSortedCustomers = Array.isArray(customers) ? customers
-    .filter(c => 
-      (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    .filter(c =>
+      (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (c.phone || '').includes(searchTerm)
     )
     .sort((a, b) => {
@@ -112,7 +112,7 @@ export default function CustomersPage() {
     <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => { haptics.light(); openDrawer(); }}
             className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
           >
@@ -123,7 +123,7 @@ export default function CustomersPage() {
             <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Relationship Registry</p>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => { haptics.light(); refetchCustomers(); }}
           className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
         >
@@ -135,9 +135,9 @@ export default function CustomersPage() {
         {/* Search Bar Row */}
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-          <input 
-            type="text" 
-            placeholder="Search by name or phone..." 
+          <input
+            type="text"
+            placeholder="Search by name or phone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
@@ -147,7 +147,7 @@ export default function CustomersPage() {
         {/* View & Sort Toolbar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <select 
+            <select
               value={sortBy}
               onChange={(e) => { haptics.light(); setSortBy(e.target.value); }}
               className="h-9 bg-slate-50 border border-slate-100 rounded-lg px-2 text-xs font-bold text-text-secondary outline-none appearance-none pr-6 relative"
@@ -157,9 +157,9 @@ export default function CustomersPage() {
               <option value="name-desc">Name: Z-A</option>
             </select>
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={() => { haptics.medium(); setIsAdding(true); }}
               className="h-9 px-3 rounded-lg bg-brand/5 text-brand text-xs font-black flex items-center gap-1.5 active:scale-95 transition-all"
             >
@@ -167,13 +167,13 @@ export default function CustomersPage() {
               <span>Add New</span>
             </button>
             <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
-              <button 
+              <button
                 onClick={() => { haptics.light(); setViewMode('list'); }}
                 className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
               >
                 <List size={14} />
               </button>
-              <button 
+              <button
                 onClick={() => { haptics.light(); setViewMode('grid'); }}
                 className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
               >
@@ -190,7 +190,7 @@ export default function CustomersPage() {
             {loading ? 'Refreshing Registry...' : `${filteredAndSortedCustomers.length} registered customers`}
           </h2>
         </div>
-        
+
         {loading ? (
           <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
             {Array(10).fill(0).map((_, i) => (
@@ -200,7 +200,7 @@ export default function CustomersPage() {
         ) : filteredAndSortedCustomers.length > 0 ? (
           <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
             {filteredAndSortedCustomers.map(customer => (
-              viewMode === 'list' 
+              viewMode === 'list'
                 ? <CustomerRow key={customer.id} customer={customer} />
                 : <CustomerGridItem key={customer.id} customer={customer} />
             ))}
@@ -217,14 +217,14 @@ export default function CustomersPage() {
       <AnimatePresence>
         {isAdding && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsAdding(false)}
               className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[300]"
             />
-            <motion.div 
+            <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -236,7 +236,7 @@ export default function CustomersPage() {
                   <h3 className="text-2xl font-black text-text-main">New Customer</h3>
                   <p className="text-xs font-bold text-text-secondary opacity-40">Growth Registry</p>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsAdding(false)}
                   className="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 active:rotate-90 transition-transform"
                 >
@@ -247,37 +247,37 @@ export default function CustomersPage() {
               <div className="flex flex-col gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Full Name*</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="Enter customer name"
                     value={newCustomer.name}
-                    onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
                     className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Phone Number</label>
-                  <input 
-                    type="tel" 
+                  <input
+                    type="tel"
                     placeholder="07x xxxx xxx"
                     value={newCustomer.phone}
-                    onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
                     className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Email Address</label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     placeholder="customer@inzeedo.com"
                     value={newCustomer.email}
-                    onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
                     className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40"
                   />
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handleCreateCustomer}
                 disabled={!newCustomer.name || isSaving}
                 className="w-full h-12 bg-brand text-white rounded-2xl text-[13px] font-black mt-8 shadow-lg shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-50"

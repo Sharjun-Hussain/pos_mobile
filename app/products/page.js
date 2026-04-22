@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  Package, 
-  Menu, 
-  RefreshCcw, 
+import {
+  Search,
+  Package,
+  Menu,
+  RefreshCcw,
   ChevronRight,
   LayoutGrid,
   List,
@@ -95,8 +95,8 @@ export default function ProductsPage() {
 
   const filteredAndSortedProducts = Array.isArray(products) ? products
     .filter(p => {
-      const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = !selectedCategory || String(p.main_category_id) === String(selectedCategory);
       return matchesSearch && matchesCategory;
     })
@@ -111,7 +111,7 @@ export default function ProductsPage() {
     <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => { haptics.light(); openDrawer(); }}
             className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
           >
@@ -122,7 +122,7 @@ export default function ProductsPage() {
             <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Catalog Management</p>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => { haptics.light(); mutateProducts(); }}
           className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
         >
@@ -134,9 +134,9 @@ export default function ProductsPage() {
         {/* Search Bar Row */}
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-          <input 
-            type="text" 
-            placeholder="Search catalog..." 
+          <input
+            type="text"
+            placeholder="Search catalog..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
@@ -146,7 +146,7 @@ export default function ProductsPage() {
         {/* View & Sort Toolbar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <select 
+            <select
               value={sortBy}
               onChange={(e) => { haptics.light(); setSortBy(e.target.value); }}
               className="h-9 bg-slate-50 border border-slate-100 rounded-lg px-2 text-xs font-bold text-text-secondary outline-none appearance-none pr-6 relative"
@@ -157,15 +157,15 @@ export default function ProductsPage() {
               <option value="variants-desc">Major Variants</option>
             </select>
           </div>
-          
+
           <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
-            <button 
+            <button
               onClick={() => { haptics.light(); setViewMode('list'); }}
               className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
             >
               <List size={14} />
             </button>
-            <button 
+            <button
               onClick={() => { haptics.light(); setViewMode('grid'); }}
               className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
             >
@@ -200,7 +200,7 @@ export default function ProductsPage() {
             {loading ? 'Refreshing Catalog...' : `${filteredAndSortedProducts.length} results`}
           </h2>
         </div>
-        
+
         {loading ? (
           <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
             {Array(10).fill(0).map((_, i) => (
@@ -210,7 +210,7 @@ export default function ProductsPage() {
         ) : filteredAndSortedProducts.length > 0 ? (
           <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
             {filteredAndSortedProducts.map(product => (
-              viewMode === 'list' 
+              viewMode === 'list'
                 ? <ProductRow key={product.id} product={product} getImageUrl={api.getImageUrl} />
                 : <ProductGridItem key={product.id} product={product} getImageUrl={api.getImageUrl} />
             ))}

@@ -1,4 +1,5 @@
 import { Preferences } from '@capacitor/preferences';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -21,7 +22,10 @@ export const storage = {
 };
 
 const apiRequest = async (endpoint, options = {}) => {
-  const token = await storage.get('auth_token');
+  // Pull token from Store first (reactive), then storage (backup)
+  const storeToken = useAuthStore.getState().token;
+  const token = storeToken || await storage.get('auth_token');
+  
   const customUrl = await storage.get('custom_api_url');
   const baseUrl = customUrl || API_BASE_URL;
   
@@ -41,7 +45,9 @@ const apiRequest = async (endpoint, options = {}) => {
     });
 
     if (response.status === 401) {
-      await storage.remove('auth_token');
+      // TRIGGER GLOBAL LOGOUT via state
+      useAuthStore.getState().logout();
+      window.location.href = '/login'; // Force clear UI
     }
 
     const data = await response.json();
@@ -66,18 +72,15 @@ export const api = {
   auth: {
     login: async (email, password) => {
       const res = await api.post('/auth/login', { email, password });
-      if (res.data?.auth_token) {
-        await storage.set('auth_token', res.data.auth_token);
-        if (res.data.refresh_token) {
-          await storage.set('refresh_token', res.data.refresh_token);
-        }
+      if (res.data?.user && res.data?.auth_token) {
+        // Updated to set store user immediately
+        useAuthStore.getState().login(res.data.auth_token, res.data.user);
       }
       return res;
     },
     me: () => api.get('/auth/me'),
     logout: async () => {
-      await storage.remove('auth_token');
-      await storage.remove('refresh_token');
+      await useAuthStore.getState().logout();
     }
   },
 
@@ -103,11 +106,9 @@ export const api = {
     
     let path = null;
     try {
-      // Handle potential JSON string from backend
       const parsed = typeof imageField === 'string' && imageField.startsWith('[') 
         ? JSON.parse(imageField) 
         : imageField;
-      
       if (Array.isArray(parsed) && parsed.length > 0) {
         path = parsed[0];
       } else {

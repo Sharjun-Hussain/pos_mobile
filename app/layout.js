@@ -1,6 +1,7 @@
 import "./globals.css";
 import POSLayout from "@/components/POSLayout";
 import { Providers } from "@/components/Providers";
+import AuthGuard from "@/components/AuthGuard";
 
 export const metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "POS Mobile",
@@ -20,7 +21,9 @@ export default function RootLayout({ children }) {
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body className="h-full overflow-x-hidden antialiased">
         <Providers>
-          <POSLayout>{children}</POSLayout>
+          <AuthGuard>
+            <POSLayout>{children}</POSLayout>
+          </AuthGuard>
         </Providers>
       </body>
     </html>

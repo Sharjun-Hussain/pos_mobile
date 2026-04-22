@@ -103,7 +103,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                     <h2 className="text-sm font-black text-text-main leading-tight">
                       {user?.organization?.name || "Inzeedo"}
                     </h2>
-                    <span className="text-[9px] font-bold text-brand uppercase tracking-widest opacity-60">
+                    <span className="text-[9px] font-bold text-brand opacity-60">
                       {selectedBranch?.name || 'Terminal'}
                     </span>
                   </div>

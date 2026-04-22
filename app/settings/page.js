@@ -144,7 +144,7 @@ export default function SettingsPage() {
               <p className="text-[10px] font-bold text-text-secondary bg-surface-muted px-4 py-1 rounded-full border border-glass-border/30">
                 {user?.organization?.name || 'Enterprise Manager'}
               </p>
-              <p className="text-[9px] font-black text-brand uppercase tracking-widest opacity-70">
+              <p className="text-[9px] font-black text-brand opacity-70">
                 {selectedBranch?.name || 'Main Warehouse'}
               </p>
             </div>

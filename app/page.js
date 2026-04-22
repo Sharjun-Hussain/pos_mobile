@@ -162,7 +162,7 @@ export default function Home() {
                 {displayUser?.organization?.name || "Inzeedo POS"}
               </h1>
               <div className="flex items-center gap-1.5 opacity-60">
-                <p className="text-[10px] font-bold text-text-secondary leading-none uppercase tracking-wider">
+                <p className="text-[10px] font-bold text-text-secondary leading-none">
                   {selectedBranch?.name || 'Main Warehouse'}
                 </p>
                 {selectedBranch?.code && (

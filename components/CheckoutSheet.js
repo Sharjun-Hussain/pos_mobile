@@ -194,7 +194,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       if (res.status === 'success') {
         haptics.heavy();
         clearCart(); // Clear immediately to reset adjustments/cart
-        onFinish(selectedCustomer); 
+        // Pass the actual sale data returned by the backend to trigger the print
+        onFinish(res.data?.sale || res.data); 
         
         setTimeout(() => {
           setStepState([1, 0]);

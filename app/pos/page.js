@@ -8,6 +8,8 @@ import { ProductSkeleton } from '@/components/ProductSkeleton';
 import { VariantSelector } from '@/components/VariantSelector';
 import { CheckoutSheet } from '@/components/CheckoutSheet';
 import { useRouter } from 'next/navigation';
+import { Toast } from '@capacitor/toast';
+import { receiptService } from '@/services/receipt';
 
 // Optimized Sub-Components
 import TerminalHeader from '@/components/pos/TerminalHeader';
@@ -30,14 +32,12 @@ export default function SalesPage() {
   const { cart, addItem, syncPrices } = useCartStore();
   const { isWholesale, toggleWholesale, activeCategory, setActiveCategory } = useSettingsStore();
 
-  // Local UI States
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
   
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isVariantOpen, setIsVariantOpen] = useState(false);
@@ -144,30 +144,24 @@ export default function SalesPage() {
     syncPrices(next, flatVariants);
   }, [isWholesale, products, toggleWholesale, syncPrices]);
 
-  const handleFinishSale = useCallback((customer) => {
+  const handleFinishSale = useCallback(async (saleData) => {
     setIsCheckoutOpen(false);
-    setIsSuccess(true);
-    setTimeout(() => {
-      setIsSuccess(false);
-      // useCartStore clear logic managed in subcomponent normally, or here
-    }, 2500);
-  }, []);
+    
+    // Auto-print receipt
+    if (saleData) {
+      receiptService.print(saleData);
+    }
+    
+    // Show native toast
+    await Toast.show({
+      text: t('common.success') || 'Sale Completed Successfully',
+      duration: 'long'
+    });
+  }, [t]);
 
   const total = useMemo(() => {
     return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }, [cart]);
-
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center bg-surface animate-in fade-in zoom-in duration-500">
-        <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center text-white mb-6 shadow-xl shadow-emerald-500/20 animate-bounce">
-          <div className="h-10 w-10 border-4 border-white rounded-full border-t-transparent animate-spin" />
-        </div>
-        <h2 className="text-3xl font-bold text-text-main mb-2">{t('common.success')}</h2>
-        <p className="text-text-secondary font-bold text-xs">{t('common.success')}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-surface">

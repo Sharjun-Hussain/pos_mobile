@@ -21,6 +21,9 @@ export const storage = {
   }
 };
 
+// Track ongoing refresh attempts to prevent race conditions
+let refreshPromise = null;
+
 const apiRequest = async (endpoint, options = {}, isRetry = false) => {
   const storeToken = useAuthStore.getState().token;
   const token = storeToken || await storage.get('auth_token');
@@ -58,20 +61,32 @@ const apiRequest = async (endpoint, options = {}, isRetry = false) => {
 
     // 401 Handling: Silent Refresh Logic
     if (response.status === 401 && !isRetry && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
-      const refreshToken = useAuthStore.getState().refreshToken || await storage.get('refresh_token');
-      
-      if (refreshToken) {
-        try {
-          console.log('[API] Token expired, attempting silent refresh...');
-          const refreshRes = await api.auth.refresh(refreshToken);
-          
-          if (refreshRes.status === 'success') {
-            // New token set by api.auth.refresh in the store
-            // Retry the original request with IS_RETRY = TRUE
-            return await apiRequest(endpoint, options, true);
+      // Check if a refresh is already in flight
+      if (refreshPromise) {
+        console.log('[API] Waiting for existing refresh promise...');
+        const refreshed = await refreshPromise;
+        if (refreshed) {
+          return await apiRequest(endpoint, options, true);
+        }
+      } else {
+        const refreshToken = useAuthStore.getState().refreshToken || await storage.get('refresh_token');
+        
+        if (refreshToken) {
+          try {
+            console.log('[API] Token expired, initiating synchronized refresh...');
+            // Create the promise and store it globally
+            refreshPromise = api.auth.refresh(refreshToken).then(res => res.status === 'success');
+            
+            const success = await refreshPromise;
+            refreshPromise = null; // Reset for future use
+
+            if (success) {
+              return await apiRequest(endpoint, options, true);
+            }
+          } catch (refreshErr) {
+            refreshPromise = null;
+            console.error('[API] Silent refresh failed:', refreshErr);
           }
-        } catch (refreshErr) {
-          console.error('[API] Silent refresh failed:', refreshErr);
         }
       }
 

@@ -3,9 +3,11 @@
 import React, { memo } from 'react';
 import { ShoppingCart, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useCurrency } from '@/hooks/useCurrency';
 
 const DockedCart = memo(({ cart, total, onClick, isVisible }) => {
   const { t } = useTranslation();
+  const { formatCurrency } = useCurrency();
   if (!isVisible) return null;
 
   return (
@@ -20,7 +22,7 @@ const DockedCart = memo(({ cart, total, onClick, isVisible }) => {
           </div>
           <div className="text-left">
             <p className="text-xs font-bold text-text-main">{cart.length} {t('pos.itemsSelected')}</p>
-            <p className="text-[10px] font-medium text-text-secondary mt-0.5">LKR {total.toLocaleString()}</p>
+            <p className="text-[10px] font-medium text-text-secondary mt-0.5">{formatCurrency(total)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 pr-2">

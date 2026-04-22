@@ -117,6 +117,17 @@ export const useSettingsStore = create(
         get().updatePOSSettings({ language: lang });
       },
 
+      setCurrency: async (code) => {
+        try {
+          await api.settings.updateBusiness({ currency: code });
+          set({ currency: code });
+          return { success: true };
+        } catch (err) {
+          console.error('Failed to update currency:', err);
+          return { success: false, error: err.message };
+        }
+      },
+
       updateTaxSettings: async ({ vatRate, ssclRate, taxId }) => {
         try {
           // 1. Update General (Rates)

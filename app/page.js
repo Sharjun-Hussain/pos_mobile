@@ -24,6 +24,7 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useCurrency } from '@/hooks/useCurrency';
 
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
@@ -104,6 +105,7 @@ export default function Home() {
   const { openDrawer } = useUIStore();
   const { user, selectedBranch, isAuthenticated } = useAuthStore();
   const { t } = useTranslation();
+  const { formatCurrency } = useCurrency();
   const [loading, setLoading] = useState(true);
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
   const [error, setError] = useState(null);
@@ -197,7 +199,7 @@ export default function Home() {
         <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-6 px-6">
           <StatCard
             title={t('pos.total')}
-            value={stats?.todayRevenue?.value ? `LKR ${parseFloat(stats.todayRevenue.value).toLocaleString()}` : 'LKR 0.00'}
+            value={stats?.todayRevenue?.value ? formatCurrency(parseFloat(stats.todayRevenue.value)) : formatCurrency(0)}
             trendValue={stats?.todayRevenue?.change}
             icon={DollarSign}
             gradient="from-emerald-500 to-teal-400"

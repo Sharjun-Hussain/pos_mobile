@@ -26,6 +26,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useCurrency } from '@/hooks/useCurrency';
 
 const slideVariants = {
   enter: (direction) => ({
@@ -60,8 +61,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     getSSCLAmount 
   } = useCartStore();
   const { selectedBranch } = useAuthStore();
-  const { isWholesale, activePaymentMethods, currency, checkoutPreview, vatRate, ssclRate } = useSettingsStore();
+  const { isWholesale, activePaymentMethods, currency: currentCurrency, checkoutPreview, vatRate, ssclRate } = useSettingsStore();
   const { t } = useTranslation();
+  const { formatCurrency } = useCurrency();
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
   const [customers, setCustomers] = useState([]);
@@ -338,7 +340,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                 {item.name}
                               </span>
                               <span className="text-[11px] text-text-secondary font-medium">
-                                {currency} {parseFloat(item.price).toLocaleString()}
+                                {formatCurrency(parseFloat(item.price))}
                               </span>
                             </div>
                             
@@ -552,7 +554,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                           {amountTendered && parseFloat(amountTendered) > total && (
                             <div className="flex items-center justify-between bg-brand/5 border border-brand/10 p-3 rounded-xl">
                               <span className="text-[10px] font-bold text-brand">Change</span>
-                              <span className="text-base font-black text-brand">{currency} {(parseFloat(amountTendered) - total).toLocaleString()}</span>
+                              <span className="text-base font-black text-brand">{formatCurrency(parseFloat(amountTendered) - total)}</span>
                             </div>
                           )}
                         </div>
@@ -562,30 +564,30 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       <div className="space-y-1.5 border-t border-glass-border/30 pt-3 px-1">
                         <div className="flex justify-between items-center text-[11px]">
                           <span className="text-text-secondary font-bold">{t('checkout.subtotal')}</span>
-                          <span className="text-text-main font-black">{currency} {subtotal.toLocaleString()}</span>
+                          <span className="text-text-main font-black">{formatCurrency(subtotal)}</span>
                         </div>
                         {discount > 0 && (
                           <div className="flex justify-between items-center text-[11px]">
                             <span className="text-rose-500 font-bold">Discount ({discount}%)</span>
-                            <span className="text-rose-500 font-black">- {currency} {getDiscountAmount().toLocaleString()}</span>
+                            <span className="text-rose-500 font-black">- {formatCurrency(getDiscountAmount())}</span>
                           </div>
                         )}
                         {adjustment !== 0 && (
                           <div className="flex justify-between items-center text-[11px]">
                             <span className="text-brand font-bold">Adjustment</span>
-                            <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} {currency} {Math.abs(adjustment).toLocaleString()}</span>
+                            <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} {formatCurrency(Math.abs(adjustment))}</span>
                           </div>
                         )}
                         {ssclRate > 0 && (
                           <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
                             <span className="text-text-secondary font-bold">SSCL ({ssclRate}%)</span>
-                            <span className="text-text-main font-black">{currency} {getSSCLAmount().toLocaleString()}</span>
+                            <span className="text-text-main font-black">{formatCurrency(getSSCLAmount())}</span>
                           </div>
                         )}
                         {vatRate > 0 && (
                           <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
                             <span className="text-text-secondary font-bold">VAT ({vatRate}%)</span>
-                            <span className="text-text-main font-black">{currency} {getVATAmount().toLocaleString()}</span>
+                            <span className="text-text-main font-black">{formatCurrency(getVATAmount())}</span>
                           </div>
                         )}
                       </div>

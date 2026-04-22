@@ -19,10 +19,12 @@ import DockedCart from '@/components/pos/DockedCart';
 import { useCartStore } from '@/store/useCartStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useCurrency } from '@/hooks/useCurrency';
 
 export default function SalesPage() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { formatCurrency } = useCurrency();
   
   // Zustand States
   const { cart, addItem, syncPrices } = useCartStore();
@@ -162,7 +164,7 @@ export default function SalesPage() {
           <div className="h-10 w-10 border-4 border-white rounded-full border-t-transparent animate-spin" />
         </div>
         <h2 className="text-3xl font-bold text-text-main mb-2">{t('common.success')}</h2>
-        <p className="text-text-secondary font-bold text-xs">Transaction synchronized successfully</p>
+        <p className="text-text-secondary font-bold text-xs">{t('common.success')}</p>
       </div>
     );
   }

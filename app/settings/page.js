@@ -30,6 +30,7 @@ import { useTheme } from 'next-themes';
 import { Sun, RefreshCcw } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LanguageSelectionSheet } from '@/components/settings/LanguageSelectionSheet';
+import { CurrencySelectionSheet } from '@/components/settings/CurrencySelectionSheet';
 
 const SettingItem = ({ icon: Icon, label, value, color = 'brand', onClick }) => {
   const colors = {
@@ -87,6 +88,7 @@ export default function SettingsPage() {
   const [isTerminalSheetOpen, setIsTerminalSheetOpen] = useState(false);
   const [initialTerminalTab, setInitialTerminalTab] = useState('terminal');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
 
@@ -251,10 +253,17 @@ export default function SettingsPage() {
         />
         <SettingItem
           icon={Globe}
-          label={t('settings.localeCurrency')}
-          value={`${currency} basis • ${language === 'en' ? 'English' : language === 'si' ? 'සිංහල' : 'தமிழ்'}`}
+          label="Language Basis"
+          value={language === 'en' ? 'English' : language === 'si' ? 'සිංහල' : 'தமிழ்'}
           color="brand"
           onClick={() => setIsLanguageOpen(true)}
+        />
+        <SettingItem
+          icon={CreditCard}
+          label="Currency Basis"
+          value={`${currency} (Standard Format)`}
+          color="emerald"
+          onClick={() => setIsCurrencyOpen(true)}
         />
         {user?.branches?.length > 1 && (
           <SettingItem
@@ -288,6 +297,11 @@ export default function SettingsPage() {
       <LanguageSelectionSheet
         isOpen={isLanguageOpen}
         onClose={() => setIsLanguageOpen(false)}
+      />
+
+      <CurrencySelectionSheet
+        isOpen={isCurrencyOpen}
+        onClose={() => setIsCurrencyOpen(false)}
       />
 
       <BranchSelectionSheet 

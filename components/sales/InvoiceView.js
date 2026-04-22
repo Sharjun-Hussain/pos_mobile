@@ -4,10 +4,12 @@ import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useCurrency } from '@/hooks/useCurrency';
 
 export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
   const { showLogo, businessLogo } = useSettingsStore();
   const { t } = useTranslation();
+  const { formatCurrency } = useCurrency();
 
   if (!sale) return null;
 
@@ -97,12 +99,12 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
                   {item.product?.name || item.name}
                 </div>
                 <div className="text-[10px] opacity-70">
-                  {item.variant?.name || "Standard"} @ {Math.round(item.unit_price).toLocaleString()}
+                  {item.variant?.name || "Standard"} @ {formatCurrency(Math.round(item.unit_price))}
                 </div>
               </td>
               <td className="text-right py-3 font-bold">{item.quantity}</td>
               <td className="text-right py-3 font-black">
-                {Math.round(item.total_amount).toLocaleString()}
+                {formatCurrency(Math.round(item.total_amount))}
               </td>
             </tr>
           ))}
@@ -113,45 +115,45 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
       <div className="border-t border-black pt-4 space-y-1.5">
         <div className="flex justify-between">
           <span className="font-bold">SUB TOTAL:</span>
-          <span>LKR {Math.round(sale.total_amount).toLocaleString()}</span>
+          <span>{formatCurrency(Math.round(sale.total_amount))}</span>
         </div>
         
         {sale.discount_amount > 0 && (
           <div className="flex justify-between text-emerald-700 italic">
             <span>SAVINGS (DISCOUNT):</span>
-            <span>- LKR {Math.round(sale.discount_amount).toLocaleString()}</span>
+            <span>- {formatCurrency(Math.round(sale.discount_amount))}</span>
           </div>
         )}
         
         {sale.sscl_amount > 0 && (
           <div className="flex justify-between">
             <span>SSCL:</span>
-            <span>LKR {Math.round(sale.sscl_amount).toLocaleString()}</span>
+            <span>{formatCurrency(Math.round(sale.sscl_amount))}</span>
           </div>
         )}
 
         {sale.vat_amount > 0 ? (
           <div className="flex justify-between">
             <span>VAT:</span>
-            <span>LKR {Math.round(sale.vat_amount).toLocaleString()}</span>
+            <span>{formatCurrency(Math.round(sale.vat_amount))}</span>
           </div>
         ) : (sale.tax_amount > 0 && !sale.sscl_amount) ? (
           <div className="flex justify-between">
             <span>TAX:</span>
-            <span>LKR {Math.round(sale.tax_amount).toLocaleString()}</span>
+            <span>{formatCurrency(Math.round(sale.tax_amount))}</span>
           </div>
         ) : null}
 
         {sale.adjustment !== 0 && (
           <div className="flex justify-between">
             <span>ADJUSTMENT:</span>
-            <span>{sale.adjustment > 0 ? '+' : '-'} LKR {Math.round(Math.abs(sale.adjustment)).toLocaleString()}</span>
+            <span>{sale.adjustment > 0 ? '+' : '-'} {formatCurrency(Math.round(Math.abs(sale.adjustment)))}</span>
           </div>
         )}
 
         <div className="flex justify-between text-base font-black border-t-2 border-black pt-2 mt-2">
           <span>{t('checkout.payableAmount')}:</span>
-          <span>LKR {Math.round(sale.payable_amount).toLocaleString()}</span>
+          <span>{formatCurrency(Math.round(sale.payable_amount))}</span>
         </div>
       </div>
 
@@ -159,12 +161,12 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
       <div className="mt-6 border-t border-dashed border-black/30 pt-4 space-y-1">
         <div className="flex justify-between font-bold">
           <span className="uppercase">{sale.payment_method || "CASH"} PAID:</span>
-          <span>LKR {(parseFloat(sale.paid_amount) || sale.payable_amount).toLocaleString()}</span>
+          <span>{formatCurrency(parseFloat(sale.paid_amount) || sale.payable_amount)}</span>
         </div>
         {(parseFloat(sale.paid_amount) > sale.payable_amount) && (
           <div className="flex justify-between font-black text-emerald-700">
             <span>CHANGE DUE:</span>
-            <span>LKR {(parseFloat(sale.paid_amount) - sale.payable_amount).toLocaleString()}</span>
+            <span>{formatCurrency(parseFloat(sale.paid_amount) - sale.payable_amount)}</span>
           </div>
         )}
       </div>

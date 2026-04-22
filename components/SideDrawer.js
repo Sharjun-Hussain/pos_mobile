@@ -133,29 +133,28 @@ export const SideDrawer = ({ isOpen, onClose }) => {
               </MenuGroup>
             </div>
 
-            {/* Footer / Logout */}
-            <div className="p-4 border-t border-slate-100 bg-white">
-              {/* Account Quick Glance */}
-              <div className="bg-slate-50 p-2.5 rounded-xl flex items-center gap-3 border border-slate-100 mb-2">
-                <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-brand shadow-sm border border-slate-100">
-                  <User size={16} strokeWidth={2.5} />
+            {/* Footer / User Profile & Logout */}
+            <div className="p-4 pb-2 border-t border-slate-100 bg-white">
+              <div className="flex items-center gap-2">
+                {/* Account Quick Glance */}
+                <div className="flex-1 bg-slate-50 p-2 rounded-xl flex items-center gap-3 border border-slate-100">
+                  <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-brand shadow-sm border border-slate-100">
+                    <User size={16} strokeWidth={2.5} />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-[10px] font-bold text-text-main truncate leading-tight">{user?.name || 'Store Manager'}</p>
+                    <p className="text-[8.5px] font-medium text-slate-400 truncate mt-0.5">{user?.email || 'admin@inzeedo.com'}</p>
+                  </div>
                 </div>
-                <div className="flex-1 overflow-hidden">
-                  <p className="text-[10px] font-bold text-text-main truncate leading-tight">{user?.name || 'Store Manager'}</p>
-                  <p className="text-[8.5px] font-medium text-slate-400 truncate mt-0.5">{user?.email || 'admin@inzeedo.com'}</p>
-                </div>
-              </div>
 
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-between p-3 bg-rose-50 text-rose-500 rounded-xl active:bg-rose-100 transition-all font-bold text-xs"
-              >
-                <div className="flex items-center gap-3">
-                  <LogOut size={14} strokeWidth={2.5} />
-                  <span>Logout Session</span>
-                </div>
-                <ChevronRight size={12} className="opacity-40" />
-              </button>
+                <button
+                  onClick={handleLogout}
+                  className="h-10 w-10 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center active:bg-rose-100 transition-all shadow-sm border border-rose-100"
+                  aria-label="Logout"
+                >
+                  <LogOut size={16} strokeWidth={2.5} />
+                </button>
+              </div>
 
               <p className="text-center text-[10px] font-bold text-slate-300 mt-4">
                 v1.2.0 • Inzeedo Terminal

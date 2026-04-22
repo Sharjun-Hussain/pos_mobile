@@ -175,9 +175,10 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       
       if (res.status === 'success') {
         haptics.heavy();
+        clearCart(); // Clear immediately to reset adjustments/cart
         onFinish(selectedCustomer); 
+        
         setTimeout(() => {
-          clearCart();
           setStepState([1, 0]);
           setPaymentMethod('cash');
           setAmountTendered('');
@@ -598,7 +599,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               <span className="text-xs font-bold">Hold Sale</span>
                             </button>
                             <button 
-                              onClick={() => { haptics.heavy(); handleClose(); }}
+                              onClick={() => { haptics.heavy(); clearCart(); handleClose(); }}
                               className="w-full p-3 rounded-xl flex items-center gap-3 text-rose-500 hover:bg-rose-500/5 active:bg-rose-500/10 transition-colors border-t border-glass-border/10 mt-1"
                             >
                               <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center">

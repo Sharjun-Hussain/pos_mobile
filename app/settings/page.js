@@ -283,15 +283,6 @@ export default function SettingsPage() {
           color="emerald"
           onClick={() => setIsCurrencyOpen(true)}
         />
-        {user?.branches?.length > 1 && (
-          <SettingItem
-            icon={Building2}
-            label={t('settings.switchBranch')}
-            value="Change working location"
-            color="rose"
-            onClick={() => { setIsBranchSheetOpen(true); }}
-          />
-        )}
       </section>
 
       <div className="mt-4 opacity-30 text-center">

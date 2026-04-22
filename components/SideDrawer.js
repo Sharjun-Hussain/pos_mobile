@@ -159,10 +159,6 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                   <LogOut size={16} strokeWidth={2.5} />
                 </button>
               </div>
-
-              <p className="text-center text-[10px] font-bold text-text-secondary opacity-40 uppercase tracking-widest mt-4">
-                v1.2.0 • Inzeedo Terminal
-              </p>
             </div>
           </motion.div>
         </>

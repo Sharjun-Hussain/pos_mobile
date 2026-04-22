@@ -161,8 +161,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       const payload = {
         customer_id: selectedCustomer?.id || null,
         items: cart.map(item => ({
-          product_id: item.product_id || item.id,
-          product_variant_id: item.product_variant_id || (item.selectedVariant?.id) || null,
+          product_id: item.productId,
+          product_variant_id: item.variantId,
           quantity: item.quantity,
           discount_amount: 0 
         })),

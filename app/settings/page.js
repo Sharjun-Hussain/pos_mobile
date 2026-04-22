@@ -158,6 +158,24 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        <div className="flex bg-surface-muted/30 p-2 rounded-3xl mx-2 mt-2 gap-3 items-center justify-between border border-glass-border/30">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-brand/10 text-brand">
+              <Building2 size={20} strokeWidth={2.5} />
+            </div>
+            <div className="text-left">
+              <p className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Active Branch</p>
+              <p className="text-sm font-black text-text-main">{selectedBranch?.name || 'Not Selected'}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => { haptics.light(); setIsBranchSheetOpen(true); }}
+            className="px-4 py-2 bg-brand text-white text-xs font-bold rounded-xl active:scale-95 transition-all shadow-sm"
+          >
+            Switch
+          </button>
+        </div>
+
         <div className="flex gap-2">
           <button
             onClick={() => { haptics.light(); setInitialProfileTab('profile'); setIsEditProfileOpen(true); }}

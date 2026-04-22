@@ -12,6 +12,7 @@ export const useAuthStore = create(
       refreshToken: null,
       user: null,
       selectedBranch: null,
+      lastSelectedBranchId: null,
       isAuthenticated: false,
       isHydrated: false,
 
@@ -20,14 +21,24 @@ export const useAuthStore = create(
       
       setUser: (user) => set({ user }),
 
-      setSelectedBranch: (branch) => set({ selectedBranch: branch }),
+      setSelectedBranch: (branch) => set({ selectedBranch: branch, lastSelectedBranchId: branch?.id }),
 
       login: async (token, refreshToken, user) => {
-        set({ token, refreshToken, user, isAuthenticated: true });
-        // If user has only one branch, auto-select it
-        if (user.branches?.length === 1) {
-          set({ selectedBranch: user.branches[0] });
+        const { lastSelectedBranchId } = get();
+        let selectedBranch = null;
+
+        // Auto-select if we already have a persisted branch selection for this device
+        if (lastSelectedBranchId && user.branches?.length > 1) {
+          const found = user.branches.find(b => String(b.id) === String(lastSelectedBranchId));
+          if (found) selectedBranch = found;
         }
+
+        // If user has only one branch, auto-select it
+        if (!selectedBranch && user.branches?.length === 1) {
+          selectedBranch = user.branches[0];
+        }
+
+        set({ token, refreshToken, user, isAuthenticated: true, selectedBranch });
         // Double write to primitive storage for API service recovery
         await storage.set('auth_token', token);
         if (refreshToken) await storage.set('refresh_token', refreshToken);
@@ -49,6 +60,7 @@ export const useAuthStore = create(
         refreshToken: state.refreshToken,
         user: state.user,
         selectedBranch: state.selectedBranch,
+        lastSelectedBranchId: state.lastSelectedBranchId,
         isAuthenticated: state.isAuthenticated
       }),
       onRehydrateStorage: () => (state) => {

@@ -102,22 +102,22 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, onReturnTrigger
 
             {/* Action Bar */}
             {!loading && !error && sale && (
-              <div className="p-6 bg-surface border-t border-glass-border/30 flex gap-4 pb-[calc(var(--sab)+1.5rem)]">
-                <button 
-                  onClick={handlePrint}
-                  className="flex-1 h-16 bg-surface-muted border border-glass-border/50 rounded-2xl flex items-center justify-center gap-3 text-text-main active:scale-95 transition-all shadow-sm"
-                >
-                  <Printer size={20} />
-                  <span className="text-[13px] font-bold uppercase tracking-wider">Reprint</span>
-                </button>
-                <button 
-                  onClick={() => { haptics.medium(); onReturnTrigger(sale); }}
-                  className="flex-1 h-16 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all"
-                >
-                  <RotateCcw size={20} />
-                  <span className="text-[13px] font-bold uppercase tracking-wider">Return</span>
-                </button>
-              </div>
+              <div className="p-6 bg-surface border-t border-glass-border/30 flex gap-3 pb-[calc(var(--sab)+1.5rem)]">
+              <button 
+                onClick={handlePrint}
+                className="btn-primary flex-1 h-14 bg-brand text-white border-0 shadow-lg shadow-brand/20 active:scale-95 transition-all"
+              >
+                <Printer size={18} />
+                <span className="text-sm font-bold">Reprint</span>
+              </button>
+              <button 
+                onClick={() => { haptics.medium(); onReturnTrigger(sale); }}
+                className="flex-1 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 active:scale-95 transition-all"
+              >
+                <RotateCcw size={18} />
+                <span className="text-sm font-bold">Return</span>
+              </button>
+            </div>
             )}
           </div>
         </Drawer.Content>

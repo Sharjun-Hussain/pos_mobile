@@ -65,6 +65,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [amountTendered, setAmountTendered] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showActions, setShowActions] = useState(false);
 
   useEffect(() => {
     if (isOpen && step === 2) {
@@ -125,9 +126,10 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     }
   };
 
-  const handleFinish = async () => {
+  const handleFinish = async (targetStatus = 'completed') => {
     if (cart.length === 0) return;
     setIsSyncing(true);
+    setShowActions(false);
     haptics.heavy();
 
     try {
@@ -138,12 +140,12 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
           product_id: item.product_id || item.id,
           product_variant_id: item.product_variant_id || (item.selectedVariant?.id) || null,
           quantity: item.quantity,
-          discount_amount: 0 // We can implement line-level discounts later if needed
+          discount_amount: 0 
         })),
         payment_method: paymentMethod,
         adjustment: parseFloat(adjustment || 0) || 0,
         paid_amount: paymentMethod === 'cash' ? (parseFloat(amountTendered) || total) : total,
-        status: 'completed',
+        status: targetStatus,
         is_wholesale: isWholesale
       };
 
@@ -151,7 +153,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       
       if (res.status === 'success') {
         haptics.heavy();
-        onFinish(selectedCustomer); // Parent can show success feedback
+        onFinish(selectedCustomer); 
         setTimeout(() => {
           clearCart();
           setStepState([1, 0]);
@@ -162,7 +164,6 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       }
     } catch (e) {
       console.error('Sale Sync Failed:', e);
-      // We should ideally show a toast here
     } finally {
       setIsSyncing(false);
     }
@@ -540,14 +541,59 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
               </AnimatePresence>
             </div>
 
-            {/* Footer Actions with HIGHLIGHTED DUAL-PILL DESIGN */}
+            {/* Footer Actions with DYNAMIC TOOLBAR */}
             <div className="pt-6 border-t border-glass-border flex flex-col gap-4 pointer-events-auto px-6">
               <div className="flex items-center justify-between gap-4">
-                <div className="flex flex-col flex-1">
-                  <span className="text-[10px] font-bold text-text-secondary pl-1 mb-1">Grand Total</span>
-                  <div className="bg-surface border-2 border-brand/20 text-brand px-5 h-14 rounded-2xl flex items-center justify-center shadow-sm">
-                    <span className="text-lg font-black tracking-tight">LKR {total.toLocaleString()}</span>
-                  </div>
+                <div className="flex-1 relative">
+                  <span className="text-[10px] font-bold text-text-secondary pl-1 mb-1 block">
+                    {step === 3 ? 'Options' : 'Grand Total'}
+                  </span>
+                  
+                  {step === 3 ? (
+                    <>
+                      <button 
+                        onClick={() => setShowActions(!showActions)}
+                        className="w-full h-14 glass-panel border-2 border-glass-border/30 rounded-2xl flex items-center justify-center gap-2 text-text-main hover:border-brand/40 transition-all active:scale-95"
+                      >
+                        <Calculator size={16} className="text-text-secondary" />
+                        <span className="text-sm font-bold">More</span>
+                      </button>
+
+                      <AnimatePresence>
+                        {showActions && (
+                          <motion.div 
+                            initial={{ y: 10, opacity: 0, scale: 0.95 }}
+                            animate={{ y: -4, opacity: 1, scale: 1 }}
+                            exit={{ y: 10, opacity: 0, scale: 0.95 }}
+                            className="absolute bottom-full left-0 w-48 bg-surface rounded-2xl shadow-2xl p-1.5 border border-glass-border mb-2 z-[200]"
+                          >
+                            <button 
+                              onClick={() => { haptics.medium(); handleFinish('draft'); }}
+                              className="w-full p-3 rounded-xl flex items-center gap-3 text-text-main hover:bg-brand/5 active:bg-brand/10 transition-colors"
+                            >
+                              <div className="h-8 w-8 rounded-lg bg-brand/10 flex items-center justify-center text-brand">
+                                <Plus size={16} strokeWidth={3} />
+                              </div>
+                              <span className="text-xs font-bold">Hold Sale</span>
+                            </button>
+                            <button 
+                              onClick={() => { haptics.heavy(); handleClose(); }}
+                              className="w-full p-3 rounded-xl flex items-center gap-3 text-rose-500 hover:bg-rose-500/5 active:bg-rose-500/10 transition-colors border-t border-glass-border/10 mt-1"
+                            >
+                              <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                                <Trash2 size={16} strokeWidth={3} />
+                              </div>
+                              <span className="text-xs font-bold">Clear Cart</span>
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </>
+                  ) : (
+                    <div className="bg-surface border-2 border-brand/20 text-brand px-5 h-14 rounded-2xl flex items-center justify-center shadow-sm">
+                      <span className="text-lg font-black tracking-tight">LKR {total.toLocaleString()}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex flex-col flex-1">
@@ -563,7 +609,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                     </button>
                   ) : (
                     <button 
-                      onClick={handleFinish}
+                      onClick={() => handleFinish('completed')}
                       disabled={isSyncing}
                       className="bg-brand text-white px-5 h-14 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50 flex items-center justify-center gap-2 group transition-all active:scale-95 disabled:opacity-50"
                     >

@@ -159,7 +159,7 @@ export default function Home() {
   };
 
   return (
-    <div className="p-6 pb-24 flex flex-col gap-8 pt-[calc(var(--sat)+1rem)]">
+    <div className="p-6 pb-24 flex flex-col gap-8 pt-[calc(var(--sat)+1.5rem)]">
       {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">

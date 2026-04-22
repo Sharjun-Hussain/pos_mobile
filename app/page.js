@@ -16,10 +16,10 @@ import {
   FileText,
   Menu
 } from 'lucide-react';
-import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
@@ -94,11 +94,12 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
 
 export default function Home() {
   const { openDrawer } = useUIStore();
-  const { selectedBranch } = useAuthStore();
+  const { user, selectedBranch, isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(true);
+  const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
-  const [user, setUser] = useState(null);
+  const [localUser, setLocalUser] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
 
   const fetchDashboardData = async () => {
@@ -111,7 +112,7 @@ export default function Home() {
       ]);
 
       const userData = uRes.data?.user;
-      setUser(userData);
+      setLocalUser(userData);
       setStats(sRes.data);
 
       if (userData?.profile_image) {
@@ -129,7 +130,14 @@ export default function Home() {
     fetchDashboardData();
   }, []);
 
-  const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`;
+  useEffect(() => {
+    if (isAuthenticated && !selectedBranch && (localUser?.branches?.length > 1 || user?.branches?.length > 1)) {
+      setIsBranchSheetOpen(true);
+    }
+  }, [isAuthenticated, selectedBranch, localUser?.branches?.length, user?.branches?.length]);
+
+  const displayUser = localUser || user;
+  const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUser?.name || 'Felix'}`;
 
   return (
     <div className="p-6 pb-24 flex flex-col gap-8">
@@ -150,7 +158,7 @@ export default function Home() {
           ) : (
             <div>
               <h1 className="text-xl font-black text-text-main leading-none mb-1">
-                {user?.organization?.name || "Inzeedo POS"}
+                {displayUser?.organization?.name || "Inzeedo POS"}
               </h1>
               <div className="flex items-center gap-1.5 opacity-60">
                 <p className="text-[10px] font-bold text-text-secondary leading-none uppercase tracking-wider">
@@ -245,6 +253,12 @@ export default function Home() {
           <ActionCard title="Manage Stock" description="Update inventory levels" icon={Package} color="blue" isLoading={loading} />
         </div>
       </section>
+
+      <BranchSelectionSheet 
+        isOpen={isBranchSheetOpen} 
+        onClose={() => setIsBranchSheetOpen(false)}
+        allowClose={!!selectedBranch}
+      />
     </div>
   );
 }

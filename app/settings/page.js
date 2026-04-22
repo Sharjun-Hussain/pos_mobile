@@ -25,6 +25,7 @@ import { useUIStore } from '@/store/useUIStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { EditProfileSheet } from '@/components/settings/EditProfileSheet';
 import { TerminalSettingsSheet } from '@/components/settings/TerminalSettingsSheet';
+import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useTheme } from 'next-themes';
 import { Sun, RefreshCcw } from 'lucide-react';
 
@@ -82,6 +83,7 @@ export default function SettingsPage() {
   const [isTerminalSheetOpen, setIsTerminalSheetOpen] = useState(false);
   const [initialTerminalTab, setInitialTerminalTab] = useState('terminal');
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -255,7 +257,7 @@ export default function SettingsPage() {
             label="Switch Branch"
             value="Change working location"
             color="rose"
-            onClick={() => { router.push('/branch-selection'); }}
+            onClick={() => { setIsBranchSheetOpen(true); }}
           />
         )}
       </section>
@@ -276,6 +278,11 @@ export default function SettingsPage() {
         isOpen={isTerminalSheetOpen}
         onClose={() => setIsTerminalSheetOpen(false)}
         initialSection={initialTerminalTab}
+      />
+
+      <BranchSelectionSheet 
+        isOpen={isBranchSheetOpen}
+        onClose={() => setIsBranchSheetOpen(false)}
       />
     </div>
   );

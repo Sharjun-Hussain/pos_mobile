@@ -48,17 +48,31 @@ const StatCard = ({ title, value, trend, icon: Icon, isLoading }) => {
   );
 };
 
-const ActionCard = ({ title, description, icon: Icon, color }) => (
-  <button className="glass-panel p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-transform">
-    <div className={`p-3 rounded-2xl ${color} bg-opacity-10 text-opacity-90`}>
-      <Icon size={20} />
-    </div>
-    <div>
-      <h4 className="font-bold text-text-main text-sm">{title}</h4>
-      <p className="text-xs text-text-secondary leading-tight mt-0.5">{description}</p>
-    </div>
-  </button>
-);
+const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div className="glass-panel p-3 rounded-3xl animate-pulse flex items-center gap-4">
+        <div className="h-12 w-12 bg-surface-muted rounded-2xl" />
+        <div className="flex-1 flex flex-col gap-2">
+          <div className="h-4 w-1/3 bg-surface-muted rounded" />
+          <div className="h-3 w-1/2 bg-surface-muted rounded" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button className="glass-panel p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-transform">
+      <div className={`p-3 rounded-2xl ${color} bg-opacity-10 text-opacity-90`}>
+        <Icon size={20} />
+      </div>
+      <div>
+        <h4 className="font-bold text-text-main text-sm">{title}</h4>
+        <p className="text-xs text-text-secondary leading-tight mt-0.5">{description}</p>
+      </div>
+    </button>
+  );
+};
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -102,20 +116,31 @@ export default function Home() {
     <div className="p-6 pb-24 flex flex-col gap-8">
       {/* Header */}
       <header className="flex items-center justify-between pt-4">
-        <div>
-          <h1 className="text-2xl font-bold text-text-main">
-            {user?.organization?.name || process.env.NEXT_PUBLIC_APP_NAME || "Inzeedo POS"}
-          </h1>
-          <p className="text-text-secondary text-sm font-medium">
-            {user ? `Welcome, ${user.name}` : 'Store Dashboard'}
-          </p>
-        </div>
+        {loading ? (
+          <div className="flex-1 flex flex-col gap-2 animate-pulse">
+            <div className="h-7 w-2/3 bg-surface-muted rounded-lg" />
+            <div className="h-4 w-1/2 bg-surface-muted rounded-md" />
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-2xl font-bold text-text-main">
+              {user?.organization?.name || process.env.NEXT_PUBLIC_APP_NAME || "Inzeedo POS"}
+            </h1>
+            <p className="text-text-secondary text-sm font-medium">
+              {user ? `Welcome, ${user.name}` : 'Store Dashboard'}
+            </p>
+          </div>
+        )}
         <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand/20 shadow-lg shadow-brand/10 bg-surface-muted">
-          <img 
-            src={avatarSrc} 
-            alt="Avatar" 
-            className="w-full h-full object-cover"
-          />
+          {loading ? (
+            <div className="w-full h-full animate-pulse" />
+          ) : (
+            <img 
+              src={avatarSrc} 
+              alt="Avatar" 
+              className="w-full h-full object-cover"
+            />
+          )}
         </div>
       </header>
 
@@ -168,7 +193,6 @@ export default function Home() {
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between ml-1">
           <h2 className="text-sm font-bold text-text-secondary">Quick Actions</h2>
-          {loading && <div className="h-1 w-12 bg-brand/20 rounded animate-pulse" />}
         </div>
         <div className="flex flex-col gap-3">
           <ActionCard 
@@ -176,18 +200,21 @@ export default function Home() {
             description="Start a checkout transaction" 
             icon={Plus} 
             color="bg-brand text-brand" 
+            isLoading={loading}
           />
           <ActionCard 
             title="Scan Product" 
             description="Use camera to identify items" 
             icon={ScanBarcode} 
             color="bg-amber-500 text-amber-500" 
+            isLoading={loading}
           />
           <ActionCard 
             title="Manage Stock" 
             description="Update inventory levels" 
             icon={Package} 
             color="bg-blue-500 text-blue-500" 
+            isLoading={loading}
           />
         </div>
       </section>

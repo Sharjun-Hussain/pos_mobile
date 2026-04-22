@@ -21,8 +21,7 @@ export const storage = {
   }
 };
 
-const apiRequest = async (endpoint, options = {}) => {
-  // Pull token from Store first (reactive), then storage (backup)
+const apiRequest = async (endpoint, options = {}, isRetry = false) => {
   const storeToken = useAuthStore.getState().token;
   const token = storeToken || await storage.get('auth_token');
   
@@ -44,10 +43,28 @@ const apiRequest = async (endpoint, options = {}) => {
       headers,
     });
 
-    if (response.status === 401) {
-      // TRIGGER GLOBAL LOGOUT via state
+    // 401 Handling: Silent Refresh Logic
+    if (response.status === 401 && !isRetry && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
+      const refreshToken = useAuthStore.getState().refreshToken || await storage.get('refresh_token');
+      
+      if (refreshToken) {
+        try {
+          console.log('[API] Token expired, attempting silent refresh...');
+          const refreshRes = await api.auth.refresh(refreshToken);
+          
+          if (refreshRes.status === 'success') {
+            // New token set by api.auth.refresh in the store
+            // Retry the original request with IS_RETRY = TRUE
+            return await apiRequest(endpoint, options, true);
+          }
+        } catch (refreshErr) {
+          console.error('[API] Silent refresh failed:', refreshErr);
+        }
+      }
+
+      // If we get here, refresh failed or was not possible
       useAuthStore.getState().logout();
-      window.location.href = '/login'; // Force clear UI
+      if (typeof window !== 'undefined') window.location.href = '/login';
     }
 
     const data = await response.json();
@@ -73,8 +90,15 @@ export const api = {
     login: async (email, password) => {
       const res = await api.post('/auth/login', { email, password });
       if (res.data?.user && res.data?.auth_token) {
-        // Updated to set store user immediately
-        useAuthStore.getState().login(res.data.auth_token, res.data.user);
+        useAuthStore.getState().login(res.data.auth_token, res.data.refresh_token, res.data.user);
+      }
+      return res;
+    },
+    refresh: async (refreshToken) => {
+      const res = await api.post('/auth/refresh', { refresh_token: refreshToken });
+      if (res.status === 'success' && res.data?.auth_token) {
+        // Update store with new access token and rotated refresh token
+        useAuthStore.getState().login(res.data.auth_token, res.data.refresh_token, useAuthStore.getState().user);
       }
       return res;
     },

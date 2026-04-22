@@ -9,6 +9,7 @@ export const useAuthStore = create(
   persist(
     (set, get) => ({
       token: null,
+      refreshToken: null,
       user: null,
       isAuthenticated: false,
       isHydrated: false,
@@ -18,13 +19,15 @@ export const useAuthStore = create(
       
       setUser: (user) => set({ user }),
 
-      login: async (token, user) => {
-        set({ token, user, isAuthenticated: true });
+      login: async (token, refreshToken, user) => {
+        set({ token, refreshToken, user, isAuthenticated: true });
+        // Double write to primitive storage for API service recovery
         await storage.set('auth_token', token);
+        if (refreshToken) await storage.set('refresh_token', refreshToken);
       },
 
       logout: async () => {
-        set({ token: null, user: null, isAuthenticated: false });
+        set({ token: null, refreshToken: null, user: null, isAuthenticated: false });
         await storage.remove('auth_token');
         await storage.remove('refresh_token');
       },
@@ -34,6 +37,12 @@ export const useAuthStore = create(
     {
       name: 'inzeedo-auth-storage',
       storage: createJSONStorage(() => capacitorStorage),
+      partialize: (state) => ({
+        token: state.token,
+        refreshToken: state.refreshToken,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated
+      }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
       },

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">POS Mobile</string>
-    <string name="title_activity_main">POS Mobile</string>
+    <string name="app_name">Inzeedo pos</string>
+    <string name="title_activity_main">Inzeedo pos</string>
     <string name="package_name">com.inzeedo.pos</string>
     <string name="custom_url_scheme">com.inzeedo.pos</string>
 </resources>

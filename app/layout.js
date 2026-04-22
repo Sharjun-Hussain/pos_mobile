@@ -2,7 +2,7 @@ import "./globals.css";
 import POSLayout from "@/components/POSLayout";
 
 export const metadata = {
-  title: "POS Mobile",
+  title: process.env.NEXT_PUBLIC_APP_NAME || "POS Mobile",
   description: "Premium Point of Sale System",
 };
 

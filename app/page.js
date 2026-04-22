@@ -46,7 +46,9 @@ export default function Home() {
       {/* Header */}
       <header className="flex items-center justify-between pt-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-100 italic tracking-tight">S-POS</h1>
+          <h1 className="text-2xl font-bold text-zinc-100 italic tracking-tight">
+            {process.env.NEXT_PUBLIC_APP_NAME || "S-POS"}
+          </h1>
           <p className="text-zinc-500 text-sm font-medium">Store Dashboard</p>
         </div>
         <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-brand/20">

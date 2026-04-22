@@ -159,7 +159,7 @@ export default function Home() {
   };
 
   return (
-    <div className="p-6 pb-24 flex flex-col gap-8 pt-[calc(var(--sat)+1.5rem)]">
+    <div className="px-4 pb-24 flex flex-col gap-8 pt-[calc(var(--sat)+1.5rem)]">
       {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -194,7 +194,7 @@ export default function Home() {
 
       {/* Scrollable Stats Section */}
       <section>
-        <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-6 px-6">
+        <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-4 px-4">
           <StatCard
             title={t('pos.total')}
             value={stats?.todayRevenue?.value ? formatCurrency(parseFloat(stats.todayRevenue.value)) : formatCurrency(0)}

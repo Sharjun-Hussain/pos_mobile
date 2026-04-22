@@ -67,7 +67,7 @@ export default function InventoryPage() {
   });
 
   return (
-    <div className="p-6 pb-24 flex flex-col gap-6 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
+    <div className="px-4 pb-24 flex flex-col gap-6 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
@@ -109,7 +109,7 @@ export default function InventoryPage() {
       </section>
 
       {/* Category Filter Pills */}
-      <section className="overflow-x-auto no-scrollbar flex gap-2 -mx-6 px-6">
+      <section className="overflow-x-auto no-scrollbar flex gap-2 -mx-4 px-4">
         <button
           onClick={() => setSelectedCategory(null)}
           className={`px-4 h-9 rounded-full text-xs font-black transition-all ${!selectedCategory

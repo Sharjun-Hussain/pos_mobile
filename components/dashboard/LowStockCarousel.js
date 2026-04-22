@@ -7,7 +7,7 @@ import { AlertTriangle, Plus, Package } from 'lucide-react';
 export const LowStockCarousel = ({ items = [], isLoading, onRestock }) => {
   if (isLoading) {
     return (
-      <div className="flex gap-4 overflow-hidden -mx-6 px-6">
+      <div className="flex gap-4 overflow-hidden -mx-4 px-4">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="min-w-[220px] h-40 glass-panel p-5 rounded-[2.5rem] flex flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
@@ -28,7 +28,7 @@ export const LowStockCarousel = ({ items = [], isLoading, onRestock }) => {
   if (items.length === 0) return null;
 
   return (
-    <div className="flex overflow-x-auto gap-4 no-scrollbar -mx-6 px-6 snap-x snap-mandatory">
+      <div className="flex overflow-x-auto gap-4 no-scrollbar -mx-4 px-4 snap-x snap-mandatory">
       {items.map((item, idx) => (
         <motion.div
           key={item.id}

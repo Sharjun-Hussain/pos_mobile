@@ -108,7 +108,7 @@ export default function ProductsPage() {
     }) : [];
 
   return (
-    <div className="p-6 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
+    <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button 

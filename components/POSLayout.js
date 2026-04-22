@@ -33,6 +33,8 @@ export default function POSLayout({ children }) {
   const isLoginPage = pathname === '/login';
   const isSetupPage = pathname === '/setup';
   const isOnboardingPage = pathname === '/onboarding';
+  const isRecoveryPage = pathname === '/forgot-password' || pathname === '/reset-password';
+  const isAuthOptionalPage = isLoginPage || isSetupPage || isOnboardingPage || isRecoveryPage;
 
   React.useEffect(() => {
     const checkConfig = async () => {
@@ -55,11 +57,11 @@ export default function POSLayout({ children }) {
         onClose={closeDrawer}
       />
 
-      <main className={`flex-1 ${(isLoginPage || isSetupPage || isOnboardingPage) ? '' : 'pb-20'}`}>
+      <main className={`flex-1 ${isAuthOptionalPage ? '' : 'pb-20'}`}>
         {children}
       </main>
 
-      {!isLoginPage && !isSetupPage && !isOnboardingPage && (
+      {!isAuthOptionalPage && (
         <nav className="bottom-nav">
           <NavItem href="/" icon={Home} label="Home" />
           <NavItem href="/sales" icon={ShoppingBag} label="History" />

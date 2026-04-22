@@ -25,19 +25,19 @@ const SaleRow = ({ sale, onClick }) => {
 
   const getStatusColor = (status) => {
     switch(status) {
-      case 'paid': return 'text-emerald-500 bg-emerald-50';
-      case 'partially_paid': return 'text-amber-500 bg-amber-50';
-      default: return 'text-rose-500 bg-rose-50';
+      case 'paid': return 'text-emerald-500 bg-emerald-500/10';
+      case 'partially_paid': return 'text-amber-500 bg-amber-500/10';
+      default: return 'text-rose-500 bg-rose-500/10';
     }
   };
 
   return (
     <div 
       onClick={() => { haptics.light(); onClick(); }}
-      className="flex items-center justify-between py-3.5 border-b border-slate-100 px-1 active:bg-brand/5 transition-colors cursor-pointer"
+      className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer"
     >
       <div className="flex items-center gap-3 overflow-hidden">
-        <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-400 border border-slate-100">
+        <div className="h-10 w-10 rounded-xl bg-surface-muted flex items-center justify-center flex-shrink-0 text-text-secondary border border-glass-border/20">
           <FileText size={18} />
         </div>
         <div className="overflow-hidden">
@@ -45,7 +45,7 @@ const SaleRow = ({ sale, onClick }) => {
             <h4 className="font-bold text-text-main text-sm truncate leading-tight">
               {sale.invoice_number}
             </h4>
-            <span className={`text-xs font-black px-1.5 py-0.5 rounded-md ${getStatusColor(sale.payment_status)}`}>
+            <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${getStatusColor(sale.payment_status)}`}>
               {sale.payment_status}
             </span>
           </div>
@@ -53,8 +53,8 @@ const SaleRow = ({ sale, onClick }) => {
             <span className="text-xs font-bold text-text-secondary opacity-60">
               {sale.customer?.name || 'Walk-in Guest'}
             </span>
-            <div className="h-0.5 w-0.5 rounded-full bg-slate-300" />
-            <span className="text-xs font-medium text-slate-400">
+            <div className="h-0.5 w-0.5 rounded-full bg-glass-border/30" />
+            <span className="text-xs font-medium text-text-secondary opacity-40">
               {date}
             </span>
           </div>
@@ -62,7 +62,7 @@ const SaleRow = ({ sale, onClick }) => {
       </div>
       <div className="text-right flex-shrink-0 ml-3">
         <p className="font-black text-brand text-sm">LKR {Math.round(sale.payable_amount).toLocaleString()}</p>
-        <p className="text-xs font-bold text-slate-300 mt-0.5">
+        <p className="text-[10px] font-black text-text-secondary opacity-30 mt-0.5 uppercase tracking-tighter">
           {sale.payment_method || 'Cash'}
         </p>
       </div>
@@ -116,7 +116,7 @@ export default function SalesHistoryPage() {
         </div>
         <button 
           onClick={() => { haptics.light(); refetchSales(); }}
-          className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
+          className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
         >
           <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
         </button>
@@ -124,20 +124,20 @@ export default function SalesHistoryPage() {
 
       <section className="flex flex-col gap-3">
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
           <input 
             type="text" 
             placeholder="Search invoice or customer..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
           />
         </div>
       </section>
 
       <section className="flex flex-col">
-        <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
-          <h2 className="text-xs font-black text-text-secondary opacity-30">
+        <div className="flex items-center justify-between mb-3 px-1 border-b border-glass-border/10 pb-2">
+          <h2 className="text-xs font-black text-text-secondary opacity-30 uppercase tracking-widest">
             {loading ? 'Consulting Records...' : `${filteredSales.length} Recent Invoices`}
           </h2>
         </div>
@@ -145,7 +145,7 @@ export default function SalesHistoryPage() {
         {loading ? (
           <div className="flex flex-col">
             {Array(10).fill(0).map((_, i) => (
-              <div key={i} className="h-16 w-full border-b border-slate-50 animate-pulse bg-slate-50/50" />
+              <div key={i} className="h-16 w-full border-b border-glass-border/5 animate-pulse bg-surface-muted/30" />
             ))}
           </div>
         ) : filteredSales.length > 0 ? (
@@ -155,9 +155,9 @@ export default function SalesHistoryPage() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 opacity-20">
+          <div className="flex flex-col items-center justify-center py-20 opacity-20 text-text-secondary">
             <ShoppingBag size={40} strokeWidth={1} />
-            <p className="text-[11px] font-bold mt-4">No recent sales found</p>
+            <p className="text-[11px] font-black uppercase tracking-widest mt-4">No recent sales found</p>
           </div>
         )}
       </section>

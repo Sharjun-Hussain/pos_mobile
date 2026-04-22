@@ -105,22 +105,22 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-          className="relative bg-white rounded-t-[2.5rem] w-full max-h-[94vh] flex flex-col shadow-2xl safe-area-inset-bottom"
+          className="relative bg-surface rounded-t-[2.5rem] w-full max-h-[94vh] flex flex-col shadow-2xl safe-area-inset-bottom"
         >
           {/* Header */}
-          <div className="p-6 pb-4 flex items-center justify-between border-b border-slate-100">
+          <div className="p-6 pb-4 flex items-center justify-between border-b border-glass-border/30">
             <div className="flex items-center gap-3 text-rose-500">
-              <div className="h-10 w-10 bg-rose-50 rounded-xl flex items-center justify-center">
+              <div className="h-10 w-10 bg-rose-500/10 rounded-xl flex items-center justify-center">
                 <RotateCcw size={20} strokeWidth={2.5} />
               </div>
               <div>
                 <h3 className="text-base font-black text-text-main leading-none mb-1">Process Return</h3>
-                <p className="text-[10px] font-bold text-slate-400">Invoice: {sale.invoice_number}</p>
+                <p className="text-[10px] font-bold text-text-secondary opacity-50">Invoice: {sale.invoice_number}</p>
               </div>
             </div>
             <button 
               onClick={onClose}
-              className="h-9 w-9 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 active:scale-90 transition-transform"
+              className="h-9 w-9 bg-surface-muted rounded-lg flex items-center justify-center text-text-secondary active:scale-90 transition-transform"
             >
               <X size={18} />
             </button>
@@ -128,7 +128,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
 
           <div className="flex-1 overflow-y-auto no-scrollbar p-6 flex flex-col gap-6">
             {error && (
-              <div className="bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-start gap-3 text-rose-600">
+              <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-2xl flex items-start gap-3 text-rose-500">
                 <AlertTriangle size={18} className="flex-shrink-0" />
                 <p className="text-[11px] font-bold py-0.5">{error}</p>
               </div>
@@ -136,28 +136,28 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
 
             {/* Selection List */}
             <div className="flex flex-col gap-3">
-              <p className="text-[10px] font-black text-slate-400 pl-1">Select Items & Qty</p>
+              <p className="text-[10px] font-black text-text-secondary opacity-40 uppercase tracking-widest pl-1">Select Items & Qty</p>
               <div className="flex flex-col gap-2">
                 {returnItems.map(item => (
-                  <div key={item.id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
+                  <div key={item.id} className="bg-surface-muted p-4 rounded-2xl border border-glass-border/20 flex items-center justify-between">
                     <div className="flex-1 overflow-hidden pr-4">
                       <h4 className="text-[12px] font-bold text-text-main truncate">{item.product?.name}</h4>
-                      <p className="text-[10px] font-medium text-slate-400 mt-0.5">Purchased: {item.quantity}</p>
+                      <p className="text-[10px] font-bold text-text-secondary opacity-40 mt-0.5 uppercase">Purchased: {item.quantity}</p>
                     </div>
                     
                     <div className="flex items-center gap-3">
                       <button 
                         onClick={() => updateQuantity(item.id, -1)}
-                        className={`text-slate-300 active:scale-90 transition-transform ${item.return_quantity > 0 ? 'text-rose-500' : ''}`}
+                        className={`text-text-secondary opacity-20 active:scale-90 transition-transform ${item.return_quantity > 0 ? 'text-rose-500 opacity-100' : ''}`}
                       >
                         <MinusCircle size={22} />
                       </button>
-                      <span className={`text-sm font-black w-4 text-center ${item.return_quantity > 0 ? 'text-text-main' : 'text-slate-300'}`}>
+                      <span className={`text-sm font-black w-4 text-center ${item.return_quantity > 0 ? 'text-text-main' : 'text-text-secondary opacity-20'}`}>
                         {item.return_quantity}
                       </span>
                       <button 
                         onClick={() => updateQuantity(item.id, 1)}
-                        className={`text-slate-300 active:scale-90 transition-transform ${item.return_quantity < item.quantity ? 'text-brand' : ''}`}
+                        className={`text-text-secondary opacity-20 active:scale-90 transition-transform ${item.return_quantity < item.quantity ? 'text-brand opacity-100' : ''}`}
                       >
                         <PlusCircle size={22} />
                       </button>
@@ -170,16 +170,16 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
             {/* Refund Configuration */}
             <div className="flex flex-col gap-4">
                <div className="flex flex-col gap-2">
-                  <p className="text-[10px] font-black text-slate-400 pl-1">Refund Method</p>
+                  <p className="text-[10px] font-black text-text-secondary opacity-40 uppercase tracking-widest pl-1">Refund Method</p>
                   <div className="flex gap-2">
                     {['cash', 'bank'].map(method => (
                       <button
                         key={method}
                         onClick={() => { haptics.light(); setRefundMethod(method); }}
-                        className={`flex-1 h-12 rounded-xl border text-[11px] font-black transition-all ${
+                        className={`flex-1 h-12 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all ${
                           refundMethod === method 
                             ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20' 
-                            : 'bg-white text-slate-400 border-slate-200'
+                            : 'bg-surface-muted text-text-secondary opacity-40 border-glass-border/20'
                         }`}
                       >
                         {method}
@@ -189,12 +189,12 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
                </div>
 
                <div className="flex flex-col gap-2">
-                  <p className="text-[10px] font-black text-slate-400 pl-1">Reason / Notes</p>
+                  <p className="text-[10px] font-black text-text-secondary opacity-40 uppercase tracking-widest pl-1">Reason / Notes</p>
                   <textarea 
                     placeholder="Enter return reason..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full h-24 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40"
+                    className="w-full h-24 bg-surface-muted border border-glass-border/20 rounded-2xl p-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40 placeholder:text-text-secondary/30"
                   />
                </div>
             </div>
@@ -202,7 +202,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
             {/* Totals Summary */}
             <div className="bg-rose-500 rounded-3xl p-6 text-white flex items-center justify-between shadow-xl shadow-rose-500/20 mb-4">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black opacity-60 leading-none">Net Refund Amount</span>
+                <span className="text-[10px] font-black opacity-60 leading-none uppercase tracking-widest">Net Refund Amount</span>
                 <span className="text-xl font-black">LKR {Math.round(totalRefund).toLocaleString()}</span>
               </div>
               <div className="h-10 w-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
@@ -223,7 +223,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
               ) : (
                 <>
                   <CheckCircle2 size={20} strokeWidth={3} />
-                  <span className="text-[15px] font-black">Finalize Return</span>
+                  <span className="text-[15px] font-black uppercase tracking-widest">Finalize Return</span>
                 </>
               )}
             </button>

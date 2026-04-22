@@ -251,12 +251,6 @@ export default function Home() {
       )}
 
 
-      {/* Performance Section */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-bold text-text-secondary ml-1">Business Pulse</h2>
-        <PerformanceChart isLoading={loading} />
-      </section>
-
       {/* Quick Actions */}
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-bold text-text-secondary ml-1">Quick Actions</h2>
@@ -270,6 +264,12 @@ export default function Home() {
             onClick={() => router.push('/pos')}
           />
         </div>
+      </section>
+
+      {/* Performance Section */}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-sm font-bold text-text-secondary ml-1">Business Pulse</h2>
+        <PerformanceChart isLoading={loading} />
       </section>
 
       {/* Recent Activity */}

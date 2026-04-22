@@ -173,7 +173,7 @@ export default function SalesHistoryPage() {
         isOpen={isReturnOpen}
         onClose={() => setIsReturnOpen(false)}
         sale={activeSale}
-        onFinish={fetchSales}
+        onFinish={refetchSales}
       />
     </div>
   );

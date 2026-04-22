@@ -52,7 +52,7 @@ export default function SalesPage() {
       ]);
 
       if (pRes.status === 'success') {
-        const rawProducts = pRes.data.data || [];
+        const rawProducts = pRes.data || [];
         const processed = await Promise.all(rawProducts.map(async (p) => {
           const imageUrl = await api.getImageUrl(p.image);
           return {

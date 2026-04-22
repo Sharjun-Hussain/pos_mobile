@@ -54,7 +54,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     setAdjustment,
     getDiscountAmount 
   } = useCartStore();
-  const { isWholesale, activePaymentMethods, currency } = useSettingsStore();
+  const { isWholesale, activePaymentMethods, currency, checkoutPreview } = useSettingsStore();
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
   const [customers, setCustomers] = useState([]);

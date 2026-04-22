@@ -608,7 +608,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       disabled={isSyncing}
                       className="bg-brand text-white px-5 h-14 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50 flex items-center justify-center gap-2 group transition-all active:scale-95 disabled:opacity-50"
                     >
-                      <span className="text-sm font-black tracking-tight">{isSyncing ? 'Syncing...' : 'Sync Order'}</span>
+                      <span className="text-sm font-black tracking-tight">{isSyncing ? 'Saving...' : 'Complete'}</span>
                       <Check size={18} strokeWidth={3} />
                     </button>
                   )}

@@ -25,6 +25,9 @@ import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
+import { PerformanceChart } from '@/components/dashboard/PerformanceChart';
+import { RecentSalesList } from '@/components/dashboard/RecentSalesList';
+import { LowStockCarousel } from '@/components/dashboard/LowStockCarousel';
 
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
@@ -110,6 +113,8 @@ export default function Home() {
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
+  const [recentSales, setRecentSales] = useState([]);
+  const [lowStockItems, setLowStockItems] = useState([]);
   const [localUser, setLocalUser] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
 
@@ -117,15 +122,23 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const [uRes, sRes] = await Promise.all([
+      const [uRes, sRes, salesRes, productsRes] = await Promise.all([
         api.auth.me(),
         api.reports.getDashboardSummary(),
+        api.sales.getAll({ limit: 5 }),
+        api.products.getAll({ limit: 5 }), // We'll filter for low stock or just show top
         useSettingsStore.getState().syncSettings()
       ]);
 
       const userData = uRes.data?.user;
       setLocalUser(userData);
       setStats(sRes.data);
+      setRecentSales(salesRes.data?.data || salesRes.data || []);
+      
+      // Look for low stock items specifically if possible
+      const allProds = productsRes.data?.data || productsRes.data || [];
+      const lowOnes = allProds.filter(p => p.stock <= (p.reorder_level || 5));
+      setLowStockItems(lowOnes);
 
       if (userData?.profile_image) {
         const resolvedUrl = await api.getImageUrl(userData.profile_image);
@@ -151,6 +164,13 @@ export default function Home() {
   const displayUser = localUser || user;
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUser?.name || 'Felix'}`;
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   return (
     <div className="p-6 pb-24 flex flex-col gap-8">
       {/* Header */}
@@ -169,18 +189,14 @@ export default function Home() {
             </div>
           ) : (
             <div>
+              <p className="text-[10px] font-black text-brand uppercase tracking-widest mb-1 opacity-80">{getGreeting()}</p>
               <h1 className="text-xl font-black text-text-main leading-none mb-1">
-                {displayUser?.organization?.name || "Inzeedo POS"}
+                {displayUser?.name?.split(' ')[0] || "Partner"}
               </h1>
               <div className="flex items-center gap-1.5 opacity-60">
                 <p className="text-[10px] font-bold text-text-secondary leading-none">
-                  {selectedBranch?.name || 'Main Warehouse'}
+                  {selectedBranch?.name || 'Branch Terminal'}
                 </p>
-                {selectedBranch?.code && (
-                  <span className="text-[8px] font-bold bg-brand/10 text-brand px-1 rounded">
-                    {selectedBranch.code}
-                  </span>
-                )}
               </div>
             </div>
           )}
@@ -256,10 +272,16 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Performance Section */}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-sm font-bold text-text-secondary ml-1">Business Pulse</h2>
+        <PerformanceChart isLoading={loading} />
+      </section>
+
       {/* Quick Actions */}
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-bold text-text-secondary ml-1">Quick Actions</h2>
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-3">
           <ActionCard
             title={t('checkout.finalizeSale')}
             description="Start a checkout transaction"
@@ -268,24 +290,28 @@ export default function Home() {
             isLoading={loading}
             onClick={() => router.push('/pos')}
           />
-          <ActionCard
-            title="Scan Product"
-            description="Use camera to identify items"
-            icon={ScanBarcode}
-            color="amber"
-            isLoading={loading}
-            onClick={() => router.push('/pos')}
-          />
-          <ActionCard
-            title="Manage Stock"
-            description="Update inventory levels"
-            icon={Package}
-            color="blue"
-            isLoading={loading}
-            onClick={() => router.push('/inventory')}
-          />
         </div>
       </section>
+
+      {/* Recent Activity */}
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-sm font-bold text-text-secondary">Recent Transactions</h2>
+          <button className="text-[10px] font-black text-brand uppercase tracking-wider">See All</button>
+        </div>
+        <RecentSalesList sales={recentSales} isLoading={loading} />
+      </section>
+
+      {/* Low Stock Section */}
+      {lowStockItems.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-sm font-bold text-rose-500">Inventory Alerts</h2>
+            <button className="text-[10px] font-black text-rose-500 uppercase tracking-wider">Manage</button>
+          </div>
+          <LowStockCarousel items={lowStockItems} isLoading={loading} />
+        </section>
+      )}
 
       <BranchSelectionSheet
         isOpen={isBranchSheetOpen}

@@ -79,11 +79,17 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="mt-12 text-center">
+      <div className="mt-12 text-center flex flex-col gap-4">
         <p className="text-zinc-500 text-sm">
           Don't have an account? 
           <button className="text-brand font-semibold ml-1">Contact Support</button>
         </p>
+        <button 
+          onClick={() => { haptics.light(); router.push('/setup'); }}
+          className="text-zinc-600 text-xs hover:text-zinc-400 transition-colors"
+        >
+          Using a different server? <span className="underline">Change Settings</span>
+        </button>
       </div>
     </div>
   );

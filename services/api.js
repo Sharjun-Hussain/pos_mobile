@@ -17,6 +17,9 @@ export const storage = {
 
 const apiRequest = async (endpoint, options = {}) => {
   const token = await storage.get('auth_token');
+  const customUrl = await storage.get('custom_api_url');
+  
+  const baseUrl = customUrl || API_BASE_URL;
   
   const headers = {
     'Content-Type': 'application/json',
@@ -27,7 +30,7 @@ const apiRequest = async (endpoint, options = {}) => {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(`${baseUrl}${endpoint}`, {
     ...options,
     headers,
   });

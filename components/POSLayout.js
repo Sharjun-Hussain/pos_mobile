@@ -3,18 +3,17 @@
 import React from 'react';
 import { Home, ShoppingBag, Box, Settings, User } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const NavItem = ({ href, icon: Icon, label }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
   return (
-    <Link 
-      href={href} 
-      className={`flex flex-col items-center justify-center gap-1 transition-colors ${
-        isActive ? 'text-brand' : 'text-zinc-500'
-      }`}
+    <Link
+      href={href}
+      className={`flex flex-col items-center justify-center gap-1 transition-colors ${isActive ? 'text-brand' : 'text-zinc-500'
+        }`}
     >
       <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
       <span className="text-[10px] font-medium uppercase tracking-wider">{label}</span>
@@ -22,17 +21,32 @@ const NavItem = ({ href, icon: Icon, label }) => {
   );
 };
 
+import { Preferences } from '@capacitor/preferences';
+
 export default function POSLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isLoginPage = pathname === '/login';
+  const isSetupPage = pathname === '/setup';
+
+  React.useEffect(() => {
+    // Force setup if no URL is configured
+    const checkConfig = async () => {
+      const { value } = await Preferences.get({ key: 'custom_api_url' });
+      if (!value && !isSetupPage) {
+        router.replace('/setup');
+      }
+    };
+    checkConfig();
+  }, [pathname, isSetupPage, router]);
 
   return (
     <div className="flex flex-col min-h-screen">
-      <main className={`flex-1 ${isLoginPage ? '' : 'pb-20'}`}>
+      <main className={`flex-1 ${(isLoginPage || isSetupPage) ? '' : 'pb-20'}`}>
         {children}
       </main>
-      
-      {!isLoginPage && (
+
+      {!isLoginPage && !isSetupPage && (
         <nav className="bottom-nav">
           <NavItem href="/" icon={Home} label="Home" />
           <NavItem href="/sales" icon={ShoppingBag} label="Sales" />

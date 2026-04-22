@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo, useTransition } from 'react';
 import {
-  TrendingUp,
-  TrendingDown,
   Users,
   Package,
   Plus,
@@ -29,7 +27,114 @@ import { LowStockCarousel } from '@/components/dashboard/LowStockCarousel';
 import { useFetch } from '@/hooks/useFetch';
 import Image from 'next/image';
 
-// Memoized Stat Card
+// --- Internal Memoized Components for Performance ---
+
+const DashboardStats = memo(({ stats, loading, formatCurrency, t }) => (
+  <section className="animate-in fade-in duration-500">
+    <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-4 px-4">
+      <StatCard
+        title={t('pos.total')}
+        value={stats?.todayRevenue?.value ? formatCurrency(parseFloat(stats.todayRevenue.value)) : formatCurrency(0)}
+        trendValue={stats?.todayRevenue?.change}
+        icon={DollarSign}
+        gradient="from-emerald-500 to-teal-400"
+        isLoading={loading}
+      />
+      <StatCard
+        title={t('settings.notifications')}
+        value={stats?.pendingInvoices?.value || '0'}
+        trendValue={stats?.pendingInvoices?.change}
+        icon={FileText}
+        gradient="from-blue-500 to-indigo-400"
+        isLoading={loading}
+      />
+      <StatCard
+        title="Low Stock"
+        value={stats?.lowStockCount?.value || '0'}
+        trendValue={stats?.lowStockCount?.change}
+        icon={Package}
+        gradient="from-amber-500 to-orange-400"
+        isLoading={loading}
+      />
+      <StatCard
+        title={t('checkout.walkIn')}
+        value={stats?.newCustomers?.value || '0'}
+        trendValue={stats?.newCustomers?.change}
+        icon={Users}
+        gradient="from-violet-500 to-purple-400"
+        isLoading={loading}
+      />
+    </div>
+  </section>
+));
+DashboardStats.displayName = 'DashboardStats';
+
+const QuickActionsSection = memo(({ loading, router, t }) => (
+  <section className="flex flex-col gap-4">
+    <h2 className="text-xs font-bold text-text-secondary ml-1 uppercase tracking-widest opacity-60">Quick Actions</h2>
+    <div className="grid grid-cols-1 gap-3">
+      <ActionCard
+        title={t('checkout.finalizeSale')}
+        description="Start a checkout transaction"
+        icon={Plus}
+        color="brand"
+        isLoading={loading}
+        onClick={() => router.push('/pos')}
+      />
+    </div>
+  </section>
+));
+QuickActionsSection.displayName = 'QuickActionsSection';
+
+const BusinessPulse = memo(({ chartData, loading }) => (
+  <section className="flex flex-col gap-4">
+    <h2 className="text-xs font-bold text-text-secondary ml-1 uppercase tracking-widest opacity-60">Business Pulse</h2>
+    <PerformanceChart data={chartData} isLoading={loading} />
+  </section>
+));
+BusinessPulse.displayName = 'BusinessPulse';
+
+const TransactionsSection = memo(({ recentSales, loading, onSaleClick, router }) => (
+  <section className="flex flex-col gap-4">
+    <div className="flex items-center justify-between px-1">
+      <h2 className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60">Recent Transactions</h2>
+      <button
+        onClick={() => { haptics.light(); router.push('/sales'); }}
+        className="text-[10px] font-black text-brand uppercase tracking-wider"
+      >
+        See All
+      </button>
+    </div>
+    <RecentSalesList
+      sales={recentSales}
+      isLoading={loading}
+      onSaleClick={onSaleClick}
+    />
+  </section>
+));
+TransactionsSection.displayName = 'TransactionsSection';
+
+const InventoryAlerts = memo(({ lowStockItems, loading, router }) => {
+  if (!loading && lowStockItems.length === 0) return null;
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-xs font-bold text-rose-500 uppercase tracking-widest opacity-80">Inventory Alerts</h2>
+        <button 
+          onClick={() => router.push('/inventory?filter=low-stock')}
+          className="text-[10px] font-black text-rose-500 uppercase tracking-wider"
+        >
+          Manage
+        </button>
+      </div>
+      <LowStockCarousel items={lowStockItems} isLoading={loading} />
+    </section>
+  );
+});
+InventoryAlerts.displayName = 'InventoryAlerts';
+
+// --- UI Primitives ---
+
 const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
     return (
@@ -71,7 +176,6 @@ const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradie
 });
 StatCard.displayName = 'StatCard';
 
-// Memoized Action Card
 const ActionCard = memo(({ title, description, icon: Icon, color, isLoading, onClick }) => {
   if (isLoading) {
     return (
@@ -111,12 +215,16 @@ const ActionCard = memo(({ title, description, icon: Icon, color, isLoading, onC
 });
 ActionCard.displayName = 'ActionCard';
 
+// --- Main Page Component ---
+
 export default function Home() {
   const router = useRouter();
   const { openDrawer } = useUIStore();
   const { user, selectedBranch, isAuthenticated, isHydrated } = useAuthStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
+  const [isPending, startTransition] = useTransition();
+
   const { data: userData, isLoading: userLoading } = useFetch('/auth/me');
   const { data: statsData, error: statsError, isLoading: statsLoading } = useFetch('/reports/dashboard/summary');
   const { data: salesData, isLoading: salesLoading } = useFetch('/sales?limit=5');
@@ -155,8 +263,10 @@ export default function Home() {
   
   const handleSaleClick = useCallback((sale) => {
     haptics.medium();
-    setSelectedSaleId(sale.id);
-    setIsDetailsOpen(true);
+    startTransition(() => {
+        setSelectedSaleId(sale.id);
+        setIsDetailsOpen(true);
+    });
   }, []);
 
   const getGreeting = () => {
@@ -205,43 +315,13 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Scrollable Stats Section */}
-      <section>
-        <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-4 px-4">
-          <StatCard
-            title={t('pos.total')}
-            value={statsData?.todayRevenue?.value ? formatCurrency(parseFloat(statsData.todayRevenue.value)) : formatCurrency(0)}
-            trendValue={statsData?.todayRevenue?.change}
-            icon={DollarSign}
-            gradient="from-emerald-500 to-teal-400"
-            isLoading={loading}
-          />
-          <StatCard
-            title={t('settings.notifications')}
-            value={statsData?.pendingInvoices?.value || '0'}
-            trendValue={statsData?.pendingInvoices?.change}
-            icon={FileText}
-            gradient="from-blue-500 to-indigo-400"
-            isLoading={loading}
-          />
-          <StatCard
-            title="Low Stock"
-            value={statsData?.lowStockCount?.value || '0'}
-            trendValue={statsData?.lowStockCount?.change}
-            icon={Package}
-            gradient="from-amber-500 to-orange-400"
-            isLoading={loading}
-          />
-          <StatCard
-            title={t('checkout.walkIn')}
-            value={statsData?.newCustomers?.value || '0'}
-            trendValue={statsData?.newCustomers?.change}
-            icon={Users}
-            gradient="from-violet-500 to-purple-400"
-            isLoading={loading}
-          />
-        </div>
-      </section>
+      {/* Memoized Stats Section */}
+      <DashboardStats 
+         stats={statsData} 
+         loading={loading} 
+         formatCurrency={formatCurrency} 
+         t={t} 
+      />
 
       {statsError && (
         <div className="glass-panel p-4 rounded-2xl flex items-center justify-between bg-rose-500/5 border-rose-500/10">
@@ -255,60 +335,22 @@ export default function Home() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xs font-bold text-text-secondary ml-1 uppercase tracking-widest opacity-60">Quick Actions</h2>
-        <div className="grid grid-cols-1 gap-3">
-          <ActionCard
-            title={t('checkout.finalizeSale')}
-            description="Start a checkout transaction"
-            icon={Plus}
-            color="brand"
-            isLoading={loading}
-            onClick={() => router.push('/pos')}
-          />
-        </div>
-      </section>
+      <QuickActionsSection loading={loading} router={router} t={t} />
 
-      {/* Performance Section */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xs font-bold text-text-secondary ml-1 uppercase tracking-widest opacity-60">Business Pulse</h2>
-        <PerformanceChart data={statsData?.chartData} isLoading={loading} />
-      </section>
+      <BusinessPulse chartData={statsData?.chartData} loading={loading} />
 
-      {/* Recent Activity */}
-      <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60">Recent Transactions</h2>
-          <button
-            onClick={() => { haptics.light(); router.push('/sales'); }}
-            className="text-[10px] font-black text-brand uppercase tracking-wider"
-          >
-            See All
-          </button>
-        </div>
-        <RecentSalesList
-          sales={recentSales}
-          isLoading={loading}
-          onSaleClick={handleSaleClick}
-        />
-      </section>
+      <TransactionsSection 
+        recentSales={recentSales} 
+        loading={loading} 
+        onSaleClick={handleSaleClick} 
+        router={router} 
+      />
 
-      {/* Low Stock Section */}
-      {lowStockItems.length > 0 && (
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xs font-bold text-rose-500 uppercase tracking-widest opacity-80">Inventory Alerts</h2>
-            <button 
-              onClick={() => router.push('/inventory?filter=low-stock')}
-              className="text-[10px] font-black text-rose-500 uppercase tracking-wider"
-            >
-              Manage
-            </button>
-          </div>
-          <LowStockCarousel items={lowStockItems} isLoading={loading} />
-        </section>
-      )}
+      <InventoryAlerts 
+        lowStockItems={lowStockItems} 
+        loading={loading} 
+        router={router} 
+      />
 
       <BranchSelectionSheet
         isOpen={isBranchSheetOpen}

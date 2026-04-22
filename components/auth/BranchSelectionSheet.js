@@ -6,7 +6,7 @@ import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useAuthStore } from '@/store/useAuthStore';
 
-export const BranchSelectionSheet = ({ isOpen, onClose, allowClose = true }) => {
+export const BranchSelectionSheet = memo(({ isOpen, onClose, allowClose = true }) => {
   const { user, setSelectedBranch, logout } = useAuthStore();
   const [search, setSearch] = useState('');
 
@@ -33,6 +33,7 @@ export const BranchSelectionSheet = ({ isOpen, onClose, allowClose = true }) => 
         open={isOpen} 
         onOpenChange={(c) => allowClose && !c && onClose()}
         dismissible={allowClose}
+        shouldScaleBackground={false}
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md z-[600]" />
@@ -127,4 +128,6 @@ export const BranchSelectionSheet = ({ isOpen, onClose, allowClose = true }) => 
       </Drawer.Portal>
     </Drawer.Root>
   );
-};
+});
+
+BranchSelectionSheet.displayName = 'BranchSelectionSheet';

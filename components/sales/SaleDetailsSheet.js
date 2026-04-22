@@ -13,7 +13,7 @@ import { api } from '@/services/api';
 import { receiptService } from '@/services/receipt';
 import { InvoiceView } from './InvoiceView';
 
-export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) => {
+export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, onReturnTrigger }) => {
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,6 +21,10 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
   useEffect(() => {
     if (isOpen && saleId) {
       fetchSaleDetails();
+    } else if (!isOpen) {
+        // Reset state when closed to ensure a clean slate for next time
+        setSale(null);
+        setLoading(true);
     }
   }, [isOpen, saleId]);
 
@@ -47,7 +51,7 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
     <Drawer.Root 
         open={isOpen} 
         onOpenChange={(c) => !c && onClose()}
-        shouldScaleBackground
+        shouldScaleBackground={false} // Disable scaling for performance if requested
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[500]" />
@@ -120,4 +124,6 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
       </Drawer.Portal>
     </Drawer.Root>
   );
-};
+});
+
+SaleDetailsSheet.displayName = 'SaleDetailsSheet';

@@ -289,7 +289,7 @@ export default function Home() {
           <h2 className="text-sm font-bold text-text-secondary">Recent Transactions</h2>
           <button 
             onClick={() => { haptics.light(); router.push('/sales'); }}
-            className="text-[10px] font-black text-brand uppercase tracking-wider"
+            className="text-xs font-black text-brand uppercase tracking-wider"
           >
             See All
           </button>
@@ -306,7 +306,7 @@ export default function Home() {
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-sm font-bold text-rose-500">Inventory Alerts</h2>
-            <button className="text-[10px] font-black text-rose-500 uppercase tracking-wider">Manage</button>
+            <button className="text-xs font-black text-rose-500 uppercase tracking-wider">Manage</button>
           </div>
           <LowStockCarousel items={lowStockItems} isLoading={loading} />
         </section>

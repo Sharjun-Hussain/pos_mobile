@@ -71,11 +71,11 @@ export const RecentSalesList = ({ sales = [], isLoading, onSaleClick }) => {
                 {sale.customer?.name || "Walk-in Guest"}
               </h5>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-[10px] font-bold text-text-secondary opacity-60 flex items-center gap-1 uppercase tracking-wider">
+                <p className="text-xs font-bold text-text-secondary opacity-60 flex items-center gap-1 uppercase tracking-wider">
                   <Clock size={10} /> {getTimeAgo(sale.created_at)}
                 </p>
                 <div className="h-1 w-1 rounded-full bg-text-secondary/20" />
-                <p className="text-[10px] font-bold text-brand uppercase">{sale.payment_method || 'CASH'}</p>
+                <p className="text-xs font-bold text-brand uppercase">{sale.payment_method || 'CASH'}</p>
               </div>
             </div>
           </div>
@@ -84,7 +84,7 @@ export const RecentSalesList = ({ sales = [], isLoading, onSaleClick }) => {
               <p className="text-sm font-black text-text-main leading-none">
                 {formatCurrency(parseFloat(sale.payable_amount))}
               </p>
-              <p className="text-[8px] font-bold text-text-secondary mt-1 tracking-tight">{sale.invoice_number}</p>
+              <p className="text-[10px] font-bold text-text-secondary mt-1 tracking-tight">{sale.invoice_number}</p>
             </div>
             <ChevronRight size={16} className="text-text-secondary opacity-30" />
           </div>

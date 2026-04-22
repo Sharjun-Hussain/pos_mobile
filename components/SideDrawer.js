@@ -111,17 +111,6 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                   <X size={18} />
                 </button>
               </div>
-
-              {/* Account Quick Glance */}
-              <div className="bg-slate-50 p-3 rounded-xl flex items-center gap-3 border border-slate-100">
-                <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-brand shadow-sm border border-slate-100">
-                  <User size={18} strokeWidth={2.5} />
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <p className="text-[11px] font-bold text-text-main truncate">{user?.name || 'Store Manager'}</p>
-                  <p className="text-[9px] font-medium text-slate-400 truncate mt-0.5">{user?.email || 'admin@inzeedo.com'}</p>
-                </div>
-              </div>
             </div>
 
             {/* Navigation Menu (Scrollable) */}
@@ -146,6 +135,17 @@ export const SideDrawer = ({ isOpen, onClose }) => {
 
             {/* Footer / Logout */}
             <div className="p-4 border-t border-slate-100 bg-white">
+              {/* Account Quick Glance */}
+              <div className="bg-slate-50 p-2.5 rounded-xl flex items-center gap-3 border border-slate-100 mb-2">
+                <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-brand shadow-sm border border-slate-100">
+                  <User size={16} strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <p className="text-[10px] font-bold text-text-main truncate leading-tight">{user?.name || 'Store Manager'}</p>
+                  <p className="text-[8.5px] font-medium text-slate-400 truncate mt-0.5">{user?.email || 'admin@inzeedo.com'}</p>
+                </div>
+              </div>
+
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center justify-between p-3 bg-rose-50 text-rose-500 rounded-xl active:bg-rose-100 transition-all font-bold text-xs"

@@ -21,6 +21,7 @@ import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
+import { useRouter } from 'next/navigation';
 
 const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
   if (isLoading) {
@@ -59,7 +60,7 @@ const StatCard = ({ title, value, trendValue, icon: Icon, isLoading, gradient })
   );
 };
 
-const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
+const ActionCard = ({ title, description, icon: Icon, color, isLoading, onClick }) => {
   if (isLoading) {
     return (
       <div className="glass-panel p-3 rounded-3xl animate-pulse flex items-center gap-4">
@@ -81,7 +82,10 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
   const activeColor = colorMap[color] || colorMap.brand;
 
   return (
-    <button className="glass-panel p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-all duration-200 hover:bg-surface-muted/30">
+    <button
+      onClick={() => { haptics.light(); onClick?.(); }}
+      className="glass-panel p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-all duration-200 hover:bg-surface-muted/30"
+    >
       <div className={`p-3 rounded-2xl ${activeColor}`}>
         <Icon size={22} strokeWidth={2.5} />
       </div>
@@ -94,6 +98,7 @@ const ActionCard = ({ title, description, icon: Icon, color, isLoading }) => {
 };
 
 export default function Home() {
+  const router = useRouter();
   const { openDrawer } = useUIStore();
   const { user, selectedBranch, isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(true);
@@ -145,7 +150,7 @@ export default function Home() {
       {/* Header */}
       <header className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => { haptics.light(); openDrawer(); }}
             className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
           >
@@ -249,14 +254,35 @@ export default function Home() {
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-bold text-text-secondary ml-1">Quick Actions</h2>
         <div className="flex flex-col gap-3">
-          <ActionCard title="New Sale" description="Start a checkout transaction" icon={Plus} color="brand" isLoading={loading} />
-          <ActionCard title="Scan Product" description="Use camera to identify items" icon={ScanBarcode} color="amber" isLoading={loading} />
-          <ActionCard title="Manage Stock" description="Update inventory levels" icon={Package} color="blue" isLoading={loading} />
+          <ActionCard
+            title="New Sale"
+            description="Start a checkout transaction"
+            icon={Plus}
+            color="brand"
+            isLoading={loading}
+            onClick={() => router.push('/pos')}
+          />
+          <ActionCard
+            title="Scan Product"
+            description="Use camera to identify items"
+            icon={ScanBarcode}
+            color="amber"
+            isLoading={loading}
+            onClick={() => router.push('/pos')}
+          />
+          <ActionCard
+            title="Manage Stock"
+            description="Update inventory levels"
+            icon={Package}
+            color="blue"
+            isLoading={loading}
+            onClick={() => router.push('/inventory')}
+          />
         </div>
       </section>
 
-      <BranchSelectionSheet 
-        isOpen={isBranchSheetOpen} 
+      <BranchSelectionSheet
+        isOpen={isBranchSheetOpen}
         onClose={() => setIsBranchSheetOpen(false)}
         allowClose={!!selectedBranch}
       />

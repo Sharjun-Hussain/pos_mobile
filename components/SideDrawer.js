@@ -27,19 +27,19 @@ const MenuLink = ({ href, icon: Icon, label, onClick }) => {
     <Link
       href={href}
       onClick={() => { haptics.light(); onClick?.(); }}
-      className={`flex items-center justify-between p-4 rounded-2xl transition-all ${
+      className={`flex items-center justify-between py-3 px-4 rounded-2xl transition-all ${
         isActive 
           ? 'bg-brand text-white shadow-lg shadow-brand/20 ml-2' 
           : 'text-text-secondary hover:bg-brand/5'
       }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20' : 'bg-surface-muted'}`}>
-          <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+          <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
         </div>
-        <span className={`text-sm font-bold ${isActive ? 'text-white' : 'text-text-main'}`}>{label}</span>
+        <span className={`text-[13px] font-bold ${isActive ? 'text-white' : 'text-text-main'}`}>{label}</span>
       </div>
-      {isActive && <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />}
+      {isActive && <div className="h-1 w-1 rounded-full bg-white opacity-60" />}
     </Link>
   );
 };

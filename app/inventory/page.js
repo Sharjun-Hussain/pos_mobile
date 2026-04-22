@@ -88,7 +88,7 @@ export default function InventoryPage() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => { haptics.light(); openDrawer(); }}
-            className="h-12 w-12 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-main active:scale-90 transition-transform shadow-sm"
+            className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
           >
             <Menu size={24} strokeWidth={2.5} />
           </button>

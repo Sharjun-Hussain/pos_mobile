@@ -66,8 +66,6 @@ export const EditProfileSheet = ({ isOpen, onClose, initialTab = 'profile' }) =>
     try {
       const formData = new FormData();
       formData.append('name', name);
-      // Adding _method=PUT to work nicely with Laravel
-      formData.append('_method', 'PUT');
       if (avatarFile) {
         formData.append('profile_image', avatarFile);
       }

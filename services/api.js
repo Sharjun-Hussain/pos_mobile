@@ -108,12 +108,7 @@ export const api = {
       return res;
     },
     me: () => api.get('/auth/me'),
-    updateProfile: async (formData) => {
-      // Custom multipart PUT request
-      const res = await apiRequest('/auth/me', { method: 'POST', body: formData, headers: { 'X-HTTP-Method-Override': 'PUT' } }); // Use POST+Override if PUT multipart has issues, or just PUT
-      // Wait, let's just try PUT first:
-      return res;
-    },
+    updateProfile: (formData) => apiRequest('/auth/me', { method: 'PUT', body: formData }),
     updatePassword: (data) => api.put('/me', data), // according to old frontend
     logout: async () => {
       await useAuthStore.getState().logout();

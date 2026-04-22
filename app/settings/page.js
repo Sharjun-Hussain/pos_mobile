@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Settings as SettingsIcon, 
   User, 
@@ -15,6 +15,7 @@ import {
   Smartphone
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
+import { api } from '@/services/api';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
 
@@ -49,6 +50,15 @@ const SettingItem = ({ icon: Icon, label, value, color = 'brand' }) => {
 export default function SettingsPage() {
   const { openDrawer } = useUIStore();
   const { user } = useAuthStore();
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
+
+  useEffect(() => {
+    if (user?.profile_image) {
+      api.getImageUrl(user.profile_image).then(setProfileImageUrl);
+    }
+  }, [user?.profile_image]);
+
+  const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`;
 
   return (
     <div className="p-6 pb-24 flex flex-col gap-8 min-h-screen">
@@ -71,8 +81,12 @@ export default function SettingsPage() {
       <section className="flex flex-col gap-4">
         <div className="flex flex-col items-center justify-center py-6 gap-3">
           <div className="h-24 w-24 rounded-[2.5rem] bg-brand shadow-2xl shadow-brand/20 flex items-center justify-center text-white p-1 border-4 border-white">
-            <div className="w-full h-full rounded-[2.2rem] bg-brand flex items-center justify-center">
-              <User size={40} strokeWidth={2.5} />
+            <div className="w-full h-full rounded-[2.2rem] bg-brand flex items-center justify-center overflow-hidden">
+              {profileImageUrl ? (
+                <img src={avatarSrc} alt={user?.name || "Profile"} className="w-full h-full object-cover" />
+              ) : (
+                <User size={40} strokeWidth={2.5} />
+              )}
             </div>
           </div>
           <div className="text-center">

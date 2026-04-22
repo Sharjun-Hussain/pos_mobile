@@ -66,13 +66,15 @@ export default function POSLayout({ children }) {
   // Handle Android Back Button
   useEffect(() => {
     const backListener = App.addListener('backButton', async (data) => {
-      // If we're not on the home page, just go back
-      if (pathname !== '/') {
+      // Pages that should trigger "Double tap to exit" instead of going back
+      const isExitPage = pathname === '/' || isAuthOptionalPage;
+
+      if (!isExitPage) {
         router.back();
         return;
       }
 
-      // If we are on home page, handle double tap to exit
+      // Handle double tap to exit pattern
       const now = Date.now();
       if (now - lastBackPress.current < 2000) {
         await App.exitApp();
@@ -89,7 +91,7 @@ export default function POSLayout({ children }) {
     return () => {
       backListener.then(l => l.remove());
     };
-  }, [pathname, router]);
+  }, [pathname, isAuthOptionalPage, router]);
 
   return (
     <div className="flex flex-col min-h-screen">

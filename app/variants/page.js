@@ -128,7 +128,7 @@ export default function VariantsPage() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => { haptics.light(); openDrawer(); }}
-            className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
+            className="h-[42px] w-[42px] flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-10px]"
           >
             <Menu size={24} strokeWidth={2.5} />
           </button>

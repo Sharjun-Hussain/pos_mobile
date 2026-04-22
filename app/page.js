@@ -250,17 +250,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Search Bar */}
-      <section>
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
-          <input
-            type="text"
-            placeholder={t('pos.searchProducts')}
-            className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/40 transition-all placeholder:text-text-secondary/50 text-sm font-medium"
-          />
-        </div>
-      </section>
 
       {/* Performance Section */}
       <section className="flex flex-col gap-4">

@@ -123,14 +123,16 @@ export default function SettingsPage() {
           </button>
           <div>
             <h1 className="text-xl font-black text-text-main leading-none mb-1">{t('settings.title')}</h1>
-            <div className="flex items-center gap-2">
-              <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40">System Control</p>
-              <button onClick={() => { haptics.medium(); handleSync(); }} className={`text-brand active:rotate-180 transition-transform duration-700 ${isSyncing ? 'animate-spin' : ''}`}>
-                <RefreshCcw size={10} strokeWidth={3} />
-              </button>
-            </div>
+            <p className="text-[10px] font-bold text-text-secondary leading-none opacity-40 uppercase tracking-widest">System Control</p>
           </div>
         </div>
+        
+        <button 
+          onClick={() => { haptics.medium(); handleSync(); }} 
+          className={`h-10 w-10 glass-panel border border-glass-border/30 rounded-xl flex items-center justify-center text-brand active:scale-90 transition-all ${isSyncing ? 'rotate-180' : ''}`}
+        >
+          <RefreshCcw size={18} strokeWidth={2.5} className={isSyncing ? 'animate-spin' : ''} />
+        </button>
       </header>
 
       {/* Profile Section */}

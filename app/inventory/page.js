@@ -78,7 +78,7 @@ export default function InventoryPage() {
           </button>
           <div>
             <h1 className="text-2xl font-black text-text-main leading-none mb-1">Inventory</h1>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-40">Global Stock Hub</p>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Global Stock Hub</p>
           </div>
         </div>
         <button

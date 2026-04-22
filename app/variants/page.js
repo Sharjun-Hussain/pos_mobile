@@ -134,12 +134,12 @@ export default function VariantsPage() {
           </button>
           <div>
             <h1 className="text-2xl font-black text-text-main leading-none mb-1">Variant Registry</h1>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-40">SKU-Level Control</p>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Unified Variant Catalog</p>
           </div>
         </div>
         <button 
           onClick={() => { haptics.light(); mutateVariants(); }}
-          className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
+          className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
         >
           <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
         </button>
@@ -147,13 +147,13 @@ export default function VariantsPage() {
 
       <section className="flex flex-col gap-3">
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
           <input 
             type="text" 
-            placeholder="Search SKUs, names..." 
+            placeholder="Search variant name or SKU..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
+            className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
           />
         </div>
 

@@ -184,7 +184,7 @@ export default function Home() {
             </div>
           ) : (
             <div>
-              <p className="text-xs font-black text-brand uppercase tracking-wider mb-1 opacity-80">{getGreeting()}</p>
+              <p className="text-xs font-black text-brand uppercase tracking-wider mb-1 opacity-100">{getGreeting()}</p>
               <h1 className="text-2xl font-black text-text-main leading-none mb-1">
                 {displayUser?.name || "Partner"}
               </h1>

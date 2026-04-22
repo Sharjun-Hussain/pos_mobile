@@ -119,12 +119,12 @@ export default function ProductsPage() {
           </button>
           <div>
             <h1 className="text-2xl font-black text-text-main leading-none mb-1">Products Hub</h1>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-40">Catalog Management</p>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Catalog Management</p>
           </div>
         </div>
         <button 
           onClick={() => { haptics.light(); mutateProducts(); }}
-          className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
+          className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
         >
           <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
         </button>

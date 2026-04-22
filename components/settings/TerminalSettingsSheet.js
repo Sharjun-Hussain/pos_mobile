@@ -131,19 +131,25 @@ export const TerminalSettingsSheet = memo(({ isOpen, onClose, initialSection = '
               </button>
             </div>
 
-            {/* Tab Selector */}
-            <div className="flex gap-2 px-8 mb-6 overflow-x-auto no-scrollbar">
-              {TABS.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => { haptics.light(); setActiveTab(tab.id); }}
-                  className={`flex-shrink-0 flex-1 h-12 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                    activeTab === tab.id ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'bg-surface-muted text-text-secondary border border-glass-border/30'
-                  }`}
-                >
-                  <tab.icon size={13} /> {tab.label}
-                </button>
-              ))}
+            {/* Segmented Tab Control */}
+            <div className="px-8 mb-6">
+              <div className="flex bg-surface-muted p-1.5 rounded-2xl gap-1 border border-glass-border/20">
+                {TABS.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => { haptics.light(); setActiveTab(tab.id); }}
+                    className={`flex-1 h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all duration-200 ${
+                      activeTab === tab.id
+                        ? 'bg-white dark:bg-surface text-brand shadow-md shadow-black/5'
+                        : 'text-text-secondary hover:text-text-main'
+                    }`}
+                  >
+                    <tab.icon size={14} />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="sm:hidden text-[11px]">{tab.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Scrollable Content */}

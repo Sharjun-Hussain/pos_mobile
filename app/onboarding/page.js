@@ -67,7 +67,7 @@ export default function OnboardingPage() {
   const activeSlide = slides[currentSlide];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-surface flex flex-col justify-center px-6 pt-[var(--sat)]">
+    <div className="h-[100dvh] relative overflow-hidden bg-surface flex flex-col px-6 pt-[var(--sat)] pb-[var(--sab)]">
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -82,13 +82,13 @@ export default function OnboardingPage() {
           onDragEnd={handleDragEnd}
           className="flex-1 flex flex-col items-center justify-center p-8 touch-none"
         >
-          <div className="mb-10 w-full flex items-center justify-center px-4">
-            <div className="relative group">
+          <div className="mb-8 w-full flex-1 min-h-0 flex items-center justify-center px-4">
+            <div className="relative group h-full flex items-center justify-center">
               <div className="absolute -inset-4 bg-brand/20 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <img 
                 src={activeSlide.image} 
                 alt={activeSlide.title} 
-                className="w-full max-w-[320px] aspect-square object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in zoom-in duration-1000 relative"
+                className="max-w-full max-h-full aspect-square object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in zoom-in duration-1000 relative"
               />
             </div>
           </div>

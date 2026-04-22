@@ -1,26 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useReducer, useMemo } from 'react';
-import { 
-  Search, 
-  Plus, 
-  Minus, 
-  Trash2, 
-  CreditCard, 
-  Banknote, 
-  CheckCircle2, 
-  Package, 
-  Tag, 
-  ChevronRight,
-  ShoppingCart,
-  Filter,
-  X,
-  Store,
-  ArrowLeft,
-  Camera,
-  RotateCcw,
-  Maximize2
-} from 'lucide-react';
+import React, { useState, useEffect, useReducer, useMemo, useCallback } from 'react';
 import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
 import { scanner } from '@/services/scanner';
@@ -28,6 +8,12 @@ import { ProductSkeleton } from '@/components/ProductSkeleton';
 import { VariantSelector } from '@/components/VariantSelector';
 import { CheckoutSheet } from '@/components/CheckoutSheet';
 import { useRouter } from 'next/navigation';
+
+// Optimized Sub-Components
+import TerminalHeader from '@/components/pos/TerminalHeader';
+import CategoryBar from '@/components/pos/CategoryBar';
+import ProductCard from '@/components/pos/ProductCard';
+import DockedCart from '@/components/pos/DockedCart';
 
 // Cart Reducer matching legacy POS logic
 function cartReducer(state, action) {
@@ -105,7 +91,6 @@ export default function SalesPage() {
   const [showSearch, setShowSearch] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   
-  // Dialog/Sheet states
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isVariantOpen, setIsVariantOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -157,7 +142,7 @@ export default function SalesPage() {
         setCategories(cRes.data || []);
       }
     } catch (err) {
-      setError('Sync failed: Catalog unavailable');
+      setError('Catalog Sync Failed');
     } finally {
       setLoading(false);
     }
@@ -171,7 +156,8 @@ export default function SalesPage() {
     });
   }, [products, activeCategory, searchQuery]);
 
-  const handleAddToCart = (product) => {
+  // STABLE HANDLERS (Optimized for Mobile/Tablet)
+  const handleAddToCart = useCallback((product) => {
     if (product.variants?.length > 1) {
       setSelectedProduct(product);
       setIsVariantOpen(true);
@@ -182,13 +168,12 @@ export default function SalesPage() {
         payload: { product: product.variants[0], isWholesale: state.isWholesale } 
       });
     }
-  };
+  }, [state.isWholesale]);
 
-  const scanBarcode = async () => {
+  const scanBarcode = useCallback(async () => {
     haptics.medium();
     const result = await scanner.startScan();
     if (result) {
-      // Find matching variant
       const allVariants = products.flatMap(p => p.variants);
       const match = allVariants.find(v => v.barcode === result);
       
@@ -199,42 +184,46 @@ export default function SalesPage() {
         });
         haptics.heavy();
       } else {
-        alert('Product not found: ' + result);
+        alert('Product Not Found: ' + result);
       }
     }
-  };
+  }, [products, state.isWholesale]);
 
-  const handleVariantSelect = (variant) => {
+  const handleVariantSelect = useCallback((variant) => {
     haptics.medium();
     dispatch({ 
       type: 'ADD_ITEM', 
       payload: { product: variant, isWholesale: state.isWholesale } 
     });
-  };
+  }, [state.isWholesale]);
 
-  const toggleWholesale = () => {
+  const toggleWholesale = useCallback(() => {
     haptics.medium();
-    const next = !state.isWholesale;
     const flatVariants = products.flatMap(p => p.variants);
-    dispatch({ type: 'TOGGLE_WHOLESALE', payload: { isWholesale: next, flatVariants } });
-  };
+    dispatch({ 
+      type: 'TOGGLE_WHOLESALE', 
+      payload: { isWholesale: !state.isWholesale, flatVariants } 
+    });
+  }, [state.isWholesale, products]);
 
-  const handleFinishSale = (customer) => {
+  const handleFinishSale = useCallback((customer) => {
     setIsCheckoutOpen(false);
     setIsSuccess(true);
     setTimeout(() => {
       setIsSuccess(false);
       dispatch({ type: 'CLEAR_CART' });
     }, 2500);
-  };
+  }, []);
 
-  const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = useMemo(() => {
+    return state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  }, [state.cart]);
 
   if (isSuccess) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center bg-surface animate-in fade-in zoom-in duration-500">
         <div className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center text-white mb-6 shadow-xl shadow-emerald-500/20 animate-bounce">
-          <CheckCircle2 size={40} />
+          <div className="h-10 w-10 border-4 border-white rounded-full border-t-transparent animate-spin" />
         </div>
         <h2 className="text-3xl font-bold text-text-main mb-2">Order Confirmed</h2>
         <p className="text-text-secondary font-bold text-xs">Transaction synchronized successfully</p>
@@ -245,179 +234,59 @@ export default function SalesPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-surface">
       
-      {/* PROFESSIONAL TOP TERMINAL BAR */}
       <header className="fixed top-0 left-0 right-0 z-50 pt-12 p-4 flex flex-col gap-4 glass-panel border-b border-glass-border">
-        <div className="flex items-center justify-between">
-          {!showSearch ? (
-            <>
-              <div className="flex items-center gap-2">
-                <button onClick={() => router.back()} className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary">
-                  <ArrowLeft size={18} />
-                </button>
-                <div>
-                  <h1 className="text-sm font-bold text-text-main leading-none">POS Terminal</h1>
-                  <p className="text-[10px] font-medium text-emerald-500 mt-1 flex items-center gap-1">
-                    <div className="h-1 w-1 bg-emerald-500 rounded-full animate-pulse" /> Live Node
-                  </p>
-                </div>
-              </div>
+        <TerminalHeader 
+          showSearch={showSearch}
+          onToggleSearch={setShowSearch}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onScan={scanBarcode}
+          onToggleWholesale={toggleWholesale}
+          isWholesale={state.isWholesale}
+          onBack={() => router.back()}
+        />
 
-              <div className="flex items-center gap-1.5">
-                <button 
-                  onClick={scanBarcode}
-                  className="h-10 px-3 bg-brand text-white rounded-xl flex items-center gap-1.5 shadow-lg shadow-brand/20 active:scale-95 transition-all"
-                >
-                  <Camera size={16} strokeWidth={2.5} />
-                  <span className="text-[10px] font-bold hidden sm:inline">Scan</span>
-                </button>
-                <button 
-                  onClick={() => setShowSearch(true)}
-                  className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary active:scale-90"
-                >
-                  <Search size={16} />
-                </button>
-                <button 
-                  onClick={toggleWholesale}
-                  className={`h-10 px-2.5 rounded-xl flex items-center gap-1.5 transition-all active:scale-90 border text-[10px] font-bold ${
-                    state.isWholesale 
-                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-600' 
-                      : 'bg-surface-muted/50 border-glass-border text-text-secondary'
-                  }`}
-                >
-                  <Tag size={16} /> <span className="hidden xs:inline">{state.isWholesale ? 'Wholesale' : 'Retail'}</span>
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center gap-3 animate-in slide-in-from-right duration-300">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={16} />
-                <input 
-                  autoFocus
-                  type="text" 
-                  placeholder="Quick Search Product..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-12 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-xs font-bold text-text-main outline-none focus:border-brand/40 shadow-inner"
-                />
-              </div>
-              <button 
-                onClick={() => { setShowSearch(false); setSearchQuery(''); }}
-                className="h-12 w-12 glass-panel rounded-2xl flex items-center justify-center text-rose-500 active:scale-90 transition-transform"
-              >
-                <X size={20} />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Categories Bar - Minimized */}
-        <div className="flex overflow-x-auto gap-1.5 no-scrollbar -mx-2 px-2">
-          <button 
-            onClick={() => setActiveCategory('All')}
-            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${
-              activeCategory === 'All' 
-                ? 'bg-brand text-white border-brand shadow-md shadow-brand/10' 
-                : 'bg-surface-muted/30 text-text-secondary border-glass-border'
-            }`}
-          >
-            All
-          </button>
-          {categories.map(cat => (
-            <button 
-              key={cat.id}
-              onClick={() => { haptics.light(); setActiveCategory(cat.name); }}
-              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border whitespace-nowrap ${
-                activeCategory === cat.name 
-                  ? 'bg-brand text-white border-brand shadow-md shadow-brand/10' 
-                  : 'bg-surface-muted/30 text-text-secondary border-glass-border'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
+        <CategoryBar 
+          categories={categories}
+          activeCategory={activeCategory}
+          onSelect={setActiveCategory}
+        />
       </header>
 
       {/* Main Grid - Padded for Header and Footer */}
-      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-44">
+      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-44 overscroll-contain no-scrollbar">
         {loading ? (
           <ProductSkeleton />
         ) : error ? (
           <div className="glass-panel p-10 rounded-[3rem] text-center flex flex-col items-center gap-4 border-rose-500/20 mt-10 shadow-2xl">
-            <div className="h-16 w-16 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
-              <RotateCcw size={32} className="animate-spin-slow" />
-            </div>
-            <p className="text-sm font-black text-text-main uppercase tracking-widest">{error}</p>
-            <p className="text-sm font-bold text-text-main">Retry Node Sync</p>
-            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-bold">Retry Node Sync</button>
+            <p className="text-sm font-bold text-text-main">{error}</p>
+            <button onClick={fetchData} className="btn-primary px-8 h-12 text-xs font-bold transition-all">Retry Sync</button>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-24 opacity-30">
-            <Package size={64} className="mx-auto mb-6" />
-            <p className="text-xs font-bold text-text-main">No items found in this shelf</p>
+            <p className="text-xs font-bold text-text-main">No matches in this shelf</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-3">
             {filteredProducts.map(p => (
-              <button 
+              <ProductCard 
                 key={p.id}
-                onClick={() => handleAddToCart(p)}
-                className="glass-panel p-1.5 rounded-2xl flex flex-col items-center gap-2 active:scale-95 transition-all border-glass-border group relative aspect-[4/5]"
-              >
-                {p.variants?.length > 1 && (
-                  <div className="absolute top-1.5 right-1.5 p-1 bg-brand/10 text-brand rounded-lg shadow-sm">
-                    <Maximize2 size={8} strokeWidth={4} />
-                  </div>
-                )}
-                <div className="w-full aspect-square rounded-xl bg-surface-muted overflow-hidden border border-glass-border shadow-inner group-hover:scale-105 transition-transform duration-500">
-                  {p.image ? (
-                    <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center text-text-secondary/10">
-                      <Package size={20} />
-                    </div>
-                  )}
-                </div>
-                <div className="text-center w-full px-0.5 flex flex-col">
-                  <span className="font-bold text-text-main text-[9px] leading-tight mb-0.5 line-clamp-2 h-[1rem]">
-                    {p.name}
-                  </span>
-                  <span className="text-[10px] font-bold text-brand tracking-tight">
-                    LKR{parseFloat(p.variants[0]?.retailPrice || 0).toLocaleString()}
-                  </span>
-                </div>
-              </button>
+                product={p}
+                onAdd={handleAddToCart}
+                isWholesale={state.isWholesale}
+              />
             ))}
           </div>
         )}
       </div>
 
-      {/* DOCKED MINIMAL CART BAR (Wizard Phase 1) */}
-      <div className="fixed bottom-24 left-0 right-0 px-4 z-[90]">
-        <button 
-          onClick={() => { haptics.medium(); setIsCheckoutOpen(true); }}
-          className={`w-full h-18 glass-panel rounded-[2rem] p-4 flex items-center justify-between shadow-2xl transition-all active:scale-95 border-brand/30 shadow-brand/10 ${
-            state.cart.length === 0 ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'
-          }`}
-        >
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-10 bg-brand text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand/30">
-              <ShoppingCart size={20} strokeWidth={2.5} />
-            </div>
-            <div className="text-left">
-              <p className="text-xs font-bold text-text-main">{state.cart.length} Items Selected</p>
-              <p className="text-[10px] font-medium text-text-secondary mt-0.5">LKR {total.toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 pr-2">
-            <span className="text-[10px] font-bold text-brand">Review Cart</span>
-            <ChevronRight size={16} className="text-brand opacity-50" />
-          </div>
-        </button>
-      </div>
+      <DockedCart 
+        cart={state.cart}
+        total={total}
+        onClick={() => { haptics.medium(); setIsCheckoutOpen(true); }}
+        isVisible={state.cart.length > 0}
+      />
 
-      {/* MODALS */}
       <VariantSelector 
         isOpen={isVariantOpen}
         product={selectedProduct}

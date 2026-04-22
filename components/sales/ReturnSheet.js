@@ -115,7 +115,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
               </div>
               <div>
                 <h3 className="text-base font-black text-text-main leading-none mb-1">Process Return</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Invoice: {sale.invoice_number}</p>
+                <p className="text-[10px] font-bold text-slate-400">Invoice: {sale.invoice_number}</p>
               </div>
             </div>
             <button 
@@ -136,7 +136,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
 
             {/* Selection List */}
             <div className="flex flex-col gap-3">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Select Items & Qty</p>
+              <p className="text-[10px] font-black text-slate-400 pl-1">Select Items & Qty</p>
               <div className="flex flex-col gap-2">
                 {returnItems.map(item => (
                   <div key={item.id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
@@ -170,13 +170,13 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
             {/* Refund Configuration */}
             <div className="flex flex-col gap-4">
                <div className="flex flex-col gap-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Refund Method</p>
+                  <p className="text-[10px] font-black text-slate-400 pl-1">Refund Method</p>
                   <div className="flex gap-2">
                     {['cash', 'bank'].map(method => (
                       <button
                         key={method}
                         onClick={() => { haptics.light(); setRefundMethod(method); }}
-                        className={`flex-1 h-12 rounded-xl border text-[11px] font-black uppercase transition-all ${
+                        className={`flex-1 h-12 rounded-xl border text-[11px] font-black transition-all ${
                           refundMethod === method 
                             ? 'bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-500/20' 
                             : 'bg-white text-slate-400 border-slate-200'
@@ -189,7 +189,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
                </div>
 
                <div className="flex flex-col gap-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Reason / Notes</p>
+                  <p className="text-[10px] font-black text-slate-400 pl-1">Reason / Notes</p>
                   <textarea 
                     placeholder="Enter return reason..."
                     value={notes}
@@ -202,7 +202,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
             {/* Totals Summary */}
             <div className="bg-rose-500 rounded-3xl p-6 text-white flex items-center justify-between shadow-xl shadow-rose-500/20 mb-4">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black uppercase opacity-60 leading-none">Net Refund Amount</span>
+                <span className="text-[10px] font-black opacity-60 leading-none">Net Refund Amount</span>
                 <span className="text-xl font-black">LKR {Math.round(totalRefund).toLocaleString()}</span>
               </div>
               <div className="h-10 w-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">

@@ -21,29 +21,29 @@ const VariantRow = ({ variant, productName, getImageUrl }) => {
   }, [variant.image, getImageUrl]);
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-slate-100 px-1 active:bg-brand/5 transition-colors">
+    <div className="flex items-center justify-between py-3 border-b border-glass-border/30 px-1 active:bg-brand/5 transition-colors">
       <div className="flex items-center gap-3 overflow-hidden">
-        <div className="h-9 w-9 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-100">
+        <div className="h-9 w-9 rounded-lg bg-surface-muted flex items-center justify-center flex-shrink-0 overflow-hidden border border-glass-border/20">
           {imageUrl ? (
             <img src={imageUrl} alt={variant.name} className="w-full h-full object-cover" />
           ) : (
-            <Target size={16} className="text-slate-400" />
+            <Target size={16} className="text-text-secondary opacity-50" />
           )}
         </div>
         <div className="overflow-hidden">
           <h4 className="font-bold text-text-main text-sm truncate leading-tight">
-            {productName} <span className="font-medium text-slate-400">• {variant.name}</span>
+            {productName} <span className="font-medium text-text-secondary opacity-60">• {variant.name}</span>
           </h4>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-xs font-bold text-text-secondary opacity-40">{variant.sku || 'No SKU'}</span>
-            <div className="h-0.5 w-0.5 rounded-full bg-slate-300" />
+            <div className="h-0.5 w-0.5 rounded-full bg-text-secondary opacity-40" />
             <span className="text-xs font-bold text-brand">{variant.barcode || '---'}</span>
           </div>
         </div>
       </div>
       <div className="text-right flex-shrink-0 ml-3">
         <p className="font-black text-brand text-sm">LKR {Math.round(variant.price).toLocaleString()}</p>
-        <p className="text-xs font-bold text-slate-400 mt-0.5">
+        <p className="text-xs font-bold text-text-secondary opacity-40 mt-0.5">
           {variant.stock_quantity || 0} in stock
         </p>
       </div>
@@ -59,21 +59,21 @@ const VariantGridItem = ({ variant, productName, getImageUrl }) => {
   }, [variant.image, getImageUrl]);
 
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col gap-3 active:scale-[0.98] transition-all shadow-sm relative">
+    <div className="bg-surface border border-glass-border/30 rounded-2xl p-3 flex flex-col gap-3 active:scale-[0.98] transition-all shadow-sm relative">
       {isLow && <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 animate-pulse" />}
-      <div className="aspect-square w-full rounded-xl bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-50">
+      <div className="aspect-square w-full rounded-xl bg-surface-muted flex items-center justify-center overflow-hidden border border-glass-border/20">
         {imageUrl ? (
           <img src={imageUrl} alt={variant.name} className="w-full h-full object-cover" />
         ) : (
-          <Target size={24} className="text-slate-200" />
+          <Target size={24} className="text-text-secondary opacity-30" />
         )}
       </div>
       <div className="overflow-hidden">
         <h4 className="font-bold text-text-main text-sm truncate leading-tight mb-1">{productName}</h4>
-        <p className="text-xs text-slate-400 font-medium truncate mb-2">{variant.name}</p>
+        <p className="text-xs text-text-secondary opacity-60 font-medium truncate mb-2">{variant.name}</p>
         <div className="flex items-center justify-between mt-auto">
           <span className="text-sm font-black text-brand">LKR {Math.round(variant.price).toLocaleString()}</span>
-          <span className={`text-xs font-black ${isLow ? 'text-rose-500' : 'text-slate-300'}`}>{variant.stock_quantity}q</span>
+          <span className={`text-xs font-black ${isLow ? 'text-rose-500' : 'text-text-secondary opacity-40'}`}>{variant.stock_quantity}q</span>
         </div>
       </div>
     </div>
@@ -82,6 +82,7 @@ const VariantGridItem = ({ variant, productName, getImageUrl }) => {
 
 export default function VariantsPage() {
   const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateVariants } = useFetch('/products/active/list');
+  const { openDrawer } = useUIStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
@@ -163,7 +164,7 @@ export default function VariantsPage() {
             <select 
               value={sortBy}
               onChange={(e) => { haptics.light(); setSortBy(e.target.value); }}
-              className="h-8 bg-slate-50 border border-slate-100 rounded-lg px-2 text-[10px] font-bold text-text-secondary outline-none appearance-none pr-6 relative"
+              className="h-8 bg-surface-muted border border-glass-border/30 rounded-lg px-2 text-[10px] font-bold text-text-secondary outline-none appearance-none pr-6 relative"
               style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
             >
               <option value="name-asc">Name: A-Z</option>
@@ -173,16 +174,16 @@ export default function VariantsPage() {
             </select>
           </div>
           
-          <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
+          <div className="flex bg-surface-muted p-1 rounded-lg border border-glass-border/20">
             <button 
               onClick={() => { haptics.light(); setViewMode('list'); }}
-              className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
+              className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'list' ? 'bg-surface shadow-sm text-brand border border-glass-border/20' : 'text-text-secondary opacity-50'}`}
             >
               <List size={14} />
             </button>
             <button 
               onClick={() => { haptics.light(); setViewMode('grid'); }}
-              className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
+              className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'grid' ? 'bg-surface shadow-sm text-brand border border-glass-border/20' : 'text-text-secondary opacity-50'}`}
             >
               <LayoutGrid size={14} />
             </button>
@@ -191,7 +192,7 @@ export default function VariantsPage() {
       </section>
 
       <section className="flex flex-col">
-        <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
+        <div className="flex items-center justify-between mb-3 px-1 border-b border-glass-border/30 pb-2">
           <h2 className="text-[10px] font-black text-text-secondary opacity-30">
             {loading ? 'Refreshing Registry...' : `${filteredAndSortedVariants.length} active SKUs`}
           </h2>
@@ -200,7 +201,7 @@ export default function VariantsPage() {
         {loading ? (
           <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
             {Array(10).fill(0).map((_, i) => (
-              <div key={i} className={viewMode === 'grid' ? "aspect-square w-full rounded-2xl animate-pulse bg-slate-50/50" : "h-12 w-full border-b border-slate-50 animate-pulse bg-slate-50/50"} />
+              <div key={i} className={viewMode === 'grid' ? "aspect-square w-full rounded-2xl animate-pulse bg-surface-muted" : "h-12 w-full border-b border-glass-border/10 animate-pulse bg-surface-muted"} />
             ))}
           </div>
         ) : filteredAndSortedVariants.length > 0 ? (

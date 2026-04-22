@@ -37,7 +37,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center p-8 bg-surface">
+    <div className="min-h-screen flex flex-col justify-center p-8 bg-surface pt-[calc(var(--sat)+2rem)]">
       <div className="flex flex-col items-center gap-6 mb-12">
         <div className="h-20 w-20 rounded-2xl overflow-hidden shadow-xl shadow-brand/10 border border-glass-border">
           <img src="/logo.png" alt="Inzeedo Logo" className="w-full h-full object-cover" />

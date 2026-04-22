@@ -67,7 +67,7 @@ export default function OnboardingPage() {
   const activeSlide = slides[currentSlide];
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden bg-surface flex flex-col justify-center px-6 pt-[var(--sat)]">
 
       <AnimatePresence mode="wait">
         <motion.div

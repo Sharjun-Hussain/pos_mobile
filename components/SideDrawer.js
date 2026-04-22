@@ -29,10 +29,10 @@ const MenuLink = ({ href, icon: Icon, label, onClick, isLast }) => {
     <Link
       href={href}
       onClick={() => { haptics.light(); onClick?.(); }}
-      className={`flex items-center justify-between py-2.5 px-4 transition-all relative ${isActive ? 'bg-brand/5' : 'active:bg-slate-100'}`}
+      className={`flex items-center justify-between py-2.5 px-4 transition-all relative ${isActive ? 'bg-brand/10' : 'active:bg-surface-muted'}`}
     >
       <div className="flex items-center gap-3.5">
-        <div className={`p-2 rounded-xl ${isActive ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-400'}`}>
+        <div className={`p-2 rounded-xl ${isActive ? 'bg-brand text-white shadow-sm' : 'bg-surface-muted text-text-secondary'}`}>
           <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
         </div>
         <span className={`text-[13px] font-bold ${isActive ? 'text-brand' : 'text-text-main'}`}>{label}</span>
@@ -55,7 +55,7 @@ const MenuGroup = ({ title, children }) => (
     {title && (
       <p className="text-[10px] font-black text-slate-400 ml-4 mb-0.5">{title}</p>
     )}
-    <div className="bg-white rounded-[1.25rem] overflow-hidden border border-slate-100 shadow-sm mx-1">
+    <div className="bg-surface rounded-[1.25rem] overflow-hidden border border-glass-border shadow-sm mx-1">
       {children}
     </div>
   </div>
@@ -90,13 +90,13 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[300px] bg-slate-50 z-[201] flex flex-col shadow-2xl safe-area-inset-top safe-area-inset-bottom border-r border-slate-200"
+            className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[300px] bg-surface z-[201] flex flex-col shadow-2xl safe-area-inset-bottom border-r border-glass-border pt-[var(--sat)]"
           >
             {/* Header / Brand */}
-            <div className="p-5 pb-4 bg-white border-b border-slate-100 flex flex-col gap-4">
+            <div className="p-5 pb-4 bg-surface border-b border-glass-border flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-xl overflow-hidden shadow-lg shadow-brand/20 border border-slate-100">
+                  <div className="h-9 w-9 rounded-xl overflow-hidden shadow-lg shadow-brand/20 border border-glass-border">
                     <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
                   </div>
                   <div>
@@ -110,7 +110,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                 </div>
                 <button
                   onClick={onClose}
-                  className="h-8 w-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 active:rotate-90 transition-transform"
+                  className="h-8 w-8 bg-surface-muted rounded-lg flex items-center justify-center text-text-secondary active:rotate-90 transition-transform border border-glass-border"
                 >
                   <X size={18} />
                 </button>
@@ -138,11 +138,11 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             </div>
 
             {/* Footer / User Profile & Logout */}
-            <div className="p-4 pb-2 border-t border-slate-100 bg-white">
+            <div className="p-4 pb-2 border-t border-glass-border bg-surface shadow-[0_-4px_12px_rgba(0,0,0,0.02)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <div className="flex items-center gap-2">
                 {/* Account Quick Glance */}
-                <div className="flex-1 bg-slate-50 p-2 rounded-xl flex items-center gap-3 border border-slate-100">
-                  <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-brand shadow-sm border border-slate-100">
+                <div className="flex-1 bg-surface-muted p-2 rounded-xl flex items-center gap-3 border border-glass-border">
+                  <div className="h-8 w-8 rounded-full bg-surface flex items-center justify-center text-brand shadow-sm border border-glass-border">
                     <User size={16} strokeWidth={2.5} />
                   </div>
                   <div className="flex-1 overflow-hidden">

@@ -112,8 +112,8 @@ export default function SettingsPage() {
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`;
 
   return (
-    <div className="p-6 pb-24 flex flex-col gap-8 min-h-screen">
-      <header className="flex items-center justify-between pt-4">
+    <div className="p-6 pb-24 flex flex-col gap-8 min-h-screen pt-[calc(var(--sat)+1rem)]">
+      <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
             onClick={() => { haptics.light(); openDrawer(); }}

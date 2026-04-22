@@ -166,7 +166,7 @@ export default function SalesPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-surface">
       
-      <header className="fixed top-0 left-0 right-0 z-50 pt-12 p-4 flex flex-col gap-4 glass-panel border-b border-glass-border">
+      <header className="fixed top-0 left-0 right-0 z-50 pt-[calc(var(--sat)+0.5rem)] p-4 flex flex-col gap-4 glass-panel border-b border-glass-border">
         <TerminalHeader 
           showSearch={showSearch}
           onToggleSearch={setShowSearch}

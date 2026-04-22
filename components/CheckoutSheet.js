@@ -361,31 +361,37 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
               </AnimatePresence>
             </div>
 
-            {/* Footer Actions with HIGHLIGHTED GRAND TOTAL */}
+            {/* Footer Actions with HIGHLIGHTED DUAL-PILL DESIGN */}
             <div className="pt-6 border-t border-glass-border flex flex-col gap-4 pointer-events-auto px-6">
-              <div className="flex items-center justify-between px-1">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest pl-0.5 mb-1">Grand Total</span>
-                  <div className="bg-brand text-white px-4 py-2 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col flex-1">
+                  <span className="text-[10px] font-bold text-text-secondary pl-1 mb-1">Grand Total</span>
+                  <div className="bg-surface border-2 border-brand/20 text-brand px-5 h-14 rounded-2xl flex items-center justify-center shadow-sm">
                     <span className="text-lg font-black tracking-tight">LKR {total.toLocaleString()}</span>
                   </div>
                 </div>
-                {step < 3 ? (
-                  <button 
-                    onClick={handleNext}
-                    disabled={cart.length === 0}
-                    className="h-16 px-8 btn-primary rounded-[2rem] text-sm font-bold flex items-center gap-2 group transition-all"
-                  >
-                    {step === 1 ? 'Customer' : 'Payment'} <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </button>
-                ) : (
-                  <button 
-                    onClick={handleFinish}
-                    className="h-16 px-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] text-sm font-bold flex items-center gap-2 group transition-all shadow-xl shadow-emerald-500/20"
-                  >
-                    Sync Order <Check size={18} strokeWidth={3} />
-                  </button>
-                )}
+
+                <div className="flex flex-col flex-1">
+                  <span className="text-[10px] font-bold text-text-secondary pl-1 mb-1">Navigation</span>
+                  {step < 3 ? (
+                    <button 
+                      onClick={handleNext}
+                      disabled={cart.length === 0}
+                      className="bg-brand text-white px-5 h-14 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50 flex items-center justify-center gap-2 group transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      <span className="text-sm font-black tracking-tight">{step === 1 ? 'Customer' : 'Payment'}</span>
+                      <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={handleFinish}
+                      className="bg-emerald-500 text-white px-5 h-14 rounded-2xl shadow-xl shadow-emerald-500/20 border border-emerald-500/50 flex items-center justify-center gap-2 group transition-all active:scale-95"
+                    >
+                      <span className="text-sm font-black tracking-tight">Sync Order</span>
+                      <Check size={18} strokeWidth={3} />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>

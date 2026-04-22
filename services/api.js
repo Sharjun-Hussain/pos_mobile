@@ -113,8 +113,20 @@ export const api = {
   },
 
   products: {
-    getActiveList: () => api.get('/products?size=2000'),
+    getAll: (params = {}) => {
+      const query = new URLSearchParams(params).toString();
+      return api.get(`/products?${query}`);
+    },
+    getActiveList: () => api.get('/products/active/list'),
     getByBarcode: (barcode) => api.get(`/products/barcode/${barcode}`)
+  },
+
+  stocks: {
+    getAll: (params = {}) => {
+      const query = new URLSearchParams(params).toString();
+      return api.get(`/stocks?${query}`);
+    },
+    adjust: (data) => api.post('/stocks/adjust', data)
   },
 
   categories: {

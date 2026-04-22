@@ -2,17 +2,19 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Home, 
-  ShoppingBag, 
-  Box, 
-  Users, 
-  Settings, 
-  LogOut, 
+import {
+  Home,
+  ShoppingBag,
+  Box,
+  Users,
+  Settings,
+  LogOut,
   X,
   User,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  Target,
+  Warehouse
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,11 +29,10 @@ const MenuLink = ({ href, icon: Icon, label, onClick }) => {
     <Link
       href={href}
       onClick={() => { haptics.light(); onClick?.(); }}
-      className={`flex items-center justify-between py-3 px-4 rounded-2xl transition-all ${
-        isActive 
-          ? 'bg-brand text-white shadow-lg shadow-brand/20 ml-2' 
-          : 'text-text-secondary hover:bg-brand/5'
-      }`}
+      className={`flex items-center justify-between py-3 px-4 rounded-2xl transition-all ${isActive
+        ? 'bg-brand text-white shadow-lg shadow-brand/20 ml-2'
+        : 'text-text-secondary hover:bg-brand/5'
+        }`}
     >
       <div className="flex items-center gap-3">
         <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20' : 'bg-surface-muted'}`}>
@@ -87,7 +88,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                     <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Enterprise POS</span>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={onClose}
                   className="h-10 w-10 flex items-center justify-center text-text-secondary active:scale-95 transition-transform"
                 >
@@ -111,12 +112,17 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             {/* Navigation Menu */}
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-1.5 no-scrollbar">
               <p className="text-[9px] font-black text-text-secondary uppercase tracking-widest pl-4 mb-2 mt-4 opacity-50">Main Menu</p>
-              
+
               <MenuLink href="/" icon={Home} label="Dashboard" onClick={onClose} />
               <MenuLink href="/sales" icon={ShoppingBag} label="Sales History" onClick={onClose} />
-              <MenuLink href="/inventory" icon={Box} label="Inventory Hub" onClick={onClose} />
+              <MenuLink href="/inventory" icon={Box} label="Quick Inventory" onClick={onClose} />
               <MenuLink href="/customers" icon={Users} label="Customers" onClick={onClose} />
-              
+
+              <p className="text-[9px] font-black text-text-secondary uppercase tracking-widest pl-4 mb-2 mt-6 opacity-50">Catalog & Stock</p>
+              <MenuLink href="/products" icon={Box} label="Products Hub" onClick={onClose} />
+              <MenuLink href="/variants" icon={Target} label="Variant Registry" onClick={onClose} />
+              <MenuLink href="/inventory/stock" icon={Warehouse} label="Stock Control" onClick={onClose} />
+
               <p className="text-[9px] font-black text-text-secondary uppercase tracking-widest pl-4 mb-2 mt-8 opacity-50">System</p>
               <MenuLink href="/settings" icon={Settings} label="Global Settings" onClick={onClose} />
             </div>
@@ -132,7 +138,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                 </div>
                 <span>Logout Session</span>
               </button>
-              
+
               <p className="text-center text-[10px] font-bold text-text-secondary/30 mt-4">
                 v1.2.0 • Inzeedo POS Mobile
               </p>

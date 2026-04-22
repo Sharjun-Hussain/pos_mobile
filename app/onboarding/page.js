@@ -5,8 +5,6 @@ import { ShoppingBag, Zap, BarChart3, ChevronRight, Check, Package, Layers } fro
 import { haptics } from '@/services/haptics';
 import { storage } from '@/services/api';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 
 const slides = [
   {
@@ -40,7 +38,36 @@ const slides = [
 
 export default function OnboardingPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
   const router = useRouter();
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && currentSlide < slides.length - 1) {
+      setCurrentSlide(prev => prev + 1);
+      haptics.medium();
+    }
+    if (isRightSwipe && currentSlide > 0) {
+      setCurrentSlide(prev => prev - 1);
+      haptics.medium();
+    }
+  };
 
   const handleNext = async () => {
     try {
@@ -49,13 +76,12 @@ export default function OnboardingPage() {
         setCurrentSlide(prev => prev + 1);
       } else {
         haptics.heavy();
-        // Fire-and-forget storage state update to avoid blocking navigation
         storage.set('onboarding_complete', 'true').catch(console.error);
         router.replace('/setup');
       }
     } catch (error) {
       console.error('Onboarding Error:', error);
-      router.replace('/setup'); // Safe fallback
+      router.replace('/setup');
     }
   };
 
@@ -65,69 +91,53 @@ export default function OnboardingPage() {
     router.replace('/setup');
   };
 
-  const handleDragEnd = (event, info) => {
-    const swipeThreshold = 50;
-    if (info.offset.x < -swipeThreshold) {
-      if (currentSlide < slides.length - 1) {
-        setCurrentSlide(prev => prev + 1);
-        haptics.medium();
-      }
-    } else if (info.offset.x > swipeThreshold) {
-      if (currentSlide > 0) {
-        setCurrentSlide(prev => prev - 1);
-        haptics.medium();
-      }
-    }
-  };
-
-  const activeSlide = slides[currentSlide];
-
   return (
-    <div className="h-[100dvh] relative overflow-hidden bg-surface flex flex-col px-6 pt-[var(--sat)] pb-[var(--sab)]">
-
-      <AnimatePresence>
-        <motion.div
-          key={currentSlide}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.2}
-          onDragEnd={handleDragEnd}
-          className="flex-1 flex flex-col items-center justify-center p-8 touch-none"
+    <div className="h-[100dvh] relative overflow-hidden bg-surface flex flex-col pt-[var(--sat)] pb-[var(--sab)] text-selection-none">
+      
+      {/* Slider Viewport */}
+      <div className="flex-1 overflow-hidden relative">
+        <div 
+          className="flex h-full transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
-          <div className="mb-12 w-full flex-1 min-h-0 flex items-center justify-center">
-            <div className={`relative w-48 h-48 rounded-[3rem] ${activeSlide.bg} flex items-center justify-center transition-colors duration-500 overflow-hidden`}>
-              <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-white to-transparent" />
-              <activeSlide.icon 
-                size={80} 
-                className={`${activeSlide.color} relative drop-shadow-xl animate-in zoom-in duration-500`} 
-              />
-              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 blur-2xl rounded-full" />
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-white/10 blur-2xl rounded-full" />
+          {slides.map((slide) => (
+            <div key={slide.id} className="min-w-full h-full flex flex-col items-center justify-center p-8 px-10">
+              <div className="mb-12 w-full flex-1 min-h-0 flex items-center justify-center">
+                <div className={`relative w-48 h-48 rounded-[3rem] ${slide.bg} flex items-center justify-center overflow-hidden`}>
+                  <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-white to-transparent" />
+                  <slide.icon 
+                    size={80} 
+                    className={`${slide.color} relative drop-shadow-xl transition-transform duration-700 ${currentSlide === slides.indexOf(slide) ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} 
+                  />
+                  <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 blur-2xl rounded-full" />
+                  <div className="absolute -top-6 -left-6 w-24 h-24 bg-white/10 blur-2xl rounded-full" />
+                </div>
+              </div>
+
+              <div className={`transition-all duration-700 delay-100 text-center ${currentSlide === slides.indexOf(slide) ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+                <h2 className="text-4xl font-black text-text-main mb-4 tracking-tight">
+                  {slide.title}
+                </h2>
+                <p className="text-text-secondary text-lg leading-relaxed max-w-[320px] font-medium mx-auto">
+                  {slide.description}
+                </p>
+              </div>
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
 
-          <h2 className="text-4xl font-black text-text-main mb-4 text-center tracking-tight">
-            {activeSlide.title}
-          </h2>
-          <p className="text-text-secondary text-lg text-center leading-relaxed max-w-[320px] font-medium">
-            {activeSlide.description}
-          </p>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Controls Section */}
+      {/* Controls Section (Static) */}
       <div className="p-8 pt-0 flex flex-col gap-10">
         {/* Pagination Dots */}
         <div className="flex justify-center gap-2">
           {slides.map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8 bg-brand' : 'w-1.5 bg-surface-muted'
-                }`}
+              className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8 bg-brand' : 'w-1.5 bg-surface-muted'}`}
             />
           ))}
         </div>

@@ -46,7 +46,7 @@ export default function Home() {
       {/* Header */}
       <header className="flex items-center justify-between pt-4">
         <div>
-          <h1 className="text-2xl font-black text-text-main italic tracking-tighter uppercase">
+          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase">
             {process.env.NEXT_PUBLIC_APP_NAME || "Inzeedo"}
           </h1>
           <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Dashboard</p>

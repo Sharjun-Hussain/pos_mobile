@@ -23,11 +23,16 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center p-8 bg-surface">
-      <div className="flex flex-col gap-2 mb-12">
-        <h1 className="text-3xl font-bold text-text-main italic tracking-tighter uppercase tracking-[0.2em]">
-          {process.env.NEXT_PUBLIC_APP_NAME || "S-POS"}
-        </h1>
-        <p className="text-text-muted font-medium">Welcome back.</p>
+      <div className="flex flex-col items-center gap-6 mb-12">
+        <div className="h-24 w-24 rounded-3xl overflow-hidden shadow-2xl shadow-brand/20">
+          <img src="/logo.png" alt="Inzeedo POS Logo" className="w-full h-full object-cover" />
+        </div>
+        <div className="text-center">
+          <h1 className="text-2xl font-black text-text-main uppercase tracking-[0.2em]">
+            {process.env.NEXT_PUBLIC_APP_NAME || "Inzeedo"}
+          </h1>
+          <p className="text-text-secondary text-xs font-bold uppercase tracking-widest mt-2">Professional POS System</p>
+        </div>
       </div>
 
       <form onSubmit={handleLogin} className="flex flex-col gap-6">

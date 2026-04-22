@@ -7,7 +7,7 @@
   --color-surface: var(--bg-surface);
   --color-surface-muted: var(--bg-surface-muted);
   --color-text-main: var(--text-primary);
-  --color-text-muted: var(--text-secondary);
+  --color-text-secondary: var(--text-secondary);
   --color-glass: var(--glass-bg);
   --color-glass-border: var(--glass-border);
 }
@@ -26,11 +26,11 @@
 
 .dark {
   --bg-surface: #09090b;
-  --bg-surface-muted: #18181b;
-  --text-primary: #fafafa;
-  --text-secondary: #a1a1aa;
+  --bg-surface-muted: #121214;
+  --text-primary: #f4f4f5;
+  --text-secondary: #71717a;
   --glass-bg: rgba(24, 24, 27, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {

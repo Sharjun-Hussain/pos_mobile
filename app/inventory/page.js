@@ -51,7 +51,7 @@ export default function InventoryPage() {
     <div className="p-6 pb-24 flex flex-col gap-6">
       <header className="flex items-center justify-between pt-4">
         <div>
-          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase italic">Inventory</h1>
+          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase">Inventory</h1>
           <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Manage Stock</p>
         </div>
         <button 

@@ -54,7 +54,7 @@ export default function SalesPage() {
         <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center text-white mb-6 shadow-xl shadow-emerald-500/20 animate-bounce">
           <CheckCircle2 size={40} />
         </div>
-        <h2 className="text-3xl font-black text-text-main mb-2 tracking-tighter uppercase italic">Done!</h2>
+        <h2 className="text-3xl font-black text-text-main mb-2 tracking-tighter uppercase">Done!</h2>
         <p className="text-text-secondary font-bold uppercase text-[10px] tracking-widest">Transaction Successful</p>
       </div>
     );
@@ -64,7 +64,7 @@ export default function SalesPage() {
     <div className="h-screen flex flex-col overflow-hidden bg-surface">
       <div className="flex-1 overflow-y-auto p-6 pb-64">
         <header className="pt-4 mb-8">
-          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase italic">Quick Sale</h1>
+          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase">Quick Sale</h1>
           <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Select Items</p>
         </header>
         

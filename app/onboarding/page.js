@@ -91,10 +91,10 @@ export default function OnboardingPage() {
           <Illustration color={activeSlide.hex} />
         </div>
 
-        <h2 className="text-2xl font-extrabold text-text-main mb-2 text-center tracking-tight animate-in slide-in-from-bottom duration-500 uppercase italic">
+        <h2 className="text-2xl font-extrabold text-text-main mb-2 text-center tracking-tight animate-in slide-in-from-bottom duration-500 uppercase">
           {activeSlide.title}
         </h2>
-        <p className="text-text-muted text-sm text-center leading-relaxed max-w-[240px] animate-in fade-in duration-700">
+        <p className="text-text-secondary text-sm text-center leading-relaxed max-w-[240px] animate-in fade-in duration-700">
           {activeSlide.description}
         </p>
       </div>
@@ -106,7 +106,7 @@ export default function OnboardingPage() {
           {slides.map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8 bg-brand' : 'w-1.5 bg-zinc-800'
+              className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8 bg-brand' : 'w-1.5 bg-surface-muted'
                 }`}
             />
           ))}
@@ -115,7 +115,7 @@ export default function OnboardingPage() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => { haptics.light(); router.push('/setup'); }}
-            className="text-zinc-500 font-bold uppercase tracking-widest text-xs hover:text-zinc-300 transition-colors"
+            className="text-text-secondary font-bold uppercase tracking-widest text-xs hover:text-text-main transition-colors"
           >
             Skip
           </button>

@@ -130,6 +130,8 @@ export const api = {
       }
       return res;
     },
+    forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+    resetPassword: (token, password) => api.post('/auth/reset-password', { token, password }),
     me: () => api.get('/auth/me'),
     updateProfile: (formData) => apiRequest('/auth/me', { method: 'PUT', body: formData }),
     updatePassword: (data) => api.put('/me', data), // according to old frontend

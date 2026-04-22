@@ -95,7 +95,13 @@ export default function LoginPage() {
         )}
 
         <div className="flex justify-end mt-1">
-          <button type="button" className="text-brand text-sm font-bold">Forgot password?</button>
+          <button 
+            type="button" 
+            onClick={() => { haptics.light(); router.push('/forgot-password'); }}
+            className="text-brand text-sm font-bold active:opacity-50 transition-opacity"
+          >
+            Forgot password?
+          </button>
         </div>
 
         <button 

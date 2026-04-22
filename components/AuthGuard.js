@@ -10,7 +10,8 @@ export default function AuthGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const isPublicPath = pathname === '/login' || pathname === '/setup';
+  const publicPaths = ['/login', '/setup', '/forgot-password', '/reset-password'];
+  const isPublicPath = publicPaths.includes(pathname);
 
   useEffect(() => {
     // Only redirect once state is hydrated from storage

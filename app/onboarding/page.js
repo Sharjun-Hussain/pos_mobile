@@ -1,35 +1,39 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ShoppingBag, Zap, BarChart3, ChevronRight, Check } from 'lucide-react';
+import { ShoppingBag, Zap, BarChart3, ChevronRight, Check, Package, Layers } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { storage } from '@/services/api';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 const slides = [
   {
     id: 1,
     title: "Unified Operations",
     description: "Your entire business lifecycle—from sales to procurement—orchestrated in one powerful mobile command center.",
-    image: "/onboarding_ops.png",
-    color: "bg-brand",
+    icon: Layers,
+    color: "text-brand",
+    bg: "bg-brand/10",
     hex: "#6366f1"
   },
   {
     id: 2,
     title: "Intelligent Inventory",
     description: "Advanced warehouse logistics and real-time stock synchronization across all your distributed nodes.",
-    image: "/onboarding_inventory.png",
-    color: "bg-amber-500",
+    icon: Package,
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
     hex: "#f59e0b"
   },
   {
     id: 3,
     title: "Enterprise Analytics",
     description: "Deep-dive into your financial data with predictive insights and comprehensive enterprise-level reporting.",
-    image: "/onboarding_analytics.png",
-    color: "bg-emerald-500",
+    icon: BarChart3,
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/10",
     hex: "#10b981"
   }
 ];
@@ -39,14 +43,26 @@ export default function OnboardingPage() {
   const router = useRouter();
 
   const handleNext = async () => {
-    haptics.medium();
-    if (currentSlide < slides.length - 1) {
-      setCurrentSlide(prev => prev + 1);
-    } else {
-      await storage.set('onboarding_complete', 'true');
-      haptics.heavy();
-      router.push('/setup');
+    try {
+      haptics.medium();
+      if (currentSlide < slides.length - 1) {
+        setCurrentSlide(prev => prev + 1);
+      } else {
+        haptics.heavy();
+        // Fire-and-forget storage state update to avoid blocking navigation
+        storage.set('onboarding_complete', 'true').catch(console.error);
+        router.replace('/setup');
+      }
+    } catch (error) {
+      console.error('Onboarding Error:', error);
+      router.replace('/setup'); // Safe fallback
     }
+  };
+
+  const handleSkip = () => {
+    haptics.light();
+    storage.set('onboarding_complete', 'true').catch(console.error);
+    router.replace('/setup');
   };
 
   const handleDragEnd = (event, info) => {
@@ -69,27 +85,28 @@ export default function OnboardingPage() {
   return (
     <div className="h-[100dvh] relative overflow-hidden bg-surface flex flex-col px-6 pt-[var(--sat)] pb-[var(--sab)]">
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         <motion.div
           key={currentSlide}
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 1.05, y: -20 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
           onDragEnd={handleDragEnd}
           className="flex-1 flex flex-col items-center justify-center p-8 touch-none"
         >
-          <div className="mb-8 w-full flex-1 min-h-0 flex items-center justify-center px-4">
-            <div className="relative group h-full flex items-center justify-center">
-              <div className="absolute -inset-4 bg-brand/20 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              <img 
-                src={activeSlide.image} 
-                alt={activeSlide.title} 
-                className="max-w-full max-h-full aspect-square object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in zoom-in duration-1000 relative"
+          <div className="mb-12 w-full flex-1 min-h-0 flex items-center justify-center">
+            <div className={`relative w-48 h-48 rounded-[3rem] ${activeSlide.bg} flex items-center justify-center transition-colors duration-500 overflow-hidden`}>
+              <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-white to-transparent" />
+              <activeSlide.icon 
+                size={80} 
+                className={`${activeSlide.color} relative drop-shadow-xl animate-in zoom-in duration-500`} 
               />
+              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-white/10 blur-2xl rounded-full" />
+              <div className="absolute -top-6 -left-6 w-24 h-24 bg-white/10 blur-2xl rounded-full" />
             </div>
           </div>
 
@@ -117,8 +134,8 @@ export default function OnboardingPage() {
 
         <div className="flex items-center justify-between">
           <button
-            onClick={() => { haptics.light(); router.push('/setup'); }}
-            className="text-text-secondary font-bold text-base hover:text-text-main transition-colors"
+            onClick={handleSkip}
+            className="text-text-secondary font-bold text-base hover:text-text-main transition-colors active:opacity-50"
           >
             Skip
           </button>

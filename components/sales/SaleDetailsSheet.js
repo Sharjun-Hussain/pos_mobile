@@ -60,41 +60,41 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-          className="relative bg-white rounded-t-[2.5rem] w-full max-h-[92vh] flex flex-col shadow-2xl safe-area-inset-bottom overflow-hidden"
+          className="relative bg-surface rounded-t-[2.5rem] w-full max-h-[92vh] flex flex-col shadow-2xl safe-area-inset-bottom overflow-hidden"
         >
           {/* Header */}
-          <div className="p-6 pb-4 flex items-center justify-between border-b border-slate-100 bg-white z-10">
+          <div className="p-6 pb-4 flex items-center justify-between border-b border-glass-border/30 bg-surface z-10">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-brand/5 text-brand rounded-xl flex items-center justify-center font-black text-lg">
                 #
               </div>
               <div>
                 <h3 className="text-base font-black text-text-main leading-none mb-1">Sale Invoice</h3>
-                <p className="text-[10px] font-bold text-slate-400">{sale?.invoice_number || 'Loading...'}</p>
+                <p className="text-[10px] font-bold text-text-secondary opacity-50">{sale?.invoice_number || 'Loading...'}</p>
               </div>
             </div>
             <button 
               onClick={onClose}
-              className="h-9 w-9 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 active:rotate-90 transition-transform"
+              className="h-9 w-9 bg-surface-muted rounded-lg flex items-center justify-center text-text-secondary active:rotate-90 transition-transform"
             >
               <X size={18} />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto no-scrollbar bg-slate-100/50">
+          <div className="flex-1 overflow-y-auto no-scrollbar bg-surface-muted/30">
             {loading ? (
               <div className="p-8 flex flex-col gap-6 animate-pulse">
-                <div className="h-[500px] w-full bg-white rounded-2xl shadow-sm" />
+                <div className="h-[500px] w-full bg-surface-muted rounded-2xl shadow-sm" />
               </div>
             ) : error ? (
               <div className="p-12 text-center flex flex-col items-center gap-4 text-rose-500">
                 <AlertTriangle size={48} strokeWidth={1} />
                 <p className="font-bold text-sm">{error}</p>
-                <button onClick={fetchSaleDetails} className="bg-rose-50 px-6 h-10 rounded-xl text-xs font-black">Retry</button>
+                <button onClick={fetchSaleDetails} className="bg-rose-500/10 px-6 h-10 rounded-xl text-xs font-black">Retry</button>
               </div>
             ) : (
               <div className="p-4 sm:p-6 flex flex-col gap-6">
-                <div className="shadow-2xl shadow-black/5 rounded-sm overflow-hidden">
+                <div className="shadow-2xl shadow-black/10 rounded-sm overflow-hidden">
                    <InvoiceView sale={sale} />
                 </div>
               </div>
@@ -103,17 +103,17 @@ export const SaleDetailsSheet = ({ isOpen, onClose, saleId, onReturnTrigger }) =
 
           {/* Action Bar */}
           {!loading && !error && sale && (
-            <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+            <div className="p-6 bg-surface border-t border-glass-border/30 flex gap-3">
               <button 
                 onClick={handlePrint}
-                className="flex-1 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 text-text-main active:scale-95 transition-all shadow-sm"
+                className="flex-1 h-14 bg-surface-muted border border-glass-border/50 rounded-2xl flex items-center justify-center gap-3 text-text-main active:scale-95 transition-all shadow-sm"
               >
                 <Printer size={18} />
                 <span className="text-[13px] font-black">Reprint</span>
               </button>
               <button 
                 onClick={() => { haptics.medium(); onReturnTrigger(sale); }}
-                className="flex-1 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all"
+                className="flex-1 h-14 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all"
               >
                 <RotateCcw size={18} />
                 <span className="text-[13px] font-black">Return</span>

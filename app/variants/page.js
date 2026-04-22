@@ -5,9 +5,9 @@ import {
   Search, 
   Menu, 
   RefreshCcw, 
-  ChevronRight,
   Target,
-  Hash,
+  LayoutGrid,
+  List,
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -15,11 +15,8 @@ import { useUIStore } from '@/store/useUIStore';
 
 const VariantRow = ({ variant, productName, getImageUrl }) => {
   const [imageUrl, setImageUrl] = useState(null);
-  
   useEffect(() => {
-    if (variant.image) {
-      getImageUrl(variant.image).then(setImageUrl);
-    }
+    if (variant.image) getImageUrl(variant.image).then(setImageUrl);
   }, [variant.image, getImageUrl]);
 
   return (
@@ -53,11 +50,42 @@ const VariantRow = ({ variant, productName, getImageUrl }) => {
   );
 };
 
+const VariantGridItem = ({ variant, productName, getImageUrl }) => {
+  const [imageUrl, setImageUrl] = useState(null);
+  const isLow = variant.stock_quantity < 5;
+  useEffect(() => {
+    if (variant.image) getImageUrl(variant.image).then(setImageUrl);
+  }, [variant.image, getImageUrl]);
+
+  return (
+    <div className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col gap-3 active:scale-[0.98] transition-all shadow-sm relative">
+      {isLow && <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 animate-pulse" />}
+      <div className="aspect-square w-full rounded-xl bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-50">
+        {imageUrl ? (
+          <img src={imageUrl} alt={variant.name} className="w-full h-full object-cover" />
+        ) : (
+          <Target size={24} className="text-slate-200" />
+        )}
+      </div>
+      <div className="overflow-hidden">
+        <h4 className="font-bold text-text-main text-[11px] truncate leading-tight mb-1">{productName}</h4>
+        <p className="text-[10px] text-slate-400 font-medium truncate mb-2">{variant.name}</p>
+        <div className="flex items-center justify-between mt-auto">
+          <span className="text-[11px] font-black text-brand">LKR {Math.round(variant.price).toLocaleString()}</span>
+          <span className={`text-[9px] font-black uppercase ${isLow ? 'text-rose-500' : 'text-slate-300'}`}>{variant.stock_quantity}Q</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function VariantsPage() {
   const { openDrawer } = useUIStore();
   const [loading, setLoading] = useState(true);
   const [variants, setVariants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+  const [sortBy, setSortBy] = useState('name-asc'); // 'name-asc', 'price-desc', 'stock-low'
   const [error, setError] = useState(null);
 
   const fetchVariants = async () => {
@@ -91,12 +119,20 @@ export default function VariantsPage() {
     fetchVariants();
   }, []);
 
-  const filteredVariants = Array.isArray(variants) ? variants.filter(v => 
-    (v.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (v.sku || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (v.parentName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (v.barcode || '').includes(searchTerm)
-  ) : [];
+  const filteredAndSortedVariants = Array.isArray(variants) ? variants
+    .filter(v => 
+      (v.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (v.sku || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (v.parentName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (v.barcode || '').includes(searchTerm)
+    )
+    .sort((a, b) => {
+      if (sortBy === 'name-asc') return a.parentName.localeCompare(b.parentName);
+      if (sortBy === 'price-desc') return (b.price || 0) - (a.price || 0);
+      if (sortBy === 'price-asc') return (a.price || 0) - (b.price || 0);
+      if (sortBy === 'stock-low') return (a.stock_quantity || 0) - (b.stock_quantity || 0);
+      return 0;
+    }) : [];
 
   return (
     <div className="p-6 pb-24 flex flex-col gap-5 min-h-screen bg-white">
@@ -113,11 +149,16 @@ export default function VariantsPage() {
             <p className="text-[10px] font-bold text-text-secondary uppercase leading-none opacity-40">SKU-Level Control</p>
           </div>
         </div>
+        <button 
+          onClick={() => { haptics.light(); fetchVariants(); }}
+          className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
+        >
+          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+        </button>
       </header>
 
-      {/* Improved Light Mode Search Bar */}
-      <section className="flex gap-2">
-        <div className="relative flex-1">
+      <section className="flex flex-col gap-3">
+        <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
           <input 
             type="text" 
@@ -127,34 +168,59 @@ export default function VariantsPage() {
             className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
           />
         </div>
-        <button 
-          onClick={() => { haptics.light(); fetchVariants(); }}
-          className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
-        >
-          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
-        </button>
+
+        {/* View & Sort Toolbar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <select 
+              value={sortBy}
+              onChange={(e) => { haptics.light(); setSortBy(e.target.value); }}
+              className="h-8 bg-slate-50 border border-slate-100 rounded-lg px-2 text-[10px] font-bold text-text-secondary outline-none appearance-none pr-6 relative"
+              style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
+            >
+              <option value="name-asc">Name: A-Z</option>
+              <option value="price-desc">Highest Price</option>
+              <option value="price-asc">Lowest Price</option>
+              <option value="stock-low">Low Stock First</option>
+            </select>
+          </div>
+          
+          <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
+            <button 
+              onClick={() => { haptics.light(); setViewMode('list'); }}
+              className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
+            >
+              <List size={14} />
+            </button>
+            <button 
+              onClick={() => { haptics.light(); setViewMode('grid'); }}
+              className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
+            >
+              <LayoutGrid size={14} />
+            </button>
+          </div>
+        </div>
       </section>
 
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
           <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-30">
-            {loading ? 'Refreshing Registry...' : `${filteredVariants.length} Variants`}
+            {loading ? 'Refreshing Registry...' : `${filteredAndSortedVariants.length} Active SKUs`}
           </h2>
         </div>
         
         {loading ? (
-          Array(12).fill(0).map((_, i) => (
-            <div key={i} className="h-12 w-full border-b border-slate-50 animate-pulse bg-slate-50/50" />
-          ))
-        ) : filteredVariants.length > 0 ? (
-          <div className="flex flex-col">
-            {filteredVariants.map(variant => (
-              <VariantRow 
-                key={variant.id} 
-                variant={variant} 
-                productName={variant.parentName} 
-                getImageUrl={api.getImageUrl} 
-              />
+          <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
+            {Array(10).fill(0).map((_, i) => (
+              <div key={i} className={viewMode === 'grid' ? "aspect-square w-full rounded-2xl animate-pulse bg-slate-50/50" : "h-12 w-full border-b border-slate-50 animate-pulse bg-slate-50/50"} />
+            ))}
+          </div>
+        ) : filteredAndSortedVariants.length > 0 ? (
+          <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
+            {filteredAndSortedVariants.map(variant => (
+              viewMode === 'list' 
+                ? <VariantRow key={variant.id} variant={variant} productName={variant.parentName} getImageUrl={api.getImageUrl} />
+                : <VariantGridItem key={variant.id} variant={variant} productName={variant.parentName} getImageUrl={api.getImageUrl} />
             ))}
           </div>
         ) : (

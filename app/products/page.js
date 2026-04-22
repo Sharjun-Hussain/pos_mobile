@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
-  Plus, 
   Package, 
-  Box, 
   Menu, 
   RefreshCcw, 
   ChevronRight,
+  LayoutGrid,
+  List,
+  SortAsc
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -16,11 +17,8 @@ import { useUIStore } from '@/store/useUIStore';
 
 const ProductRow = ({ product, getImageUrl }) => {
   const [imageUrl, setImageUrl] = useState(null);
-  
   useEffect(() => {
-    if (product.image) {
-      getImageUrl(product.image).then(setImageUrl);
-    }
+    if (product.image) getImageUrl(product.image).then(setImageUrl);
   }, [product.image, getImageUrl]);
 
   return (
@@ -51,6 +49,34 @@ const ProductRow = ({ product, getImageUrl }) => {
   );
 };
 
+const ProductGridItem = ({ product, getImageUrl }) => {
+  const [imageUrl, setImageUrl] = useState(null);
+  useEffect(() => {
+    if (product.image) getImageUrl(product.image).then(setImageUrl);
+  }, [product.image, getImageUrl]);
+
+  return (
+    <div className="bg-white border border-slate-100 rounded-2xl p-3 flex flex-col gap-3 active:scale-[0.98] transition-all shadow-sm">
+      <div className="aspect-square w-full rounded-xl bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-50">
+        {imageUrl ? (
+          <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
+        ) : (
+          <Package size={32} className="text-slate-200" />
+        )}
+      </div>
+      <div className="overflow-hidden">
+        <h4 className="font-bold text-text-main text-[12px] truncate leading-tight mb-1">{product.name}</h4>
+        <div className="flex items-center justify-between">
+          <span className="text-[9px] font-bold text-text-secondary opacity-50 uppercase">{product.main_category?.name || '---'}</span>
+          <span className="text-[9px] font-black text-brand bg-brand/5 px-1.5 py-0.5 rounded-md">
+            {product.variants?.length || 0}V
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function ProductsPage() {
   const { openDrawer } = useUIStore();
   const [loading, setLoading] = useState(true);
@@ -58,6 +84,8 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+  const [sortBy, setSortBy] = useState('name-asc'); // 'name-asc', 'name-desc', 'variants-desc'
   const [error, setError] = useState(null);
 
   const fetchData = async () => {
@@ -82,12 +110,19 @@ export default function ProductsPage() {
     fetchData();
   }, []);
 
-  const filteredProducts = Array.isArray(products) ? products.filter(p => {
-    const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = !selectedCategory || String(p.main_category_id) === String(selectedCategory);
-    return matchesSearch && matchesCategory;
-  }) : [];
+  const filteredAndSortedProducts = Array.isArray(products) ? products
+    .filter(p => {
+      const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCategory = !selectedCategory || String(p.main_category_id) === String(selectedCategory);
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
+      if (sortBy === 'name-desc') return b.name.localeCompare(a.name);
+      if (sortBy === 'variants-desc') return (b.variants?.length || 0) - (a.variants?.length || 0);
+      return 0;
+    }) : [];
 
   return (
     <div className="p-6 pb-24 flex flex-col gap-5 min-h-screen bg-white">
@@ -105,15 +140,15 @@ export default function ProductsPage() {
           </div>
         </div>
         <button 
-          onClick={() => haptics.medium()}
-          className="h-10 w-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/20 active:scale-90 transition-transform"
+          onClick={() => { haptics.light(); fetchData(); }}
+          className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
         >
-          <Plus size={20} />
+          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
         </button>
       </header>
 
-      {/* Improved Light Mode Search Bar */}
-      <section className="flex gap-2">
+      <section className="flex flex-col gap-3">
+        {/* Search Bar Row */}
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
           <input 
@@ -124,23 +159,44 @@ export default function ProductsPage() {
             className="w-full h-10 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-[13px] font-medium text-text-main outline-none focus:border-brand/40 focus:bg-white transition-all placeholder:text-slate-400"
           />
         </div>
-        <button 
-          onClick={() => { haptics.light(); fetchData(); }}
-          className="h-10 w-10 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 active:scale-95 transition-transform hover:text-brand bg-white"
-        >
-          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
-        </button>
+
+        {/* View & Sort Toolbar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <select 
+              value={sortBy}
+              onChange={(e) => { haptics.light(); setSortBy(e.target.value); }}
+              className="h-8 bg-slate-50 border border-slate-100 rounded-lg px-2 text-[10px] font-bold text-text-secondary outline-none appearance-none pr-6 relative"
+              style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
+            >
+              <option value="name-asc">Name: A-Z</option>
+              <option value="name-desc">Name: Z-A</option>
+              <option value="variants-desc">Major Variants</option>
+            </select>
+          </div>
+          
+          <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
+            <button 
+              onClick={() => { haptics.light(); setViewMode('list'); }}
+              className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
+            >
+              <List size={14} />
+            </button>
+            <button 
+              onClick={() => { haptics.light(); setViewMode('grid'); }}
+              className={`h-6 w-8 flex items-center justify-center rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand' : 'text-slate-400'}`}
+            >
+              <LayoutGrid size={14} />
+            </button>
+          </div>
+        </div>
       </section>
 
       {/* Simplified Category Filter */}
       <section className="overflow-x-auto no-scrollbar flex gap-1.5 -mx-6 px-6">
         <button
           onClick={() => { haptics.light(); setSelectedCategory(null); }}
-          className={`px-4 h-8 rounded-lg text-[11px] font-bold transition-all ${
-            !selectedCategory 
-              ? 'bg-brand text-white' 
-              : 'bg-slate-50 text-slate-500 border border-slate-100'
-          }`}
+          className={`px-4 h-8 rounded-lg text-[11px] font-bold transition-all ${!selectedCategory ? 'bg-brand text-white' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}
         >
           All
         </button>
@@ -148,11 +204,7 @@ export default function ProductsPage() {
           <button
             key={cat.id}
             onClick={() => { haptics.light(); setSelectedCategory(cat.id); }}
-            className={`px-4 h-8 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${
-              String(selectedCategory) === String(cat.id)
-                ? 'bg-brand text-white' 
-                : 'bg-slate-50 text-slate-500 border border-slate-100'
-            }`}
+            className={`px-4 h-8 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${String(selectedCategory) === String(cat.id) ? 'bg-brand text-white' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}
           >
             {cat.name}
           </button>
@@ -162,18 +214,22 @@ export default function ProductsPage() {
       <section className="flex flex-col">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-slate-100 pb-2">
           <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-30">
-            {loading ? 'Refreshing Catalog...' : `${filteredProducts.length} Results`}
+            {loading ? 'Refreshing Catalog...' : `${filteredAndSortedProducts.length} Results`}
           </h2>
         </div>
         
         {loading ? (
-          Array(10).fill(0).map((_, i) => (
-            <div key={i} className="h-14 w-full border-b border-slate-50 animate-pulse bg-slate-50/50" />
-          ))
-        ) : filteredProducts.length > 0 ? (
-          <div className="flex flex-col">
-            {filteredProducts.map(product => (
-              <ProductRow key={product.id} product={product} getImageUrl={api.getImageUrl} />
+          <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
+            {Array(10).fill(0).map((_, i) => (
+              <div key={i} className={viewMode === 'grid' ? "aspect-square w-full rounded-2xl animate-pulse bg-slate-50/50" : "h-14 w-full border-b border-slate-50 animate-pulse bg-slate-50/50"} />
+            ))}
+          </div>
+        ) : filteredAndSortedProducts.length > 0 ? (
+          <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
+            {filteredAndSortedProducts.map(product => (
+              viewMode === 'list' 
+                ? <ProductRow key={product.id} product={product} getImageUrl={api.getImageUrl} />
+                : <ProductGridItem key={product.id} product={product} getImageUrl={api.getImageUrl} />
             ))}
           </div>
         ) : (

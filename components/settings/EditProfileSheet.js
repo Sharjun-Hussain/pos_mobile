@@ -175,19 +175,19 @@ export const EditProfileSheet = ({ isOpen, onClose, initialTab = 'profile' }) =>
             <div className="flex gap-2 px-6 mb-6">
               <button 
                 onClick={() => { haptics.light(); setActiveTab('profile'); }}
-                className={`flex-1 h-12 rounded-2xl text-[11px] font-bold flex items-center justify-center gap-2 transition-all ${
+                className={`flex-1 h-12 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
                   activeTab === 'profile' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'bg-surface-muted text-text-secondary border border-glass-border'
                 }`}
               >
-                <User size={14} /> Profile Data
+                <User size={16} /> Profile Data
               </button>
               <button 
                 onClick={() => { haptics.light(); setActiveTab('security'); }}
-                className={`flex-1 h-12 rounded-2xl text-[11px] font-bold flex items-center justify-center gap-2 transition-all ${
+                className={`flex-1 h-12 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
                   activeTab === 'security' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-surface-muted text-text-secondary border border-glass-border'
                 }`}
               >
-                <ShieldCheck size={14} /> Security
+                <ShieldCheck size={16} /> Security
               </button>
             </div>
 
@@ -221,33 +221,33 @@ export const EditProfileSheet = ({ isOpen, onClose, initialTab = 'profile' }) =>
 
                   <div className="flex flex-col gap-5">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold text-text-secondary pl-1 opacity-80">Full Name</label>
+                      <label className="text-xs font-bold text-text-secondary pl-1 opacity-80">Full Name</label>
                       <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
                         <input 
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                          className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-base font-bold text-text-main outline-none focus:border-brand/40"
                         />
                       </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold text-text-secondary pl-1 opacity-80">Email Address</label>
+                      <label className="text-xs font-bold text-text-secondary pl-1 opacity-80">Email Address</label>
                       <div className="relative opacity-60">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
                         <input 
                           disabled
                           type="email"
                           value={user?.email || 'N/A'}
-                          className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none"
+                          className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-base font-bold text-text-main outline-none"
                         />
                       </div>
-                      <p className="text-[9px] font-bold text-text-secondary pl-1 opacity-40">Email acts as login ID and cannot be modified.</p>
+                      <p className="text-xs font-bold text-text-secondary pl-1 opacity-40">Email acts as login ID and cannot be modified.</p>
                     </div>
 
                     {profileError && (
-                      <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-bold p-3 rounded-xl mt-2">
+                      <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold p-3 rounded-xl mt-2">
                         {profileError}
                       </div>
                     )}
@@ -256,66 +256,66 @@ export const EditProfileSheet = ({ isOpen, onClose, initialTab = 'profile' }) =>
               ) : (
                 <div className="flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-300">
                   <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex gap-3 items-start mb-2">
-                    <ShieldCheck className="text-amber-500 shrink-0" size={20} />
-                    <p className="text-[11px] font-medium text-amber-600 dark:text-amber-500 leading-relaxed">
+                    <ShieldCheck className="text-amber-500 shrink-0 mt-0.5" size={20} />
+                    <p className="text-sm font-medium text-amber-600 dark:text-amber-500 leading-relaxed">
                       Ensure your new password is at least 8 characters long and contains a mix of letters and numbers.
                     </p>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-text-secondary pl-1 opacity-80">Current Password</label>
+                    <label className="text-xs font-bold text-text-secondary pl-1 opacity-80">Current Password</label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
                       <input 
                         type={showPwd.current ? "text" : "password"}
                         value={passwords.current}
                         onChange={(e) => setPasswords(p => ({ ...p, current: e.target.value }))}
-                        className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-12 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                        className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-12 text-base font-bold text-text-main outline-none focus:border-brand/40"
                       />
                       <button type="button" onClick={() => setShowPwd(s => ({ ...s, current: !s.current }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary">
-                        {showPwd.current ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {showPwd.current ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-text-secondary pl-1 opacity-80">New Password</label>
+                    <label className="text-xs font-bold text-text-secondary pl-1 opacity-80">New Password</label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
                       <input 
                         type={showPwd.new ? "text" : "password"}
                         value={passwords.new}
                         onChange={(e) => setPasswords(p => ({ ...p, new: e.target.value }))}
-                        className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-12 text-sm font-bold text-text-main outline-none focus:border-emerald-500/40"
+                        className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-12 text-base font-bold text-text-main outline-none focus:border-emerald-500/40"
                       />
                       <button type="button" onClick={() => setShowPwd(s => ({ ...s, new: !s.new }))} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary">
-                        {showPwd.new ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {showPwd.new ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-text-secondary pl-1 opacity-80">Confirm Password</label>
+                    <label className="text-xs font-bold text-text-secondary pl-1 opacity-80">Confirm Password</label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
                       <input 
                         type={showPwd.confirm ? "text" : "password"}
                         value={passwords.confirm}
                         onChange={(e) => setPasswords(p => ({ ...p, confirm: e.target.value }))}
-                        className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-12 text-sm font-bold text-text-main outline-none focus:border-emerald-500/40"
+                        className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-12 text-base font-bold text-text-main outline-none focus:border-emerald-500/40"
                       />
                     </div>
                   </div>
 
                   {securityError && (
-                    <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-bold p-3 rounded-xl mt-2">
+                    <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold p-3 rounded-xl mt-2">
                       {securityError}
                     </div>
                   )}
 
                   {securitySuccess && (
-                     <div className="bg-emerald-500/10 border border-emerald-500/20 flex gap-2 items-center text-emerald-500 text-[11px] font-bold p-3 rounded-xl mt-2 animate-in slide-in-from-bottom-2">
-                       <Check size={16} /> Password successfully updated!
+                     <div className="bg-emerald-500/10 border border-emerald-500/20 flex gap-2 items-center text-emerald-500 text-xs font-bold p-3 rounded-xl mt-2 animate-in slide-in-from-bottom-2">
+                       <Check size={18} /> Password successfully updated!
                      </div>
                   )}
                 </div>

@@ -91,10 +91,10 @@ export default function OnboardingPage() {
           <Illustration color={activeSlide.hex} />
         </div>
 
-        <h2 className="text-2xl font-extrabold text-zinc-100 mb-2 text-center tracking-tight animate-in slide-in-from-bottom duration-500 uppercase italic">
+        <h2 className="text-2xl font-extrabold text-text-main mb-2 text-center tracking-tight animate-in slide-in-from-bottom duration-500 uppercase italic">
           {activeSlide.title}
         </h2>
-        <p className="text-zinc-500 text-sm text-center leading-relaxed max-w-[240px] animate-in fade-in duration-700">
+        <p className="text-text-muted text-sm text-center leading-relaxed max-w-[240px] animate-in fade-in duration-700">
           {activeSlide.description}
         </p>
       </div>

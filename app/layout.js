@@ -1,5 +1,6 @@
 import "./globals.css";
 import POSLayout from "@/components/POSLayout";
+import { Providers } from "@/components/Providers";
 
 export const metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "POS Mobile",
@@ -16,9 +17,11 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full overflow-x-hidden">
-        <POSLayout>{children}</POSLayout>
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <body className="h-full overflow-x-hidden antialiased">
+        <Providers>
+          <POSLayout>{children}</POSLayout>
+        </Providers>
       </body>
     </html>
   );

@@ -68,36 +68,36 @@ export default function SetupPage() {
   return (
     <div className="min-h-screen flex flex-col justify-center p-8 bg-surface">
       <div className="flex flex-col gap-2 mb-12">
-        <div className="p-3 w-fit rounded-2xl bg-brand/10 text-brand mb-4">
-          <Server size={32} />
+        <div className="p-3 w-fit rounded-xl bg-brand/10 text-brand mb-4">
+          <Server size={24} />
         </div>
-        <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">Server Setup</h1>
-        <p className="text-zinc-500 font-medium leading-relaxed">
+        <h1 className="text-3xl font-bold text-text-main tracking-tight">Server Setup</h1>
+        <p className="text-text-muted font-medium leading-relaxed">
           Configure your self-hosted API endpoint to get started with Inzeedo POS.
         </p>
       </div>
 
       <form onSubmit={handleSave} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest ml-1">Server API URL</label>
+          <label className="text-xs font-semibold text-text-secondary uppercase tracking-widest ml-1">Server API URL</label>
           <div className="relative">
-            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
+            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
             <input
               type="text"
               placeholder="https://pos.yourdomain.com/api/v1"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               required
-              className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-zinc-100 outline-none focus:border-brand/50 transition-colors"
+              className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/50 transition-colors placeholder:text-text-secondary/50"
             />
           </div>
-          {error && <p className="text-red-400 text-xs mt-1 ml-1">{error}</p>}
+          {error && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{error}</p>}
         </div>
 
-        <div className="glass-panel p-4 rounded-2xl bg-white/5 border-white/5 flex gap-3 items-start">
+        <div className="glass-panel p-4 rounded-2xl flex gap-3 items-start">
           <ShieldCheck className="text-brand shrink-0" size={20} />
-          <p className="text-[11px] text-zinc-500 leading-normal">
-            Your URL is stored locally on this device. We recommend using <span className="text-zinc-300 font-semibold">HTTPS</span> for a secure connection to your self-hosted backend.
+          <p className="text-[11px] text-text-muted leading-relaxed">
+            Your URL is stored locally on this device. We recommend using <span className="text-text-main font-semibold">HTTPS</span> for a secure connection to your self-hosted backend.
           </p>
         </div>
 
@@ -114,9 +114,9 @@ export default function SetupPage() {
         </button>
       </form>
 
-      <div className="mt-12 flex items-center justify-center gap-2 text-zinc-500">
+      <div className="mt-12 flex items-center justify-center gap-2 text-text-secondary">
         <HelpCircle size={16} />
-        <button className="text-sm font-medium hover:text-zinc-300">Where can I find this?</button>
+        <button className="text-sm font-medium hover:text-brand transition-colors">Where can I find this?</button>
       </div>
     </div>
   );

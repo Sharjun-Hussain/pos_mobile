@@ -2,36 +2,58 @@
 
 @theme inline {
   --color-brand: oklch(0.62 0.25 273); /* Electric Indigo */
-  --color-surface: oklch(0.12 0.02 252);
-  --color-surface-muted: oklch(0.18 0.02 252);
-  --color-glass: rgba(255, 255, 255, 0.05);
+  
+  /* Semantic Colors that adapt */
+  --color-surface: var(--bg-surface);
+  --color-surface-muted: var(--bg-surface-muted);
+  --color-text-main: var(--text-primary);
+  --color-text-muted: var(--text-secondary);
+  --color-glass: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
 }
 
 :root {
+  --bg-surface: #f8fafc;
+  --bg-surface-muted: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  
   --safe-area-inset-top: env(safe-area-inset-top, 0px);
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+.dark {
+  --bg-surface: #09090b;
+  --bg-surface-muted: #18181b;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --glass-bg: rgba(24, 24, 27, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
 body {
   background-color: var(--color-surface);
-  color: #f4f4f5; /* zinc-100 */
+  color: var(--color-text-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   padding-top: var(--safe-area-inset-top);
   padding-bottom: var(--safe-area-inset-bottom);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .glass-panel {
   background-color: var(--color-glass);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-glass-border);
 }
 
 .bottom-nav {
   position: fixed;
-  bottom: 0;
+  bottom: 0px;
   left: 0;
   right: 0;
   height: 5rem;
@@ -42,15 +64,16 @@ body {
   padding-right: 1rem;
   background-color: var(--color-glass);
   backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--color-glass-border);
   padding-bottom: var(--safe-area-inset-bottom);
+  z-index: 50;
 }
 
 .btn-primary {
-  height: 3rem;
+  height: 3.5rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   background-color: var(--color-brand);
   color: white;
   font-weight: 600;
@@ -58,10 +81,14 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition-property: transform;
-  transition-duration: 0.2s;
+  transition: transform 0.2s, opacity 0.2s;
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
 }
 
 .btn-primary:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
 }

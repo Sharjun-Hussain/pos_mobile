@@ -50,20 +50,23 @@ export default function SalesPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500">
-        <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white mb-6 animate-bounce">
-          <CheckCircle2 size={48} />
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500 bg-surface">
+        <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center text-white mb-6 shadow-xl shadow-emerald-500/20 animate-bounce">
+          <CheckCircle2 size={40} />
         </div>
-        <h2 className="text-3xl font-bold text-zinc-100 mb-2">Order Complete!</h2>
-        <p className="text-zinc-500">Transaction recorded successfully.</p>
+        <h2 className="text-3xl font-black text-text-main mb-2 tracking-tighter uppercase italic">Done!</h2>
+        <p className="text-text-secondary font-bold uppercase text-[10px] tracking-widest">Transaction Successful</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto p-6 pb-40">
-        <h1 className="text-2xl font-bold text-zinc-100 tracking-tight mb-6 mt-4">New Sale</h1>
+    <div className="h-screen flex flex-col overflow-hidden bg-surface">
+      <div className="flex-1 overflow-y-auto p-6 pb-64">
+        <header className="pt-4 mb-8">
+          <h1 className="text-2xl font-black text-text-main tracking-tighter uppercase italic">Quick Sale</h1>
+          <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Select Items</p>
+        </header>
         
         {/* Product Grid */}
         <div className="grid grid-cols-2 gap-4">
@@ -71,57 +74,59 @@ export default function SalesPage() {
             <button 
               key={p.id}
               onClick={() => addToCart(p)}
-              className="glass-panel p-4 rounded-3xl flex flex-col items-center gap-2 active:scale-95 transition-transform"
+              className="glass-panel p-4 rounded-3xl flex flex-col items-center gap-3 active:scale-95 transition-transform hover:bg-surface-muted/50"
             >
               <div className="p-4 rounded-2xl bg-brand/10 text-brand">
-                <Plus size={24} />
+                <Plus size={20} />
               </div>
-              <span className="font-semibold text-zinc-100">{p.name}</span>
-              <span className="text-sm font-bold text-zinc-500">${p.price.toFixed(2)}</span>
+              <div className="text-center">
+                <span className="font-bold text-text-main text-sm block">{p.name}</span>
+                <span className="text-[11px] font-black text-brand uppercase tracking-tighter mt-1 block">${p.price.toFixed(2)}</span>
+              </div>
             </button>
           ))}
         </div>
       </div>
 
       {/* Cart Summary (Floating Sheet) */}
-      <div className="fixed bottom-20 left-0 right-0 p-6 pt-0">
-        <div className="glass-panel rounded-[2.5rem] p-6 shadow-2xl border-white/10 ring-1 ring-white/5">
-          <div className="flex flex-col gap-4 max-h-48 overflow-y-auto mb-4">
+      <div className="fixed bottom-24 left-0 right-0 p-6 pt-0 z-40">
+        <div className="glass-panel rounded-[2.5rem] p-6 shadow-2xl border-glass-border">
+          <div className="flex flex-col gap-4 max-h-40 overflow-y-auto mb-5 pr-2 custom-scrollbar">
             {cart.length === 0 ? (
-              <p className="text-center text-zinc-500 py-4 italic text-sm">Cart is empty</p>
+              <p className="text-center text-text-secondary py-4 italic text-xs font-bold uppercase tracking-widest opacity-50">Cart is empty</p>
             ) : (
               cart.map(item => (
                 <div key={item.id} className="flex items-center justify-between">
                   <div className="flex flex-col">
-                    <span className="font-medium text-zinc-200">{item.name}</span>
-                    <span className="text-[10px] text-zinc-500 tracking-wider">${item.price.toFixed(2)} / unit</span>
+                    <span className="font-bold text-text-main text-sm">{item.name}</span>
+                    <span className="text-[10px] text-text-secondary font-bold uppercase tracking-tighter">${item.price.toFixed(2)} / unit</span>
                   </div>
-                  <div className="flex items-center gap-4 bg-white/5 rounded-2xl p-2 px-3">
-                    <button onClick={() => updateQty(item.id, -1)} className="text-zinc-400"><Minus size={16} /></button>
-                    <span className="font-bold text-zinc-200 text-sm">{item.qty}</span>
-                    <button onClick={() => updateQty(item.id, 1)} className="text-brand"><Plus size={16} /></button>
+                  <div className="flex items-center gap-4 bg-surface-muted rounded-2xl p-1.5 px-3 border border-glass-border">
+                    <button onClick={() => updateQty(item.id, -1)} className="text-text-secondary hover:text-red-500 transition-colors"><Minus size={14} /></button>
+                    <span className="font-black text-text-main text-xs min-w-[12px] text-center">{item.qty}</span>
+                    <button onClick={() => updateQty(item.id, 1)} className="text-brand hover:scale-110 transition-transform"><Plus size={14} /></button>
                   </div>
                 </div>
               ))
             )}
           </div>
 
-          <div className="border-t border-white/5 pt-4 flex flex-col gap-4">
+          <div className="border-t border-glass-border pt-5 flex flex-col gap-5">
             <div className="flex items-center justify-between">
-              <span className="text-zinc-500 font-medium">Total Amount</span>
-              <span className="text-2xl font-bold text-zinc-100">${total.toFixed(2)}</span>
+              <span className="text-text-secondary text-[11px] font-black uppercase tracking-[0.2em]">Total</span>
+              <span className="text-2xl font-black text-text-main tracking-tighter">${total.toFixed(2)}</span>
             </div>
             
-            <div className="flex gap-2">
-              <button className="h-14 w-14 glass-panel rounded-2xl flex items-center justify-center text-zinc-400 active:bg-white/10">
+            <div className="flex gap-3">
+              <button className="h-14 w-14 glass-panel rounded-2xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand">
                 <Banknote size={20} />
               </button>
               <button 
                 onClick={handleCheckout}
                 disabled={cart.length === 0}
-                className="btn-primary flex-1 h-14 text-base disabled:opacity-50"
+                className="btn-primary flex-1 h-14 text-sm uppercase tracking-widest font-black"
               >
-                Complete Order <CreditCard size={20} />
+                Checkout <CreditCard size={18} />
               </button>
             </div>
           </div>

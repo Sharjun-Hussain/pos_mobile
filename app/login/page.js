@@ -24,38 +24,40 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col justify-center p-8 bg-surface">
       <div className="flex flex-col gap-2 mb-12">
-        <h1 className="text-4xl font-bold text-zinc-100 italic tracking-tighter">S-POS</h1>
-        <p className="text-zinc-500 font-medium">Welcome back, manager.</p>
+        <h1 className="text-3xl font-bold text-text-main italic tracking-tighter uppercase tracking-[0.2em]">
+          {process.env.NEXT_PUBLIC_APP_NAME || "S-POS"}
+        </h1>
+        <p className="text-text-muted font-medium">Welcome back.</p>
       </div>
 
       <form onSubmit={handleLogin} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest ml-1">Email</label>
+          <label className="text-xs font-semibold text-text-secondary uppercase tracking-widest ml-1">Email</label>
           <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-            <input
-              type="email"
-              placeholder="name@store.com"
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
+            <input 
+              type="email" 
+              placeholder="name@store.com" 
               required
-              className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-zinc-100 outline-none focus:border-brand/50 transition-colors"
+              className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/50 transition-colors placeholder:text-text-secondary/50"
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest ml-1">Password</label>
+          <label className="text-xs font-semibold text-text-secondary uppercase tracking-widest ml-1">Password</label>
           <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
+            <input 
+              type={showPassword ? "text" : "password"} 
+              placeholder="••••••••" 
               required
-              className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-12 text-zinc-100 outline-none focus:border-brand/50 transition-colors"
+              className="w-full h-16 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-12 text-text-main outline-none focus:border-brand/50 transition-colors placeholder:text-text-secondary/50"
             />
-            <button
+            <button 
               type="button"
               onClick={() => { setShowPassword(!showPassword); haptics.light(); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary"
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -63,11 +65,11 @@ export default function LoginPage() {
         </div>
 
         <div className="flex justify-end mt-2">
-          <button type="button" className="text-brand text-sm font-semibold">Forgot Password?</button>
+          <button type="button" className="text-brand text-sm font-bold">Forgot Password?</button>
         </div>
 
-        <button
-          type="submit"
+        <button 
+          type="submit" 
           disabled={loading}
           className="btn-primary w-full h-16 text-lg mt-4 disabled:opacity-50"
         >
@@ -80,13 +82,13 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-12 text-center flex flex-col gap-4">
-        <p className="text-zinc-500 text-sm">
-          Don't have an account?
-          <button className="text-brand font-semibold ml-1">Contact Support</button>
+        <p className="text-text-muted text-sm font-medium">
+          Don't have an account? 
+          <button className="text-brand font-bold ml-1">Contact Support</button>
         </p>
-        <button
+        <button 
           onClick={() => { haptics.light(); router.push('/setup'); }}
-          className="text-zinc-600 text-xs hover:text-zinc-400 transition-colors"
+          className="text-text-secondary text-xs hover:text-brand transition-colors"
         >
           Using a different server? <span className="underline">Change Settings</span>
         </button>

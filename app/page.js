@@ -1,12 +1,12 @@
 "use client";
 
 import React from 'react';
-import { 
-  TrendingUp, 
-  Users, 
-  Package, 
-  ArrowUpRight, 
-  Plus, 
+import {
+  TrendingUp,
+  Users,
+  Package,
+  ArrowUpRight,
+  Plus,
   Search,
   ScanBarcode
 } from 'lucide-react';
@@ -66,9 +66,9 @@ export default function Home() {
       <section>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-          <input 
-            type="text" 
-            placeholder="Search products or SKU..." 
+          <input
+            type="text"
+            placeholder="Search products or SKU..."
             className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-zinc-100 outline-none focus:border-brand/50 transition-colors"
           />
         </div>
@@ -78,23 +78,23 @@ export default function Home() {
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-widest ml-1">Quick Actions</h2>
         <div className="flex flex-col gap-3">
-          <ActionCard 
-            title="New Sale" 
-            description="Start a new checkout transaction" 
-            icon={Plus} 
-            color="bg-brand text-brand" 
+          <ActionCard
+            title="New Sale"
+            description="Start a new checkout transaction"
+            icon={Plus}
+            color="bg-brand text-brand"
           />
-          <ActionCard 
-            title="Scan Product" 
-            description="Use camera to identify items" 
-            icon={ScanBarcode} 
-            color="bg-amber-500 text-amber-500" 
+          <ActionCard
+            title="Scan Product"
+            description="Use camera to identify items"
+            icon={ScanBarcode}
+            color="bg-amber-500 text-amber-500"
           />
-          <ActionCard 
-            title="Manage Stock" 
-            description="Update inventory levels" 
-            icon={Package} 
-            color="bg-blue-500 text-blue-500" 
+          <ActionCard
+            title="Manage Stock"
+            description="Update inventory levels"
+            icon={Package}
+            color="bg-blue-500 text-blue-500"
           />
         </div>
       </section>

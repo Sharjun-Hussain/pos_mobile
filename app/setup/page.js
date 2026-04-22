@@ -31,7 +31,7 @@ export default function SetupPage() {
       if (!formattedUrl.startsWith('http')) {
         formattedUrl = `https://${formattedUrl}`;
       }
-      
+
       // Remove trailing slash
       if (formattedUrl.endsWith('/')) {
         formattedUrl = formattedUrl.slice(0, -1);
@@ -40,7 +40,7 @@ export default function SetupPage() {
       // 1. Test Connection (optional but recommended)
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 5000); // 5s timeout
-      
+
       try {
         const response = await fetch(`${formattedUrl}/common/health-check`, { signal: controller.signal });
         // Even if 404, we check if the host exists. 
@@ -55,7 +55,7 @@ export default function SetupPage() {
       // 2. Save
       await storage.set('custom_api_url', formattedUrl);
       haptics.heavy();
-      
+
       // 3. Redirect
       router.push('/login');
     } catch (err) {
@@ -82,9 +82,9 @@ export default function SetupPage() {
           <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest ml-1">Server API URL</label>
           <div className="relative">
             <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-            <input 
-              type="text" 
-              placeholder="https://pos.yourdomain.com/api/v1" 
+            <input
+              type="text"
+              placeholder="https://pos.yourdomain.com/api/v1"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               required
@@ -101,8 +101,8 @@ export default function SetupPage() {
           </p>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           className="btn-primary w-full h-16 text-lg mt-4 disabled:opacity-50"
         >

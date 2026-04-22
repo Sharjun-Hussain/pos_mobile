@@ -28,25 +28,29 @@ export default function POSLayout({ children }) {
   const router = useRouter();
   const isLoginPage = pathname === '/login';
   const isSetupPage = pathname === '/setup';
+  const isOnboardingPage = pathname === '/onboarding';
 
   React.useEffect(() => {
-    // Force setup if no URL is configured
     const checkConfig = async () => {
-      const { value } = await Preferences.get({ key: 'custom_api_url' });
-      if (!value && !isSetupPage) {
+      const { value: onboardingStarted } = await Preferences.get({ key: 'onboarding_complete' });
+      const { value: serverConfigured } = await Preferences.get({ key: 'custom_api_url' });
+
+      if (!onboardingStarted && !isOnboardingPage && !isLoginPage) {
+        router.replace('/onboarding');
+      } else if (onboardingStarted && !serverConfigured && !isSetupPage && !isOnboardingPage && !isLoginPage) {
         router.replace('/setup');
       }
     };
     checkConfig();
-  }, [pathname, isSetupPage, router]);
+  }, [pathname, isOnboardingPage, isSetupPage, isLoginPage, router]);
 
   return (
     <div className="flex flex-col min-h-screen">
-      <main className={`flex-1 ${(isLoginPage || isSetupPage) ? '' : 'pb-20'}`}>
+      <main className={`flex-1 ${(isLoginPage || isSetupPage || isOnboardingPage) ? '' : 'pb-20'}`}>
         {children}
       </main>
 
-      {!isLoginPage && !isSetupPage && (
+      {!isLoginPage && !isSetupPage && !isOnboardingPage && (
         <nav className="bottom-nav">
           <NavItem href="/" icon={Home} label="Home" />
           <NavItem href="/sales" icon={ShoppingBag} label="Sales" />

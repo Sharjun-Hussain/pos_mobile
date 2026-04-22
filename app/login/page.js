@@ -33,9 +33,9 @@ export default function LoginPage() {
           <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest ml-1">Email</label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-            <input 
-              type="email" 
-              placeholder="name@store.com" 
+            <input
+              type="email"
+              placeholder="name@store.com"
               required
               className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-zinc-100 outline-none focus:border-brand/50 transition-colors"
             />
@@ -46,13 +46,13 @@ export default function LoginPage() {
           <label className="text-xs font-semibold text-zinc-500 uppercase tracking-widest ml-1">Password</label>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-            <input 
-              type={showPassword ? "text" : "password"} 
-              placeholder="••••••••" 
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
               required
               className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-12 text-zinc-100 outline-none focus:border-brand/50 transition-colors"
             />
-            <button 
+            <button
               type="button"
               onClick={() => { setShowPassword(!showPassword); haptics.light(); }}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500"
@@ -66,8 +66,8 @@ export default function LoginPage() {
           <button type="button" className="text-brand text-sm font-semibold">Forgot Password?</button>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           className="btn-primary w-full h-16 text-lg mt-4 disabled:opacity-50"
         >
@@ -81,10 +81,10 @@ export default function LoginPage() {
 
       <div className="mt-12 text-center flex flex-col gap-4">
         <p className="text-zinc-500 text-sm">
-          Don't have an account? 
+          Don't have an account?
           <button className="text-brand font-semibold ml-1">Contact Support</button>
         </p>
-        <button 
+        <button
           onClick={() => { haptics.light(); router.push('/setup'); }}
           className="text-zinc-600 text-xs hover:text-zinc-400 transition-colors"
         >

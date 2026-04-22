@@ -452,7 +452,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         {/* Decorative Blur */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[40px] -mr-16 -mt-16" />
                         
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">Payable Amount</p>
+                        <p className="text-[10px] font-bold text-white/70">Payable Amount</p>
                         <h3 className="text-4xl font-black tracking-tight text-white">LKR {total.toLocaleString()}</h3>
                         
                         {selectedCustomer && (
@@ -508,7 +508,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                           
                           {amountTendered && parseFloat(amountTendered) > total && (
                             <div className="flex items-center justify-between bg-brand/5 border border-brand/10 p-3 rounded-xl">
-                              <span className="text-[10px] font-bold text-brand uppercase">Change</span>
+                              <span className="text-[10px] font-bold text-brand">Change</span>
                               <span className="text-base font-black text-brand">LKR {(parseFloat(amountTendered) - total).toLocaleString()}</span>
                             </div>
                           )}
@@ -518,18 +518,18 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       {/* Small Breakdown - High Density */}
                       <div className="space-y-1.5 border-t border-glass-border/30 pt-3 px-1">
                         <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-text-secondary font-bold uppercase tracking-tighter">Subtotal</span>
+                          <span className="text-text-secondary font-bold">Subtotal</span>
                           <span className="text-text-main font-black">LKR {subtotal.toLocaleString()}</span>
                         </div>
                         {discount > 0 && (
                           <div className="flex justify-between items-center text-[11px]">
-                            <span className="text-rose-500 font-bold uppercase tracking-tighter">Discount ({discount}%)</span>
+                            <span className="text-rose-500 font-bold">Discount ({discount}%)</span>
                             <span className="text-rose-500 font-black">- LKR {getDiscountAmount().toLocaleString()}</span>
                           </div>
                         )}
                         {adjustment !== 0 && (
                           <div className="flex justify-between items-center text-[11px]">
-                            <span className="text-brand font-bold uppercase tracking-tighter">Adjustment</span>
+                            <span className="text-brand font-bold">Adjustment</span>
                             <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} LKR {Math.abs(adjustment).toLocaleString()}</span>
                           </div>
                         )}

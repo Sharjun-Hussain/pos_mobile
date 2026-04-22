@@ -20,6 +20,7 @@ import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useRouter } from 'next/navigation';
 
@@ -114,7 +115,8 @@ export default function Home() {
     try {
       const [uRes, sRes] = await Promise.all([
         api.auth.me(),
-        api.reports.getDashboardSummary()
+        api.reports.getDashboardSummary(),
+        useSettingsStore.getState().syncSettings()
       ]);
 
       const userData = uRes.data?.user;

@@ -26,6 +26,7 @@ export const useSettingsStore = create(
       currency: 'LKR',
       businessName: '',
       taxId: '',
+      taxRate: 0,
       activePaymentMethods: ['cash', 'card'],
       
       // Actions
@@ -59,6 +60,14 @@ export const useSettingsStore = create(
               businessName: b.name || '',
               taxId: b.tax_id || '',
               currency: b.currency || 'LKR'
+            });
+          }
+           // 3. Fetch General/Finance Settings (Tax Rate)
+          const genRes = await api.settings.getModule('general');
+          if (genRes.status === 'success' && genRes.data) {
+            const tax = genRes.data?.finance?.taxRate;
+            set({
+              taxRate: (tax !== undefined && tax !== null && tax !== '') ? parseFloat(tax) : 0
             });
           }
           return { success: true };

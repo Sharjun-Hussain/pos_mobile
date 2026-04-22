@@ -78,9 +78,25 @@ export const useCartStore = create(
 
       getTotal: () => {
         const { cart, discount, adjustment } = get();
+        const { taxRate } = require('./useSettingsStore').useSettingsStore.getState();
+        
         const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const discountAmount = subtotal * (discount / 100);
-        return Math.max(0, subtotal - discountAmount + adjustment);
+        const taxableAmount = subtotal - discountAmount;
+        const taxAmount = taxableAmount * (taxRate / 100);
+        
+        return Math.max(0, taxableAmount + taxAmount + adjustment);
+      },
+
+      getTaxAmount: () => {
+        const { cart, discount } = get();
+        const { taxRate } = require('./useSettingsStore').useSettingsStore.getState();
+        
+        const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const discountAmount = subtotal * (discount / 100);
+        const taxableAmount = subtotal - discountAmount;
+        
+        return taxableAmount * (taxRate / 100);
       },
 
       getDiscountAmount: () => {

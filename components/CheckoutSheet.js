@@ -53,10 +53,11 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     adjustment, 
     setDiscount, 
     setAdjustment,
-    getDiscountAmount 
+    getDiscountAmount,
+    getTaxAmount 
   } = useCartStore();
   const { selectedBranch } = useAuthStore();
-  const { isWholesale, activePaymentMethods, currency, checkoutPreview } = useSettingsStore();
+  const { isWholesale, activePaymentMethods, currency, checkoutPreview, taxRate } = useSettingsStore();
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
   const [customers, setCustomers] = useState([]);
@@ -158,14 +159,22 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
     try {
       // Map cart to backend expected schema
+      // Map cart to backend expected schema with distributed discounts
       const payload = {
         customer_id: selectedCustomer?.id || null,
-        items: cart.map(item => ({
-          product_id: item.productId,
-          product_variant_id: item.variantId,
-          quantity: item.quantity,
-          discount_amount: 0 
-        })),
+        items: cart.map(item => {
+          const itemSubtotal = item.price * item.quantity;
+          const distributedDiscount = itemSubtotal * (discount / 100);
+          
+          return {
+            product_id: item.productId,
+            product_variant_id: item.variantId,
+            quantity: item.quantity,
+            unit_price: item.price,
+            discount_amount: parseFloat(distributedDiscount.toFixed(2)),
+            tax_amount: 0 // Backend recalculates this
+          };
+        }),
         payment_method: paymentMethod,
         adjustment: parseFloat(adjustment || 0) || 0,
         paid_amount: paymentMethod === 'cash' ? (parseFloat(amountTendered) || total) : total,
@@ -561,6 +570,12 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                           <div className="flex justify-between items-center text-[11px]">
                             <span className="text-brand font-bold">Adjustment</span>
                             <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} {currency} {Math.abs(adjustment).toLocaleString()}</span>
+                          </div>
+                        )}
+                        {taxRate > 0 && (
+                          <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
+                            <span className="text-text-secondary font-bold">Tax ({taxRate}%)</span>
+                            <span className="text-text-main font-black">{currency} {getTaxAmount().toLocaleString()}</span>
                           </div>
                         )}
                       </div>

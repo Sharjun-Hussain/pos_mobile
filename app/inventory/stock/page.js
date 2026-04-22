@@ -83,7 +83,8 @@ export default function StockRegistryPage() {
     setError(null);
     try {
       const res = await api.stocks.getAll({ size: 100 });
-      setStocks(res.data || []);
+      // Handle paginated structure: { data: { data: [], pagination: {} } }
+      setStocks(res.data?.data || res.data || []);
     } catch (err) {
       setError('Connection failed');
     } finally {
@@ -114,7 +115,7 @@ export default function StockRegistryPage() {
           </button>
           <div>
             <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Stock Control</h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">Global Stock Ledger</p>
+            <p className="text-[10px] font-bold text-text-secondary uppercase leading-none">Global Stock Ledger</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -134,7 +135,7 @@ export default function StockRegistryPage() {
             <Activity size={18} strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1.5">Healthy Stock</p>
+            <p className="text-[10px] font-black text-emerald-600 uppercase leading-none mb-1.5">Healthy Stock</p>
             <h3 className="text-2xl font-black text-text-main leading-none">{(stocks.length - lowStockCount) || 0} <span className="text-[10px] font-bold text-text-secondary">SKUs</span></h3>
           </div>
         </div>
@@ -143,7 +144,7 @@ export default function StockRegistryPage() {
             <TrendingDown size={18} strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest leading-none mb-1.5">Low Level Alerts</p>
+            <p className="text-[10px] font-black text-rose-600 uppercase leading-none mb-1.5">Low Level Alerts</p>
             <h3 className="text-2xl font-black text-text-main leading-none">{lowStockCount || 0} <span className="text-[10px] font-bold text-text-secondary">SKUs</span></h3>
           </div>
         </div>
@@ -164,7 +165,7 @@ export default function StockRegistryPage() {
 
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between mb-1 px-1">
-          <h2 className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">
+          <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-60">
             {loading ? 'Consulting Ledger...' : 'Cross-Branch Inventory'}
           </h2>
           <button onClick={() => { haptics.light(); fetchStocks(); }} className="h-8 w-8 flex items-center justify-center text-brand">

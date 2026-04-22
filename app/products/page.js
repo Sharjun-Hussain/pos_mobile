@@ -38,7 +38,7 @@ const ProductCard = ({ product, getImageUrl }) => {
         <div className="overflow-hidden">
           <h4 className="font-black text-text-main text-sm truncate leading-tight">{product.name}</h4>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-[10px] font-black text-brand uppercase tracking-widest bg-brand/5 px-2 py-0.5 rounded-md">
+            <span className="text-[10px] font-black text-brand uppercase bg-brand/5 px-2 py-0.5 rounded-md">
               {product.main_category?.name || 'Uncategorized'}
             </span>
             <div className="h-1 w-1 rounded-full bg-text-secondary/20" />
@@ -72,8 +72,12 @@ export default function ProductsPage() {
         api.products.getAll({ size: 100 }), // Paginated fetch
         api.categories.getActiveList()
       ]);
-      setProducts(pRes.data || []);
-      setCategories(cRes.data || []);
+      // Handle paginated structure from backend: { data: { data: [], pagination: {} } }
+      const productList = pRes.data?.data || pRes.data || [];
+      const categoryList = cRes.data || [];
+      
+      setProducts(productList);
+      setCategories(categoryList);
     } catch (err) {
       setError('Connection failed');
     } finally {
@@ -104,7 +108,7 @@ export default function ProductsPage() {
           </button>
           <div>
             <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Products Hub</h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">Catalog Management</p>
+            <p className="text-[10px] font-bold text-text-secondary uppercase leading-none">Catalog Management</p>
           </div>
         </div>
         <button 
@@ -138,7 +142,7 @@ export default function ProductsPage() {
       <section className="overflow-x-auto no-scrollbar flex gap-2 -mx-6 px-6">
         <button
           onClick={() => setSelectedCategory(null)}
-          className={`px-4 h-9 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+          className={`px-4 h-9 rounded-full text-[10px] font-black uppercase transition-all ${
             !selectedCategory 
               ? 'bg-brand text-white shadow-lg shadow-brand/20' 
               : 'glass-panel text-text-secondary border-glass-border/40'
@@ -163,7 +167,7 @@ export default function ProductsPage() {
 
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between mb-1 px-1">
-          <h2 className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">
+          <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-60">
             {loading ? 'Refreshing Catalog...' : `${filteredProducts.length} Products Found`}
           </h2>
         </div>

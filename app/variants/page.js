@@ -73,7 +73,8 @@ export default function VariantsPage() {
       const res = await api.products.getActiveList();
       const allVariants = [];
       
-      const rawData = Array.isArray(res.data) ? res.data : [];
+      // Use helper to handle both paginated and flat lists
+      const rawData = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
       
       // Flatten products to a list of variants
       rawData.forEach(product => {
@@ -118,7 +119,7 @@ export default function VariantsPage() {
           </button>
           <div>
             <h1 className="text-xl font-black text-text-main tracking-tight leading-none mb-1">Variant Registry</h1>
-            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">SKU-Level Control</p>
+            <p className="text-[10px] font-bold text-text-secondary uppercase leading-none">SKU-Level Control</p>
           </div>
         </div>
         <div className="h-11 w-11 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-brand shadow-sm">
@@ -141,7 +142,7 @@ export default function VariantsPage() {
 
       <section className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between mb-1 px-1">
-          <h2 className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">
+          <h2 className="text-[10px] font-black text-text-secondary uppercase opacity-60">
             {loading ? 'Refreshing Registry...' : `${filteredVariants.length} Active SKUs`}
           </h2>
           <button onClick={() => { haptics.light(); fetchVariants(); }} className="text-brand">

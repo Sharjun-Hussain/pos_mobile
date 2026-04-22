@@ -16,7 +16,6 @@ export const storage = {
   getRootUrl: async () => {
     const customUrl = await storage.get('custom_api_url');
     const base = customUrl || API_BASE_URL;
-    // Strip /api/v1 (case insensitive) if present to get the server root
     return base.replace(/\/api\/v1\/?$/i, '');
   }
 };
@@ -24,7 +23,6 @@ export const storage = {
 const apiRequest = async (endpoint, options = {}) => {
   const token = await storage.get('auth_token');
   const customUrl = await storage.get('custom_api_url');
-  
   const baseUrl = customUrl || API_BASE_URL;
   
   const headers = {
@@ -43,7 +41,6 @@ const apiRequest = async (endpoint, options = {}) => {
     });
 
     if (response.status === 401) {
-      // Clear token on auth failure
       await storage.remove('auth_token');
     }
 
@@ -61,34 +58,47 @@ const apiRequest = async (endpoint, options = {}) => {
 };
 
 export const api = {
+  // Generic methods
   get: (endpoint) => apiRequest(endpoint, { method: 'GET' }),
   post: (endpoint, body) => apiRequest(endpoint, { method: 'POST', body: JSON.stringify(body) }),
   put: (endpoint, body) => apiRequest(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
   delete: (endpoint) => apiRequest(endpoint, { method: 'DELETE' }),
   
-  // Auth Helpers
-  login: async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    if (res.data?.auth_token) {
-      await storage.set('auth_token', res.data.auth_token);
-      if (res.data.refresh_token) {
-        await storage.set('refresh_token', res.data.refresh_token);
+  // Auth Domain
+  auth: {
+    login: async (email, password) => {
+      const res = await api.post('/auth/login', { email, password });
+      if (res.data?.auth_token) {
+        await storage.set('auth_token', res.data.auth_token);
+        if (res.data.refresh_token) {
+          await storage.set('refresh_token', res.data.refresh_token);
+        }
       }
+      return res;
+    },
+    me: () => api.get('/auth/me'),
+    logout: async () => {
+      await storage.remove('auth_token');
+      await storage.remove('refresh_token');
     }
-    return res;
+  },
+
+  // Reports / Dashboard Domain
+  reports: {
+    getDashboardSummary: () => api.get('/reports/dashboard/summary')
+  },
+
+  // Resources Domain (For future use)
+  inventory: {
+    getProducts: () => api.get('/products'),
+    getProductByBarcode: (barcode) => api.get(`/products/barcode/${barcode}`)
   },
   
-  logout: async () => {
-    await storage.remove('auth_token');
-    await storage.remove('refresh_token');
-  },
-  
-  // Image Helper
+  // Helpers
   getImageUrl: async (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
     const root = await storage.getRootUrl();
-    // Ensure path starts with / if root doesn't end with it
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
     return `${root}${cleanPath}`;
   }

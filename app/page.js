@@ -102,8 +102,8 @@ export default function Home() {
     setError(null);
     try {
       const [uRes, sRes] = await Promise.all([
-        api.get('/auth/me'),
-        api.get('/reports/dashboard/summary')
+        api.auth.me(),
+        api.reports.getDashboardSummary()
       ]);
       
       const userData = uRes.data?.user;

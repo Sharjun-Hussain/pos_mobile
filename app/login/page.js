@@ -21,7 +21,7 @@ export default function LoginPage() {
     haptics.medium();
 
     try {
-      const res = await api.login(email, password);
+      const res = await api.auth.login(email, password);
       
       if (res.status === 'success') {
         haptics.heavy();

@@ -39,12 +39,12 @@ const MenuLink = ({ href, icon: Icon, label, onClick, isLast }) => {
       </div>
       <div className="flex items-center gap-2">
         {isActive && <div className="h-1.5 w-1.5 rounded-full bg-brand" />}
-        <ChevronRight size={14} className={`${isActive ? 'text-brand opacity-40' : 'text-slate-300'}`} />
+        <ChevronRight size={14} className={`${isActive ? 'text-brand opacity-40' : 'text-text-secondary opacity-30'}`} />
       </div>
       
       {/* Hairline Divider */}
       {!isLast && (
-        <div className="absolute bottom-0 left-12 right-0 h-[1px] bg-slate-100" />
+        <div className="absolute bottom-0 left-12 right-0 h-[1px] bg-glass-border/30" />
       )}
     </Link>
   );
@@ -53,7 +53,7 @@ const MenuLink = ({ href, icon: Icon, label, onClick, isLast }) => {
 const MenuGroup = ({ title, children }) => (
   <div className="flex flex-col gap-1.5 pt-1 mb-4">
     {title && (
-      <p className="text-xs font-black text-slate-400 ml-4 mb-1 uppercase tracking-wider">{title}</p>
+      <p className="text-xs font-black text-text-secondary opacity-50 ml-4 mb-1 uppercase tracking-wider">{title}</p>
     )}
     <div className="bg-surface rounded-[1.25rem] overflow-hidden border border-glass-border shadow-sm mx-1">
       {children}
@@ -147,20 +147,20 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                   </div>
                   <div className="flex-1 overflow-hidden">
                     <p className="text-sm font-bold text-text-main truncate leading-tight">{user?.name || 'Store Manager'}</p>
-                    <p className="text-xs font-medium text-slate-400 truncate mt-0.5">{user?.email || 'admin@inzeedo.com'}</p>
+                    <p className="text-xs font-medium text-text-secondary opacity-60 truncate mt-0.5">{user?.email || 'admin@inzeedo.com'}</p>
                   </div>
                 </div>
 
                 <button
                   onClick={handleLogout}
-                  className="h-10 w-10 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center active:bg-rose-100 transition-all shadow-sm border border-rose-100"
+                  className="h-10 w-10 bg-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center active:bg-rose-500/20 transition-all shadow-sm border border-rose-500/20"
                   aria-label="Logout"
                 >
                   <LogOut size={16} strokeWidth={2.5} />
                 </button>
               </div>
 
-              <p className="text-center text-xs font-bold text-slate-300 mt-4">
+              <p className="text-center text-[10px] font-bold text-text-secondary opacity-40 uppercase tracking-widest mt-4">
                 v1.2.0 • Inzeedo Terminal
               </p>
             </div>

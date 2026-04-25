@@ -4,10 +4,44 @@ import React, { memo } from 'react';
 import { Package, Maximize2 } from 'lucide-react';
 import { useSettingsStore } from '@/store/useSettingsStore';
 
-const ProductCard = memo(({ product, onAdd }) => {
+const ProductCard = memo(({ product, onAdd, viewMode }) => {
   const isWholesale = useSettingsStore((state) => state.isWholesale);
   const price = isWholesale ? product.variants[0]?.wholesalePrice : product.variants[0]?.retailPrice;
+  const isGrid = viewMode === 'grid';
   
+  if (!isGrid) {
+    return (
+      <button 
+        onClick={() => onAdd(product)}
+        className="glass-panel p-3 px-4 rounded-2xl flex items-center justify-between active:scale-[0.98] transition-all border-glass-border group relative overflow-hidden"
+      >
+        <div className="flex-1 text-left flex flex-col justify-center min-w-0 pr-4">
+          <span className="font-bold text-text-main text-sm truncate leading-tight mb-0.5">
+            {product.name}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-medium text-text-secondary opacity-60">
+              {product.category || 'General'}
+            </span>
+            {product.variants?.length > 1 && (
+              <>
+                <div className="h-1 w-1 rounded-full bg-glass-border" />
+                <span className="text-[10px] font-bold text-brand uppercase tracking-tighter">
+                  {product.variants.length} Variants
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="text-right flex flex-col items-end">
+          <span className="text-sm font-black text-brand">
+            LKR {parseFloat(price || 0).toLocaleString()}
+          </span>
+        </div>
+      </button>
+    );
+  }
+
   return (
     <button 
       onClick={() => onAdd(product)}
@@ -43,9 +77,8 @@ const ProductCard = memo(({ product, onAdd }) => {
     </button>
   );
 }, (prev, next) => {
-  // We no longer compare isWholesale here because it's consumed inside via selector
-  // Zustand's selective subscription handles the re-render trigger for us.
   return prev.product.id === next.product.id && 
+         prev.viewMode === next.viewMode &&
          prev.product.variants[0]?.retailPrice === next.product.variants[0]?.retailPrice;
 });
 

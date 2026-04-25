@@ -17,6 +17,7 @@ export const useSettingsStore = create(
       showLogo: false,
       showTaxBreakdown: false,
       checkoutPreview: true,
+      posViewMode: 'grid',
       
       // Hardware/Receipt
       paperWidth: '80mm',
@@ -38,6 +39,7 @@ export const useSettingsStore = create(
       setWholesale: (val) => set({ isWholesale: val }),
       setActiveCategory: (cat) => set({ activeCategory: cat }),
       toggleWholesale: () => set((state) => ({ isWholesale: !state.isWholesale })),
+      setPosViewMode: (mode) => set({ posViewMode: mode }),
       
       setTerminalSetting: (key, val) => set({ [key]: val }),
       

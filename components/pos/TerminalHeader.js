@@ -1,7 +1,7 @@
 "use client";
 
 import React, { memo } from 'react';
-import { Search, Camera, Tag, ArrowLeft, X } from 'lucide-react';
+import { Search, Camera, Tag, ArrowLeft, X, LayoutGrid, List } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 const TerminalHeader = memo(({ 
@@ -12,6 +12,8 @@ const TerminalHeader = memo(({
   onScan, 
   onToggleWholesale, 
   isWholesale,
+  viewMode,
+  onViewModeChange,
   onBack 
 }) => {
   const { t } = useTranslation();
@@ -44,6 +46,12 @@ const TerminalHeader = memo(({
               className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary active:scale-90"
             >
               <Search size={16} />
+            </button>
+            <button 
+              onClick={() => onViewModeChange(viewMode === 'grid' ? 'list' : 'grid')}
+              className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary active:scale-90"
+            >
+              {viewMode === 'grid' ? <List size={16} /> : <LayoutGrid size={16} />}
             </button>
             <button 
               onClick={onToggleWholesale}
@@ -83,7 +91,8 @@ const TerminalHeader = memo(({
 }, (prev, next) => {
   return prev.showSearch === next.showSearch && 
          prev.searchQuery === next.searchQuery && 
-         prev.isWholesale === next.isWholesale;
+         prev.isWholesale === next.isWholesale &&
+         prev.viewMode === next.viewMode;
 });
 
 export default TerminalHeader;

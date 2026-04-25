@@ -30,7 +30,7 @@ export default function SalesPage() {
   
   // Zustand States
   const { cart, addItem, syncPrices } = useCartStore();
-  const { isWholesale, toggleWholesale, activeCategory, setActiveCategory } = useSettingsStore();
+  const { isWholesale, toggleWholesale, activeCategory, setActiveCategory, posViewMode, setPosViewMode } = useSettingsStore();
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -175,6 +175,8 @@ export default function SalesPage() {
           onScan={scanBarcode}
           onToggleWholesale={handleToggleWholesale}
           isWholesale={isWholesale}
+          viewMode={posViewMode}
+          onViewModeChange={setPosViewMode}
           onBack={() => router.back()}
         />
 
@@ -199,13 +201,14 @@ export default function SalesPage() {
             <p className="text-xs font-bold text-text-main">{t('pos.noMatches')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-3">
+          <div className={posViewMode === 'grid' ? "grid grid-cols-3 gap-3" : "flex flex-col gap-2"}>
             {filteredProducts.map(p => (
               <ProductCard 
                 key={p.id}
                 product={p}
                 onAdd={handleAddToCart}
                 isWholesale={isWholesale}
+                viewMode={posViewMode}
               />
             ))}
           </div>

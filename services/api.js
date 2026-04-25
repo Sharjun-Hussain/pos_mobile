@@ -202,6 +202,13 @@ export const api = {
   branches: {
     getActiveList: () => api.get('/branches/active/list')
   },
+
+  shifts: {
+    open: (data) => api.post('/shifts/open', data),
+    getActive: () => api.get('/shifts/active'),
+    addTransaction: (shiftId, data) => api.post(`/shifts/${shiftId}/transactions`, data),
+    close: (shiftId, data) => api.post(`/shifts/${shiftId}/close`, data)
+  },
   
   getImageUrl: async (imageField) => {
     if (!imageField) return null;

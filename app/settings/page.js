@@ -18,6 +18,7 @@ import {
   Sun,
   RefreshCcw,
   Percent,
+  Calculator,
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -34,6 +35,8 @@ import { useTheme } from 'next-themes';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LanguageSelectionSheet } from '@/components/settings/LanguageSelectionSheet';
 import { CurrencySelectionSheet } from '@/components/settings/CurrencySelectionSheet';
+import { ShiftManagerSheet } from '@/components/pos/ShiftManagerSheet';
+import { useShiftStore } from '@/store/useShiftStore';
 
 const SettingItem = memo(({ icon: Icon, label, value, color = 'brand', onClick }) => {
   const colors = {
@@ -92,8 +95,11 @@ export default function SettingsPage() {
   const [isPosTaxesOpen, setIsPosTaxesOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
+  const [isShiftManagerOpen, setIsShiftManagerOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
+  
+  const { activeShift } = useShiftStore();
 
   useEffect(() => {
     setMounted(true);
@@ -265,6 +271,15 @@ export default function SettingsPage() {
           color="rose"
           onClick={() => setIsPosTaxesOpen(true)}
         />
+        {activeShift && (
+          <SettingItem
+            icon={Calculator}
+            label="End Shift (Z-Read)"
+            value="Close terminal drawer"
+            color="rose"
+            onClick={() => setIsShiftManagerOpen(true)}
+          />
+        )}
       </section>
 
       {/* Technical Configuration */}
@@ -339,6 +354,12 @@ export default function SettingsPage() {
       <BranchSelectionSheet 
         isOpen={isBranchSheetOpen}
         onClose={() => setIsBranchSheetOpen(false)}
+      />
+
+      <ShiftManagerSheet 
+        isOpen={isShiftManagerOpen} 
+        onClose={() => setIsShiftManagerOpen(false)} 
+        forceOpen={false} 
       />
     </div>
   );

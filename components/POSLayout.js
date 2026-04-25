@@ -7,6 +7,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { SideDrawer } from './SideDrawer';
 import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useShiftStore } from '@/store/useShiftStore';
+import { api } from '@/services/api';
+import { ShiftManagerSheet } from './pos/ShiftManagerSheet';
 
 const NavItem = ({ href, icon: Icon, label }) => {
   const pathname = usePathname();
@@ -38,6 +42,30 @@ export default function POSLayout({ children }) {
   const isOnboardingPage = pathname === '/onboarding';
   const isRecoveryPage = pathname === '/forgot-password' || pathname === '/reset-password';
   const isAuthOptionalPage = isLoginPage || isSetupPage || isOnboardingPage || isRecoveryPage;
+  
+  const { isAuthenticated, isHydrated } = useAuthStore();
+  const { activeShift, setShift } = useShiftStore();
+  const [isCheckingShift, setIsCheckingShift] = useState(false);
+
+  // Fetch active shift logic
+  useEffect(() => {
+    if (isHydrated && isAuthenticated && !isAuthOptionalPage && !activeShift && !isCheckingShift) {
+      const fetchShift = async () => {
+        setIsCheckingShift(true);
+        try {
+          const res = await api.shifts.getActive();
+          if (res.status === 'success' && res.data) {
+            setShift(res.data);
+          }
+        } catch (e) {
+          // If 404, they have no active shift. Let shift store activeShift stay null
+        } finally {
+          setIsCheckingShift(false);
+        }
+      };
+      fetchShift();
+    }
+  }, [isHydrated, isAuthenticated, isAuthOptionalPage, activeShift]);
 
   useEffect(() => {
     const checkConfig = async () => {
@@ -99,6 +127,9 @@ export default function POSLayout({ children }) {
         isOpen={isDrawerOpen}
         onClose={closeDrawer}
       />
+
+      {/* Force Shift Manager if not public and no active shift */}
+      <ShiftManagerSheet forceOpen={!isAuthOptionalPage && isHydrated && isAuthenticated && !activeShift && !isCheckingShift} />
 
       <main className={`flex-1 ${isAuthOptionalPage ? '' : 'pb-20'}`}>
         {children}

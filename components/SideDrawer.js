@@ -104,7 +104,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-9 w-9 rounded-xl overflow-hidden shadow-lg shadow-brand/20 border border-glass-border">
-                    <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+                    <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" width={36} height={36} loading="lazy" />
                   </div>
                   <div>
                     <h2 className="text-sm font-black text-text-main leading-tight">

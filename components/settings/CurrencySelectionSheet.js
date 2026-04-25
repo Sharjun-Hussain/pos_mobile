@@ -5,6 +5,7 @@ import { X, Check, ChevronRight } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 const CURRENCIES = [
   { id: 'LKR', label: 'Sri Lankan Rupee', symbol: '₨', sub: 'Default' },
@@ -16,6 +17,7 @@ const CURRENCIES = [
 ];
 
 export const CurrencySelectionSheet = memo(({ isOpen, onClose }) => {
+  useHardwareBack(isOpen, onClose);
   const { currency, setCurrency } = useSettingsStore();
 
   const handleSelect = useCallback((code) => {

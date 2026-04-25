@@ -5,8 +5,16 @@ import { Globe, ChevronRight, Check, X } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
+
+const LANGUAGES = [
+  { id: 'en', label: 'English', sub: 'Global Standard', flag: '🇺🇸' },
+  { id: 'si', label: 'Sinhala', sub: 'Local (Sri Lanka)', flag: '🇱🇰' },
+  { id: 'ta', label: 'Tamil', sub: 'Local (Sri Lanka)', flag: '🇮🇳' }
+];
 
 export const LanguageSelectionSheet = memo(({ isOpen, onClose }) => {
+  useHardwareBack(isOpen, onClose);
   const { language, setLanguage } = useSettingsStore();
 
   const handleSelect = useCallback((langId) => {

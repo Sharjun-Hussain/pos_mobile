@@ -12,8 +12,10 @@ import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { receiptService } from '@/services/receipt';
 import { InvoiceView } from './InvoiceView';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, onReturnTrigger }) => {
+  useHardwareBack(isOpen, onClose);
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

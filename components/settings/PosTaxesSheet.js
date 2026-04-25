@@ -5,8 +5,10 @@ import { X, Percent, Hash, Save, Check } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 export const PosTaxesSheet = memo(({ isOpen, onClose }) => {
+  useHardwareBack(isOpen, onClose);
   const { vatRate, ssclRate, taxId, updateTaxSettings } = useSettingsStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

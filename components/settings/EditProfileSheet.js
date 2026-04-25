@@ -6,6 +6,7 @@ import { Drawer } from 'vaul';
 import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 const InputField = memo(({ label, icon: Icon, children, hint }) => (
   <div className="flex flex-col gap-1.5">
@@ -17,6 +18,7 @@ const InputField = memo(({ label, icon: Icon, children, hint }) => (
 InputField.displayName = 'InputField';
 
 export const EditProfileSheet = memo(({ isOpen, onClose, initialTab = 'profile' }) => {
+  useHardwareBack(isOpen, onClose);
   const { user, login } = useAuthStore();
   const [activeTab, setActiveTab] = useState(initialTab);
 

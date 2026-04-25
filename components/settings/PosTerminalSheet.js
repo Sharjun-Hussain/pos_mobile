@@ -5,6 +5,7 @@ import { X, Smartphone, Volume2, FileText, ShieldAlert, Save, Check } from 'luci
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 const Toggle = memo(({ enabled, onToggle }) => (
   <button
@@ -37,6 +38,8 @@ export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
     terminalName, enableSound, checkoutPreview, showTaxBreakdown,
     setTerminalSetting, updatePOSSettings
   } = useSettingsStore();
+
+  useHardwareBack(isOpen, onClose);
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

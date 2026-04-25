@@ -5,6 +5,7 @@ import { X, Smartphone, Save, Check } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 const Toggle = memo(({ enabled, onToggle }) => (
   <button onClick={() => { haptics.light(); onToggle(); }} className={`h-8 w-14 rounded-full transition-all duration-200 flex items-center px-1 flex-shrink-0 ${enabled ? 'bg-brand' : 'bg-surface-muted border border-glass-border/30'}`}>
@@ -30,6 +31,7 @@ const ToggleRow = memo(({ icon: Icon, color, label, desc, enabled, onToggle }) =
 ToggleRow.displayName = 'ToggleRow';
 
 export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
+  useHardwareBack(isOpen, onClose);
   const { showLogo, paperWidth, headerText, footerText, refundPolicy, updatePOSSettings } = useSettingsStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

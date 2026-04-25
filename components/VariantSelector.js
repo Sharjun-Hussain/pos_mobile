@@ -4,8 +4,10 @@ import React, { memo } from 'react';
 import { X, Plus, Package } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 export const VariantSelector = memo(({ product, isOpen, onClose, onSelect }) => {
+  useHardwareBack(isOpen, onClose);
   if (!product) return null;
 
   return (

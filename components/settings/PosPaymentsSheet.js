@@ -5,6 +5,7 @@ import { X, CreditCard, Save, Check } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 const PAYMENT_OPTIONS = [
   { id: 'cash', label: 'Cash', sub: 'Physical currency' },
@@ -14,6 +15,7 @@ const PAYMENT_OPTIONS = [
 ];
 
 export const PosPaymentsSheet = memo(({ isOpen, onClose }) => {
+  useHardwareBack(isOpen, onClose);
   const { activePaymentMethods, updatePOSSettings } = useSettingsStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

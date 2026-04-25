@@ -15,8 +15,10 @@ import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useShiftStore } from '@/store/useShiftStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 export const ShiftManagerSheet = ({ isOpen, forceOpen, onClose }) => {
+  useHardwareBack(isOpen && !forceOpen, onClose);
   const { activeShift, setShift, clearShift } = useShiftStore();
   const { logout, selectedBranch } = useAuthStore();
   

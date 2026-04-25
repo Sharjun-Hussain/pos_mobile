@@ -15,9 +15,12 @@ import {
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 export const ProductDetailSheet = ({ isOpen, onClose, product }) => {
   const [imageUrl, setImageUrl] = useState(null);
+
+  useHardwareBack(isOpen, onClose);
 
   useEffect(() => {
     if (product?.image) {

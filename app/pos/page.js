@@ -166,7 +166,7 @@ export default function SalesPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-surface">
       
-      <header className="fixed top-0 left-0 right-0 z-50 pt-[calc(var(--sat)+0.5rem)] p-4 flex flex-col gap-4 glass-panel border-b border-glass-border">
+      <header className="fixed top-0 left-0 right-0 z-50 pt-[var(--sat)] p-4 flex flex-col gap-3 glass-panel border-b border-glass-border">
         <TerminalHeader 
           showSearch={showSearch}
           onToggleSearch={setShowSearch}
@@ -186,7 +186,7 @@ export default function SalesPage() {
       </header>
 
       {/* Main Grid */}
-      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-44 overscroll-contain no-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-[calc(var(--sat)+110px)] overscroll-contain no-scrollbar">
         {loading ? (
           <ProductSkeleton />
         ) : error ? (

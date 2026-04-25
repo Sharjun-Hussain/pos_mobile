@@ -16,7 +16,7 @@ const TerminalHeader = memo(({
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex items-center justify-between pt-[var(--sat)]">
+    <div className="flex items-center justify-between">
       {!showSearch ? (
         <>
           <div className="flex items-center gap-2">

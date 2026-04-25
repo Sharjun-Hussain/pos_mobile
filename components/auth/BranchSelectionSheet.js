@@ -5,8 +5,10 @@ import { MapPin, Search, ChevronRight, Building2, X, LogOut } from 'lucide-react
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 export const BranchSelectionSheet = memo(({ isOpen, onClose, allowClose = true }) => {
+  useHardwareBack(isOpen && allowClose, onClose);
   const { user, setSelectedBranch, logout } = useAuthStore();
   const [search, setSearch] = useState('');
 

@@ -14,8 +14,10 @@ import {
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
+  useHardwareBack(isOpen, onClose);
   const [returnItems, setReturnItems] = useState([]);
   const [refundMethod, setRefundMethod] = useState('cash');
   const [notes, setNotes] = useState('');

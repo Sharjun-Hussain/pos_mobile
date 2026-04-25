@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { App } from '@capacitor/app';
+import { Keyboard } from '@capacitor/keyboard';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useCartStore } from '@/store/useCartStore';
@@ -98,8 +99,18 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   useEffect(() => {
     if (!isOpen) return;
 
-    const backListener = App.addListener('backButton', () => {
-      // Logic: Form -> Steps -> Close
+    const backListener = App.addListener('backButton', async () => {
+      // 1. Close keyboard if open
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA');
+
+      if (isInputFocused) {
+        activeElement.blur();
+        await Keyboard.hide();
+        return;
+      }
+
+      // 2. Logic: Form -> Steps -> Close
       if (isAddingCustomer) {
         haptics.light();
         setIsAddingCustomer(false);

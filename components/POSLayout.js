@@ -100,6 +100,16 @@ export default function POSLayout({ children }) {
       // Pages that should trigger "Double tap to exit" instead of going back
       const isExitPage = pathname === '/' || isAuthOptionalPage;
 
+      // Check for active UI overlays (sheets, modals, etc)
+      // Most of our sheets use Vaul (role="dialog") or have specific classes
+      const activeOverlay = document.querySelector('[role="dialog"], .vaul-drawer, [data-state="open"]');
+      
+      if (activeOverlay) {
+        // If an overlay is detected, the local component listener should handle it.
+        // We exit early to prevent the layout from navigating back as well.
+        return;
+      }
+
       if (!isExitPage) {
         router.back();
         return;

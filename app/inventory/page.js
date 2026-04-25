@@ -1,47 +1,52 @@
-"use client"
-import { Search, Filter, Plus, Package, AlertCircle, Menu, RefreshCcw, Box } from 'lucide-react';
+"use client";
+
+import React, { useState } from 'react';
+import { 
+  Search, 
+  Menu, 
+  RefreshCcw, 
+  Box, 
+  Package
+} from 'lucide-react';
 import { haptics } from '@/services/haptics';
-import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
-import { useEffect, useState } from 'react';
 import { useFetch } from '@/hooks/useFetch';
 
-const ProductListItem = ({ product, getImageUrl }) => {
-  const [imageUrl, setImageUrl] = useState(null);
-  const isLowStock = product.stock_quantity < 10;
-
-  useEffect(() => {
-    if (product.image) {
-      getImageUrl(product.image).then(setImageUrl);
-    }
-  }, [product.image, getImageUrl]);
-
+const InventoryItemRow = ({ product }) => {
+  const stock = product.variants?.reduce((sum, v) => sum + (parseFloat(v.stock_quantity) || 0), 0) || 0;
+  const isLow = stock < 10;
+  
   return (
-    <div className="glass-panel p-3 rounded-2xl flex items-center justify-between active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border/30">
+    <div 
+      onClick={() => haptics.light()}
+      className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer"
+    >
       <div className="flex items-center gap-3 overflow-hidden">
-        <div className={`h-11 w-11 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden ${isLowStock ? 'bg-rose-500/10 text-rose-500' : 'bg-brand/10 text-brand'
-          }`}>
-          {imageUrl ? (
-            <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
-          ) : (
-            <Package size={20} strokeWidth={2.5} />
-          )}
+        <div className="h-10 w-10 rounded-xl bg-surface-muted flex items-center justify-center flex-shrink-0 text-text-secondary border border-glass-border/20">
+          <Package size={18} />
         </div>
         <div className="overflow-hidden">
-          <h4 className="font-bold text-text-main text-sm truncate leading-tight">{product.name || product.fullName}</h4>
-          <p className="text-xs font-bold text-text-secondary truncate opacity-60">
-            {product.sku || product.barcode || 'No SKU'}
-          </p>
+          <h4 className="font-bold text-text-main text-sm truncate leading-tight mb-0.5">
+            {product.name}
+          </h4>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-text-secondary opacity-60">
+              {product.main_category?.name || 'Catalog'}
+            </span>
+            <div className="h-0.5 w-0.5 rounded-full bg-glass-border/30" />
+            <span className={`text-xs font-black ${isLow ? 'text-rose-500' : 'text-emerald-500'}`}>
+              {stock} in stock
+            </span>
+          </div>
         </div>
       </div>
       <div className="text-right flex-shrink-0 ml-3">
-        <p className="font-black text-brand text-xs">LKR {(parseFloat(product.retailPrice) || 0).toLocaleString()}</p>
-        <div className="flex items-center justify-end gap-1 mt-0.5">
-          {isLowStock && <AlertCircle size={10} className="text-rose-500 shadow-sm" strokeWidth={3} />}
-          <span className={`text-xs font-black ${isLowStock ? 'text-rose-500' : 'text-text-secondary opacity-80'}`}>
-            {product.stock_quantity || 0} units
-          </span>
-        </div>
+        <p className="font-black text-brand text-sm">
+          {product.variants?.[0]?.price ? `LKR ${Math.round(product.variants[0].price).toLocaleString()}` : '---'}
+        </p>
+        <p className="text-[10px] font-black text-text-secondary opacity-30 mt-0.5 uppercase tracking-widest">
+          {product.variants?.length || 0} Variants
+        </p>
       </div>
     </div>
   );
@@ -49,26 +54,18 @@ const ProductListItem = ({ product, getImageUrl }) => {
 
 export default function InventoryPage() {
   const { openDrawer } = useUIStore();
-  const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateProducts } = useFetch('/products/active/list');
-  const { data: categoriesData, isLoading: categoriesLoading, mutate: mutateCategories } = useFetch('/main-categories/active/list');
+  const { data: productsData, isLoading, error, mutate } = useFetch('/products?size=100');
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const products = productsData?.data || productsData || [];
 
-  const products = productsData || [];
-  const categories = categoriesData || [];
-  const loading = productsLoading || categoriesLoading;
-  const error = productsError;
-
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = (p.name || p.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (p.sku || p.barcode || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || p.category_id === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProducts = Array.isArray(products) ? products.filter(p => 
+    (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.sku || '').toLowerCase().includes(searchTerm.toLowerCase())
+  ) : [];
 
   return (
-    <div className="px-4 pb-24 flex flex-col gap-6 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
+    <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
@@ -78,82 +75,54 @@ export default function InventoryPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Inventory</h1>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Global Stock Hub</p>
+            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Stock Hub</h1>
+            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Quick Inventory Check</p>
           </div>
         </div>
         <button
-          onClick={() => haptics.medium()}
-          className="h-12 w-12 rounded-2xl bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/20 active:scale-90 transition-transform"
+          onClick={() => { haptics.light(); mutate(); }}
+          className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
         >
-          <Plus size={24} />
+          <RefreshCcw size={16} className={isLoading ? 'animate-spin' : ''} />
         </button>
       </header>
 
-      <section className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+      <section className="flex flex-col gap-3">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
           <input
             type="text"
-            placeholder="Search SKU or name..."
+            placeholder="Quick search SKU or name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-14 bg-surface-muted border border-glass-border/50 rounded-2xl pl-12 pr-4 text-text-main outline-none focus:border-brand/40 transition-all text-sm font-medium placeholder:text-text-secondary/50"
+            className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
           />
         </div>
-        <button
-          onClick={() => { haptics.light(); mutateProducts(); mutateCategories(); }}
-          className="h-14 w-14 glass-panel border-glass-border/30 rounded-2xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand"
-        >
-          <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
-        </button>
       </section>
 
-      {/* Category Filter Pills */}
-      <section className="overflow-x-auto no-scrollbar flex gap-2 -mx-4 px-4">
-        <button
-          onClick={() => setSelectedCategory(null)}
-          className={`px-4 h-9 rounded-full text-xs font-black transition-all ${!selectedCategory
-            ? 'bg-brand text-white shadow-lg shadow-brand/20'
-            : 'glass-panel text-text-secondary border-glass-border/40'
-            }`}
-        >
-          All Items
-        </button>
-        {categories.map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 h-9 rounded-full text-xs font-black whitespace-nowrap transition-all ${selectedCategory === cat.id
-              ? 'bg-brand text-white shadow-lg shadow-brand/20'
-              : 'glass-panel text-text-secondary border-glass-border/40'
-              }`}
-          >
-            {cat.name}
-          </button>
-        ))}
-      </section>
-
-      <section className="flex flex-col gap-2.5">
-        <div className="flex items-center justify-between mb-1 px-1">
-          <h2 className="text-xs font-black text-text-secondary opacity-40">
-            {loading ? 'Refreshing...' : `${filteredProducts.length} items in stock`}
+      <section className="flex flex-col mt-2">
+        <div className="flex items-center justify-between mb-3 px-1 border-b border-glass-border/10 pb-2">
+          <h2 className="text-xs font-black text-text-secondary opacity-30 uppercase tracking-widest">
+            {isLoading ? 'Checking Stock...' : `${filteredProducts.length} Items Found`}
           </h2>
-          {error && <span className="text-[10px] font-black text-rose-500 uppercase">{error}</span>}
         </div>
 
-        {loading ? (
-          Array(5).fill(0).map((_, i) => (
-            <div key={i} className="h-16 w-full glass-panel rounded-2xl animate-pulse bg-surface-muted/50" />
-          ))
+        {isLoading ? (
+          <div className="flex flex-col">
+            {Array(10).fill(0).map((_, i) => (
+              <div key={i} className="h-16 w-full border-b border-glass-border/5 animate-pulse bg-surface-muted/30" />
+            ))}
+          </div>
         ) : filteredProducts.length > 0 ? (
-          filteredProducts.map(product => (
-            <ProductListItem key={product.id} product={product} getImageUrl={api.getImageUrl} />
-          ))
+          <div className="flex flex-col">
+            {filteredProducts.map(product => (
+              <InventoryItemRow key={product.id} product={product} />
+            ))}
+          </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 opacity-30">
-            <Box size={48} strokeWidth={1} />
-            <p className="text-xs font-bold mt-4">No matching items found</p>
+          <div className="flex flex-col items-center justify-center py-20 opacity-20 text-text-secondary">
+            <Box size={40} strokeWidth={1} />
+            <p className="text-[11px] font-black uppercase tracking-widest mt-4">No inventory matching</p>
           </div>
         )}
       </section>

@@ -21,7 +21,7 @@ import { usePathname } from 'next/navigation';
 import { haptics } from '@/services/haptics';
 import { useAuthStore } from '@/store/useAuthStore';
 
-const MenuLink = ({ href, icon: Icon, label, onClick, isLast }) => {
+const MenuLink = React.memo(({ href, icon: Icon, label, onClick, isLast }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -48,9 +48,11 @@ const MenuLink = ({ href, icon: Icon, label, onClick, isLast }) => {
       )}
     </Link>
   );
-};
+});
 
-const MenuGroup = ({ title, children }) => (
+MenuLink.displayName = 'MenuLink';
+
+const MenuGroup = React.memo(({ title, children }) => (
   <div className="flex flex-col gap-1.5 pt-1 mb-4">
     {title && (
       <p className="text-xs font-black text-text-secondary opacity-50 ml-4 mb-1 uppercase tracking-wider">{title}</p>
@@ -59,10 +61,14 @@ const MenuGroup = ({ title, children }) => (
       {children}
     </div>
   </div>
-);
+));
+
+MenuGroup.displayName = 'MenuGroup';
 
 export const SideDrawer = ({ isOpen, onClose }) => {
-  const { user, selectedBranch, logout } = useAuthStore();
+  const user = useAuthStore(state => state.user);
+  const selectedBranch = useAuthStore(state => state.selectedBranch);
+  const logout = useAuthStore(state => state.logout);
   const pathname = usePathname();
 
   const handleLogout = () => {
@@ -81,7 +87,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200]"
+            className="fixed inset-0 bg-slate-900/60 z-[200]"
           />
 
           {/* Drawer Content */}
@@ -89,8 +95,9 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
             className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[300px] bg-surface z-[201] flex flex-col shadow-2xl safe-area-inset-bottom border-r border-glass-border pt-[var(--sat)]"
+            style={{ willChange: 'transform' }}
           >
             {/* Header / Brand */}
             <div className="p-5 pb-4 bg-surface border-b border-glass-border flex flex-col gap-4">

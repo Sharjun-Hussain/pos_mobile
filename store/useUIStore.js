@@ -4,5 +4,5 @@ export const useUIStore = create((set) => ({
   isDrawerOpen: false,
   openDrawer: () => set({ isDrawerOpen: true }),
   closeDrawer: () => set({ isDrawerOpen: false }),
-  toggleDrawer: () => set((state) => ({ isDrawerOpen: state.isDrawerOpen })),
+  toggleDrawer: () => set((state) => ({ isDrawerOpen: !state.isDrawerOpen })),
 }));

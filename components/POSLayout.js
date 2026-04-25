@@ -33,7 +33,8 @@ import { App } from '@capacitor/app';
 import { Toast } from '@capacitor/toast';
 
 export default function POSLayout({ children }) {
-  const { isDrawerOpen, closeDrawer } = useUIStore();
+  const isDrawerOpen = useUIStore(state => state.isDrawerOpen);
+  const closeDrawer = useUIStore(state => state.closeDrawer);
   const pathname = usePathname();
   const router = useRouter();
   const lastBackPress = useRef(0);
@@ -43,8 +44,10 @@ export default function POSLayout({ children }) {
   const isRecoveryPage = pathname === '/forgot-password' || pathname === '/reset-password';
   const isAuthOptionalPage = isLoginPage || isSetupPage || isOnboardingPage || isRecoveryPage;
   
-  const { isAuthenticated, isHydrated } = useAuthStore();
-  const { activeShift, setShift } = useShiftStore();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const isHydrated = useAuthStore(state => state.isHydrated);
+  const activeShift = useShiftStore(state => state.activeShift);
+  const setShift = useShiftStore(state => state.setShift);
   const [isCheckingShift, setIsCheckingShift] = useState(false);
 
   // Fetch active shift logic

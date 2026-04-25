@@ -33,8 +33,8 @@ export const ProductDetailSheet = ({ isOpen, onClose, product }) => {
     <Drawer.Root open={isOpen} onClose={onClose} shouldScaleBackground>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[100]" />
-        <Drawer.Content className="bg-surface flex flex-col rounded-t-[3rem] h-[92%] mt-24 fixed bottom-0 left-0 right-0 z-[101] outline-none border-t border-glass-border shadow-2xl">
-          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-glass-border/30 my-4" />
+        <Drawer.Content className="bg-surface flex flex-col rounded-t-[3rem] fixed bottom-0 left-0 right-0 z-[111] outline-none shadow-2xl h-[95dvh] pb-[calc(var(--sab)+1rem)]">
+          <div className="mx-auto w-14 h-1.5 flex-shrink-0 rounded-full bg-text-secondary/20 mt-4 mb-2" />
           
           <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-10">
             {/* Header section */}
@@ -49,13 +49,10 @@ export const ProductDetailSheet = ({ isOpen, onClose, product }) => {
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-black text-text-main leading-tight mb-1">{product.name}</h2>
+                <h2 className="text-xl font-black text-text-main leading-tight mb-2">{product.name}</h2>
                 <div className="flex items-center justify-center gap-2">
-                  <span className="px-2.5 py-1 bg-brand/10 text-brand rounded-lg text-[10px] font-bold uppercase tracking-wider">
-                    {product.main_category?.name || 'General'}
-                  </span>
-                  <span className="px-2.5 py-1 bg-surface-muted text-text-secondary rounded-lg text-[10px] font-bold uppercase tracking-wider border border-glass-border/30">
-                    ID: #{product.id}
+                  <span className="px-3 py-1 bg-brand/10 text-brand rounded-full text-[10px] font-black uppercase tracking-wider border border-brand/20">
+                    {product.main_category?.name || 'General Catalog'}
                   </span>
                 </div>
               </div>

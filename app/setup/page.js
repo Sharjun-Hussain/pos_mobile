@@ -6,6 +6,7 @@ import { haptics } from '@/services/haptics';
 import { storage } from '@/services/api';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { App } from '@capacitor/app';
 
 // Pure helper function - Extracted for testability and performance
 const normalizeUrl = (input) => {
@@ -69,7 +70,17 @@ export default function SetupPage() {
         setUrl(displayUrl);
       }
     });
-  }, []);
+
+    // Hardware Back Button Handler
+    const backListener = App.addListener('backButton', () => {
+      haptics.light();
+      router.back();
+    });
+
+    return () => {
+      backListener.then(l => l.remove());
+    };
+  }, [router]);
 
   // Memoized handler - stable across re-renders
   const handleSave = useCallback(async (e) => {

@@ -57,8 +57,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const [loading, setLoading] = useState(false);
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '' });
-  const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [amountTendered, setAmountTendered] = useState('');
+  const [payments, setPayments] = useState([
+    { id: Date.now(), method: 'cash', amount: 0 }
+  ]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
@@ -66,7 +67,29 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     if (isOpen && step === 2) {
       fetchCustomers();
     }
-  }, [isOpen, step]);
+    if (isOpen && step === 3 && payments[0].amount === 0) {
+      // Auto-set the first payment amount to total on first entry to step 3
+      setPayments(prev => [{ ...prev[0], amount: total }]);
+    }
+  }, [isOpen, step, total]);
+
+  const addPayment = () => {
+    haptics.light();
+    const remaining = total - payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    setPayments([...payments, { id: Date.now(), method: 'cash', amount: remaining > 0 ? remaining : 0 }]);
+  };
+
+  const removePayment = (id) => {
+    if (payments.length <= 1) return;
+    haptics.light();
+    setPayments(payments.filter(p => p.id !== id));
+  };
+
+  const updatePayment = (id, field, value) => {
+    setPayments(payments.map(p => p.id === id ? { ...p, [field]: value } : p));
+  };
+
+  const totalPaid = payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
 
   // Handle Native Hardware Back Button
   useEffect(() => {
@@ -144,13 +167,17 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
   const handleFinish = async (targetStatus = 'completed') => {
     if (cart.length === 0) return;
+
+    if (!selectedCustomer && totalPaid < total) {
+      alert("Walk-in customers must pay in full.");
+      return;
+    }
+
     setIsSyncing(true);
     setShowActions(false);
     haptics.heavy();
 
     try {
-      // Map cart to backend expected schema
-      // Map cart to backend expected schema with distributed discounts
       const payload = {
         customer_id: selectedCustomer?.id || null,
         items: cart.map(item => {
@@ -163,12 +190,15 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
             quantity: item.quantity,
             unit_price: item.price,
             discount_amount: parseFloat(distributedDiscount.toFixed(2)),
-            tax_amount: 0 // Backend recalculates this
+            tax_amount: 0 
           };
         }),
-        payment_method: paymentMethod,
+        payments: payments.map(p => ({
+          payment_method: p.method,
+          amount: parseFloat(p.amount) || 0
+        })),
         adjustment: parseFloat(adjustment || 0) || 0,
-        paid_amount: paymentMethod === 'cash' ? (parseFloat(amountTendered) || total) : total,
+        paid_amount: parseFloat(totalPaid.toFixed(2)),
         status: targetStatus,
         is_wholesale: isWholesale,
         branch_id: selectedBranch?.id
@@ -178,14 +208,12 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       
       if (res.status === 'success') {
         haptics.heavy();
-        clearCart(); // Clear immediately to reset adjustments/cart
-        // Pass the actual sale data returned by the backend to trigger the print
+        clearCart(); 
         onFinish(res.data?.sale || res.data); 
         
         setTimeout(() => {
           setStepState([1, 0]);
-          setPaymentMethod('cash');
-          setAmountTendered('');
+          setPayments([{ id: Date.now(), method: 'cash', amount: 0 }]);
           setIsSyncing(false);
         }, 500);
       }
@@ -454,60 +482,68 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         )}
                       </div>
 
-                      {/* Payment Mode Selector - Brand Themed */}
-                      <div className="bg-surface-muted/30 p-1.5 rounded-2x border border-glass-border/20 flex gap-1">
-                        {[
-                          { id: 'cash', label: 'Cash', icon: Calculator },
-                          { id: 'card', label: 'Card', icon: CreditCard },
-                          { id: 'bank', label: 'Bank', icon: ChevronRight },
-                          { id: 'qr', label: 'QR Pay', icon: CreditCard }
-                        ]
-                        .filter(m => activePaymentMethods?.includes(m.id))
-                        .map((mode) => {
-                          const Icon = mode.icon;
-                          const isActive = paymentMethod === mode.id;
-                          return (
-                            <button
-                              key={mode.id}
-                              onClick={() => { haptics.light(); setPaymentMethod(mode.id); }}
-                              className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
-                                isActive 
-                                  ? 'bg-brand shadow-lg shadow-brand/20 text-white scale-100' 
-                                  : 'text-text-secondary opacity-60 scale-95 hover:opacity-100 hover:bg-brand/5'
-                              }`}
-                            >
-                              <Icon size={14} strokeWidth={3} />
-                              <span className="text-[11px] font-bold">{mode.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* Cash Logic Area */}
-                      {paymentMethod === 'cash' && (
-                        <div className="flex flex-col gap-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-bold text-text-secondary pl-1">Amount Tendered</label>
-                            <div className="relative">
-                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-brand">{currentCurrency}</span>
-                              <input 
-                                type="number"
-                                placeholder={total.toString()}
-                                value={amountTendered}
-                                onChange={(e) => setAmountTendered(e.target.value)}
-                                className="w-full h-12 bg-surface-muted/50 border border-brand/20 rounded-xl pl-12 pr-4 text-base font-black text-text-main outline-none focus:border-brand/50"
-                              />
-                            </div>
+                      {/* Split Payment Manager */}
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between px-1">
+                          <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t('pos.payments') || 'Payments'}</label>
+                          <div className={`px-2 py-1 rounded-lg text-[10px] font-black ${totalPaid >= total ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'}`}>
+                            {totalPaid >= total ? (totalPaid > total ? `Change: ${formatCurrency(totalPaid - total)}` : 'Paid in Full') : `Remaining: ${formatCurrency(total - totalPaid)}`}
                           </div>
-                          
-                          {amountTendered && parseFloat(amountTendered) > total && (
-                            <div className="flex items-center justify-between bg-brand/5 border border-brand/10 p-3 rounded-xl">
-                              <span className="text-[10px] font-bold text-brand">Change</span>
-                              <span className="text-base font-black text-brand">{formatCurrency(parseFloat(amountTendered) - total)}</span>
-                            </div>
-                          )}
                         </div>
-                      )}
+
+                        <div className="space-y-2">
+                          {payments.map((pmt, index) => (
+                            <div key={pmt.id} className="flex gap-2 items-center glass-panel bg-surface-muted/20 p-2 rounded-2xl border-glass-border/40 animate-in fade-in slide-in-from-right-2 duration-200">
+                              <select 
+                                value={pmt.method}
+                                onChange={(e) => updatePayment(pmt.id, 'method', e.target.value)}
+                                className="w-24 h-10 px-2 text-[10px] font-bold rounded-xl bg-surface border border-glass-border/50 outline-none text-text-main"
+                              >
+                                {[
+                                  { id: 'cash', label: 'Cash' },
+                                  { id: 'card', label: 'Card' },
+                                  { id: 'bank', label: 'Bank' },
+                                  { id: 'qr', label: 'QR' },
+                                  { id: 'cheque', label: 'Cheque' }
+                                ]
+                                .filter(m => !activePaymentMethods || activePaymentMethods.includes(m.id))
+                                .map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
+                              </select>
+
+                              <div className="relative flex-1">
+                                <input 
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={pmt.amount || ''}
+                                  onChange={(e) => updatePayment(pmt.id, 'amount', e.target.value)}
+                                  className="w-full h-10 bg-transparent px-3 text-sm font-black text-text-main outline-none"
+                                />
+                                {index === 0 && (
+                                  <button 
+                                    onClick={() => updatePayment(pmt.id, 'amount', (parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2))}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-brand bg-brand/5 px-2 py-1 rounded-lg"
+                                  >
+                                    MAX
+                                  </button>
+                                )}
+                              </div>
+
+                              {payments.length > 1 && (
+                                <button onClick={() => removePayment(pmt.id)} className="h-10 w-10 flex items-center justify-center text-rose-500">
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        <button 
+                          onClick={addPayment}
+                          className="flex items-center justify-center gap-2 py-3 border-2 border-dashed border-glass-border/40 rounded-2xl text-[10px] font-bold text-text-secondary active:scale-95 transition-all"
+                        >
+                          <Plus size={14} /> Add Payment Method
+                        </button>
+                      </div>
 
                       {/* Small Breakdown - High Density */}
                       <div className="space-y-1.5 border-t border-glass-border/30 pt-3 px-1">

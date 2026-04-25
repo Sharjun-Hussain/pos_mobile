@@ -11,14 +11,15 @@ import {
 import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
 import { useFetch } from '@/hooks/useFetch';
+import { ProductDetailSheet } from '@/components/dashboard/ProductDetailSheet';
 
-const InventoryItemRow = ({ product }) => {
+const InventoryItemRow = ({ product, onClick }) => {
   const stock = product.variants?.reduce((sum, v) => sum + (parseFloat(v.stock_quantity) || 0), 0) || 0;
   const isLow = stock < 10;
   
   return (
     <div 
-      onClick={() => haptics.light()}
+      onClick={() => { haptics.light(); onClick(product); }}
       className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer"
     >
       <div className="flex items-center gap-3 overflow-hidden">
@@ -57,6 +58,8 @@ export default function InventoryPage() {
   const { data: productsData, isLoading, error, mutate } = useFetch('/products?size=100');
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const products = productsData?.data || productsData || [];
 
   const filteredProducts = Array.isArray(products) ? products.filter(p => 
@@ -116,7 +119,7 @@ export default function InventoryPage() {
         ) : filteredProducts.length > 0 ? (
           <div className="flex flex-col">
             {filteredProducts.map(product => (
-              <InventoryItemRow key={product.id} product={product} />
+              <InventoryItemRow key={product.id} product={product} onClick={(p) => { setSelectedProduct(p); setIsDetailOpen(true); }} />
             ))}
           </div>
         ) : (
@@ -126,6 +129,12 @@ export default function InventoryPage() {
           </div>
         )}
       </section>
+
+      <ProductDetailSheet 
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        product={selectedProduct}
+      />
     </div>
   );
 }

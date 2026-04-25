@@ -15,15 +15,19 @@ import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
 import { useFetch } from '@/hooks/useFetch';
+import { ProductDetailSheet } from '@/components/dashboard/ProductDetailSheet';
 
-const ProductRow = ({ product, getImageUrl }) => {
+const ProductRow = ({ product, getImageUrl, onClick }) => {
   const [imageUrl, setImageUrl] = useState(null);
   useEffect(() => {
     if (product.image) getImageUrl(product.image).then(setImageUrl);
   }, [product.image, getImageUrl]);
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-glass-border/30 px-1 active:bg-brand/5 transition-colors">
+    <div 
+      onClick={() => { haptics.light(); onClick(product); }}
+      className="flex items-center justify-between py-3 border-b border-glass-border/30 px-1 active:bg-brand/5 transition-colors cursor-pointer"
+    >
       <div className="flex items-center gap-3 overflow-hidden">
         <div className="h-10 w-10 rounded-lg bg-surface-muted flex items-center justify-center flex-shrink-0 overflow-hidden border border-glass-border/20">
           {imageUrl ? (
@@ -50,14 +54,17 @@ const ProductRow = ({ product, getImageUrl }) => {
   );
 };
 
-const ProductGridItem = ({ product, getImageUrl }) => {
+const ProductGridItem = ({ product, getImageUrl, onClick }) => {
   const [imageUrl, setImageUrl] = useState(null);
   useEffect(() => {
     if (product.image) getImageUrl(product.image).then(setImageUrl);
   }, [product.image, getImageUrl]);
 
   return (
-    <div className="bg-surface border border-glass-border/30 rounded-2xl p-3 flex flex-col gap-3 active:scale-[0.98] transition-all shadow-sm">
+    <div 
+      onClick={() => { haptics.light(); onClick(product); }}
+      className="bg-surface border border-glass-border/30 rounded-2xl p-3 flex flex-col gap-3 active:scale-[0.98] transition-all shadow-sm cursor-pointer"
+    >
       <div className="aspect-square w-full rounded-xl bg-surface-muted flex items-center justify-center overflow-hidden border border-glass-border/20">
         {imageUrl ? (
           <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
@@ -87,6 +94,8 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [sortBy, setSortBy] = useState('name-asc'); // 'name-asc', 'name-desc', 'variants-desc'
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const products = productsData?.data || productsData || [];
   const categories = categoriesData || [];
@@ -211,8 +220,8 @@ export default function ProductsPage() {
           <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>
             {filteredAndSortedProducts.map(product => (
               viewMode === 'list'
-                ? <ProductRow key={product.id} product={product} getImageUrl={api.getImageUrl} />
-                : <ProductGridItem key={product.id} product={product} getImageUrl={api.getImageUrl} />
+                ? <ProductRow key={product.id} product={product} getImageUrl={api.getImageUrl} onClick={(p) => { setSelectedProduct(p); setIsDetailOpen(true); }} />
+                : <ProductGridItem key={product.id} product={product} getImageUrl={api.getImageUrl} onClick={(p) => { setSelectedProduct(p); setIsDetailOpen(true); }} />
             ))}
           </div>
         ) : (
@@ -222,6 +231,11 @@ export default function ProductsPage() {
           </div>
         )}
       </section>
+      <ProductDetailSheet 
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        product={selectedProduct}
+      />
     </div>
   );
 }

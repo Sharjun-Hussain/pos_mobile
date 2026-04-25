@@ -63,6 +63,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
+  const subtotal = getSubtotal();
+  const total = getTotal();
+
   useEffect(() => {
     if (isOpen && step === 2) {
       fetchCustomers();
@@ -130,9 +133,6 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     c.name.toLowerCase().includes(search.toLowerCase()) || 
     (c.phone && c.phone.includes(search))
   );
-
-  const subtotal = getSubtotal();
-  const total = getTotal();
 
   const handleNext = () => {
     haptics.medium();

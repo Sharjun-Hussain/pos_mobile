@@ -20,6 +20,7 @@ import {
   Percent,
   Calculator,
 } from 'lucide-react';
+import { App } from '@capacitor/app';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -111,6 +112,40 @@ export default function SettingsPage() {
     await Promise.all([syncSettings(), syncUser()]);
     setIsSyncing(false);
   }, [syncSettings, syncUser]);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const backListener = App.addListener('backButton', () => {
+      haptics.light();
+      if (isEditProfileOpen) setIsEditProfileOpen(false);
+      else if (isPosTerminalOpen) setIsPosTerminalOpen(false);
+      else if (isPosReceiptOpen) setIsPosReceiptOpen(false);
+      else if (isPosPaymentsOpen) setIsPosPaymentsOpen(false);
+      else if (isPosTaxesOpen) setIsPosTaxesOpen(false);
+      else if (isLanguageOpen) setIsLanguageOpen(false);
+      else if (isCurrencyOpen) setIsCurrencyOpen(false);
+      else if (isBranchSheetOpen) setIsBranchSheetOpen(false);
+      else if (isShiftManagerOpen) setIsShiftManagerOpen(false);
+      else router.back();
+    });
+
+    return () => {
+      backListener.then(l => l.remove());
+    };
+  }, [
+    mounted, 
+    isEditProfileOpen, 
+    isPosTerminalOpen, 
+    isPosReceiptOpen, 
+    isPosPaymentsOpen, 
+    isPosTaxesOpen, 
+    isLanguageOpen, 
+    isCurrencyOpen, 
+    isBranchSheetOpen, 
+    isShiftManagerOpen,
+    router
+  ]);
 
   useEffect(() => {
     if (user?.profile_image) {

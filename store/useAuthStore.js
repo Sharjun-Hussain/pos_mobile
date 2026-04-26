@@ -66,8 +66,8 @@ export const useAuthStore = create(
         const { api } = require('@/services/api');
         try {
           const res = await api.auth.me();
-          if (res.status === 'success' && res.data) {
-            const newUser = res.data;
+          if (res.status === 'success' && res.data?.user) {
+            const newUser = res.data.user;
             const currentBranch = get().selectedBranch;
 
             let updatedBranch = null;

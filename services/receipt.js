@@ -15,11 +15,20 @@ export const receiptService = {
   print: async (sale) => {
     if (!sale) return;
 
-    const { showLogo, businessLogo } = useSettingsStore.getState();
+    const { 
+      showLogo, 
+      businessLogo, 
+      businessName, 
+      taxId, 
+      headerText, 
+      footerText, 
+      refundPolicy,
+      paperWidth 
+    } = useSettingsStore.getState();
 
     const formatDate = (dateStr) => {
       try {
-        const date = new Date(dateStr);
+        const date = new Date(dateStr || new Date());
         return date.toLocaleString('en-GB', {
           year: 'numeric',
           month: '2-digit',
@@ -41,6 +50,8 @@ export const receiptService = {
 
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
 
+    const width = paperWidth === '58mm' ? '58mm' : '80mm';
+
     const receiptHtml = `
       <!DOCTYPE html>
       <html>
@@ -48,65 +59,73 @@ export const receiptService = {
         <meta charset="utf-8">
         <title>Invoice ${sale.invoice_number}</title>
         <style>
-          @page { 
-            size: 80mm auto; 
-            margin: 0; 
-          }
+          @page { size: ${width} auto; margin: 0; }
           body { 
-            width: 80mm; 
+            width: ${width}; 
             margin: 0; 
-            padding: 10mm 4mm; 
+            padding: 8mm 4mm; 
             font-family: 'Courier New', Courier, monospace; 
-            font-size: 13px; 
-            line-height: 1.2;
+            font-size: 12px; 
+            line-height: 1.3;
             color: #000;
             background: #fff;
           }
           .center { text-align: center; }
           .right { text-align: right; }
           .bold { font-weight: bold; }
-          .divider { border-top: 1px dashed #000; margin: 8px 0; }
+          .divider { border-top: 1px dashed #000; margin: 6px 0; }
           .double-divider { border-top: 2px solid #000; margin: 8px 0; }
           .row { display: flex; justify-content: space-between; margin: 2px 0; }
-          .header { margin-bottom: 15px; }
-          .footer { margin-top: 25px; font-size: 11px; }
+          .header { margin-bottom: 12px; }
+          .footer { margin-top: 20px; font-size: 10px; opacity: 0.8; }
           
-          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-          th { text-align: left; border-bottom: 1px solid #000; padding: 5px 0; font-size: 11px; }
-          td { padding: 5px 0; vertical-align: top; }
+          table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+          th { text-align: left; border-bottom: 1px solid #000; padding: 4px 0; font-size: 10px; text-transform: uppercase; }
+          td { padding: 4px 0; vertical-align: top; }
           
-          .item-row-main { font-weight: bold; font-size: 13px; }
-          .item-row-sub { font-size: 11px; opacity: 0.8; }
+          .item-name { font-weight: bold; font-size: 12px; display: block; }
+          .item-desc { font-size: 10px; opacity: 0.7; }
           
-          .total-row { font-size: 14px; font-weight: bold; margin-top: 5px; }
-          .qr-container { margin: 20px 0; text-align: center; }
-          .qr-image { width: 100px; height: 100px; }
+          .total-row { font-size: 15px; font-weight: 900; margin-top: 4px; padding-top: 4px; }
+          .qr-container { margin: 15px 0; text-align: center; }
+          .qr-image { width: 80px; height: 80px; }
+          .sale-badge { 
+             text-align: center; 
+             font-size: 10px; 
+             font-weight: bold; 
+             border: 1px solid #000; 
+             margin: 5px auto; 
+             padding: 2px 8px;
+             display: inline-block;
+          }
           
           @media print {
-            body { padding: 0; }
+            body { padding: 0 4mm 8mm 4mm; }
             .no-print { display: none; }
           }
         </style>
       </head>
       <body>
-        ${showLogo && businessLogo ? `
-          <div class="center" style="margin-bottom: 15px;">
-            <img src="${businessLogo}" style="max-width: 150px; max-height: 80px; object-fit: contain;" />
-          </div>
-        ` : ''}
-        <div class="header center">
-          <div class="bold" style="font-size: 18px; margin-bottom: 4px;">${sale.branch?.organization?.name || 'INZEEDO POS'}</div>
-          <div class="bold uppercase">${sale.branch?.name || 'Main Warehouse'}</div>
-          <div>${sale.branch?.address || ''}</div>
-          <div>TEL: ${sale.branch?.phone || ''}</div>
-          ${sale.branch?.organization?.tax_id || sale.tax_id ? `<div>TIN: ${sale.branch?.organization?.tax_id || sale.tax_id}</div>` : ''}
+        <div class="center header">
+          ${showLogo && businessLogo ? `
+            <img src="${businessLogo}" style="max-width: 120px; max-height: 60px; object-fit: contain; margin-bottom: 10px;" />
+          ` : ''}
+          <div class="bold" style="font-size: 16px; line-height: 1.1;">${headerText || businessName || 'INZEEDO POS'}</div>
+          ${sale.branch?.name ? `<div style="text-transform: uppercase; font-size: 11px; margin-top: 2px;">${sale.branch.name}</div>` : ''}
+          <div style="font-size: 10px;">${sale.branch?.address || ''}</div>
+          <div style="font-size: 10px;">TEL: ${sale.branch?.phone || ''}</div>
+          ${taxId ? `<div style="font-size: 10px;">TIN: ${taxId}</div>` : ''}
         </div>
 
         <div class="divider"></div>
         
+        <div class="center">
+           <div class="sale-badge">${(sale.is_wholesale ? 'WHOLESALE' : 'RETAIL').toUpperCase()} SALE</div>
+        </div>
+
         <div class="row">
           <span>INVOICE:</span>
-          <span class="bold">${sale.invoice_number}</span>
+          <span class="bold">${sale.invoice_number || 'DRAFT'}</span>
         </div>
         <div class="row">
           <span>DATE:</span>
@@ -114,35 +133,35 @@ export const receiptService = {
         </div>
         <div class="row">
           <span>CASHIER:</span>
-          <span>${sale.cashier?.name || 'Staff'}</span>
+          <span>${sale.cashier?.name || 'Staff User'}</span>
         </div>
-        <div class="row">
-          <span>CUSTOMER:</span>
-          <span class="bold">${sale.customer?.name || 'Walk-in Guest'}</span>
-        </div>
-
-        <div class="divider"></div>
+        ${sale.customer ? `
+          <div class="row">
+            <span>CUSTOMER:</span>
+            <span class="bold">${sale.customer.name}</span>
+          </div>
+        ` : ''}
 
         <table>
           <thead>
             <tr>
-              <th style="width: 50%;">ITEM</th>
-              <th class="right" style="width: 15%;">QTY</th>
-              <th class="right" style="width: 35%;">TOTAL</th>
+              <th style="width: 45%;">ITEM/QTY</th>
+              <th class="right" style="width: 25%;">PRICE</th>
+              <th class="right" style="width: 30%;">TOTAL</th>
             </tr>
           </thead>
           <tbody>
             ${(sale.items || []).map(item => `
               <tr>
                 <td colspan="3">
-                  <div class="item-row-main">${item.product?.name || item.name}</div>
-                  <div class="item-row-sub">${item.variant?.name || 'Standard'} @ ${Math.round(item.unit_price).toLocaleString()}</div>
+                  <span class="item-name">${item.product?.name || item.name}</span>
+                  <span class="item-desc">${item.variant?.name || item.variant_name || 'Standard'}</span>
                 </td>
               </tr>
               <tr style="border-bottom: 1px dotted #ccc;">
-                <td></td>
-                <td class="right">${item.quantity}</td>
-                <td class="right bold">${Math.round(item.total_amount).toLocaleString()}</td>
+                <td class="bold">x ${parseFloat(item.quantity)}</td>
+                <td class="right">${parseFloat(item.unit_price || item.price).toLocaleString()}</td>
+                <td class="right bold">${parseFloat(item.total_amount).toLocaleString()}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -152,35 +171,35 @@ export const receiptService = {
 
         <div class="row">
           <span>SUB TOTAL:</span>
-          <span>${Math.round(sale.total_amount).toLocaleString()}</span>
+          <span>${parseFloat(sale.total_amount).toLocaleString()}</span>
         </div>
-        ${sale.discount_amount > 0 ? `
+        ${parseFloat(sale.discount_amount) > 0 ? `
           <div class="row">
             <span>SAVINGS (DISC):</span>
-            <span>- ${Math.round(sale.discount_amount).toLocaleString()}</span>
+            <span>- ${parseFloat(sale.discount_amount).toLocaleString()}</span>
           </div>
         ` : ''}
-        ${sale.sscl_amount > 0 ? `
+        ${parseFloat(sale.sscl_amount) > 0 ? `
           <div class="row">
             <span>SSCL:</span>
-            <span>${Math.round(sale.sscl_amount).toLocaleString()}</span>
+            <span>${parseFloat(sale.sscl_amount).toLocaleString()}</span>
           </div>
         ` : ''}
-        ${sale.vat_amount > 0 ? `
+        ${parseFloat(sale.vat_amount) > 0 ? `
           <div class="row">
             <span>VAT:</span>
-            <span>${Math.round(sale.vat_amount).toLocaleString()}</span>
+            <span>${parseFloat(sale.vat_amount).toLocaleString()}</span>
           </div>
-        ` : (sale.tax_amount > 0 && !sale.sscl_amount) ? `
+        ` : (parseFloat(sale.tax_amount) > 0 && !sale.sscl_amount) ? `
           <div class="row">
             <span>TAX:</span>
-            <span>${Math.round(sale.tax_amount).toLocaleString()}</span>
+            <span>${parseFloat(sale.tax_amount).toLocaleString()}</span>
           </div>
         ` : ''}
-        ${sale.adjustment !== 0 ? `
+        ${parseFloat(sale.adjustment || 0) !== 0 ? `
           <div class="row">
             <span>ADJUSTMENT:</span>
-            <span>${Math.round(sale.adjustment).toLocaleString()}</span>
+            <span>${parseFloat(sale.adjustment).toLocaleString()}</span>
           </div>
         ` : ''}
         
@@ -188,42 +207,51 @@ export const receiptService = {
         
         <div class="row total-row">
           <span>GRAND TOTAL:</span>
-          <span>LKR ${Math.round(sale.payable_amount).toLocaleString()}</span>
+          <span>LKR ${parseFloat(sale.payable_amount).toLocaleString()}</span>
         </div>
 
         <div class="divider"></div>
         
-        <div class="row bold">
-          <span class="uppercase">${sale.payment_method || 'CASH'} PAID:</span>
-          <span>LKR ${(parseFloat(sale.paid_amount) || sale.payable_amount).toLocaleString()}</span>
-        </div>
-        ${(parseFloat(sale.paid_amount) > sale.payable_amount) ? `
+        ${sale.payments && sale.payments.length > 0 ? sale.payments.map(pmt => `
+            <div class="row bold">
+              <span class="uppercase">${pmt.payment_method} PAID:</span>
+              <span>LKR ${parseFloat(pmt.amount).toLocaleString()}</span>
+            </div>
+        `).join('') : `
+            <div class="row bold">
+              <span class="uppercase">${sale.payment_method || 'CASH'} PAID:</span>
+              <span>LKR ${parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString()}</span>
+            </div>
+        `}
+        
+        ${(parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount)) ? `
           <div class="row">
             <span>CHANGE:</span>
-            <span>LKR ${(parseFloat(sale.paid_amount) - sale.payable_amount).toLocaleString()}</span>
+            <span>LKR ${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString()}</span>
           </div>
         ` : ''}
 
         <div class="qr-container">
           <img class="qr-image" src="${qrUrl}" alt="Verification QR" />
-          <div style="font-size: 8px; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6;">Scan for digital verification</div>
+          <div style="font-size: 7px; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5;">Scan for digital verification</div>
         </div>
 
         <div class="footer center">
-          <div class="bold italic">"Thank you for your business!"</div>
-          <div style="margin-top: 10px;">
-            <div class="bold">Powered by INZEEDO</div>
-            <div style="font-size: 9px; opacity: 0.5;">A Premium Enterprise Solution</div>
+          ${refundPolicy ? `<div style="border-bottom: 1px dashed #ccc; padding-bottom: 8px; margin-bottom: 8px; font-size: 9px; line-height: 1.2;"><b>POLICIES:</b> ${refundPolicy}</div>` : ''}
+          <div class="bold italic">"${footerText || 'Thank you for your business!'}"</div>
+          <div style="margin-top: 15px;">
+            <div class="bold">POWRED BY INZEEDO POS</div>
+            <div style="font-size: 8px; opacity: 0.6;">A Premium Enterprise Cloud Solution</div>
           </div>
           <br/>
-          <div style="font-size: 10px; border: 1px solid #000; padding: 2px;">*** CUSTOMER COPY ***</div>
+          <div style="font-size: 9px; border: 1px solid #000; padding: 2px;">*** CUSTOMER COPY ***</div>
         </div>
 
         <script>
           window.onload = function() {
             setTimeout(function() {
               window.print();
-              setTimeout(function() { window.close(); }, 500);
+              setTimeout(function() { window.close(); }, 800);
             }, 500);
           };
         </script>

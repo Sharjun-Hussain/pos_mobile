@@ -189,19 +189,29 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     haptics.heavy();
 
     try {
+      const { vatRate, ssclRate } = useSettingsStore.getState();
+      
       const payload = {
         customer_id: selectedCustomer?.id || null,
         items: cart.map(item => {
           const itemSubtotal = item.price * item.quantity;
-          const distributedDiscount = itemSubtotal * (discount / 100);
+          const itemDiscount = itemSubtotal * (discount / 100);
+          const taxableAmount = itemSubtotal - itemDiscount;
+          
+          // Cascading Tax Calculation (Matching getVATAmount logic in Store)
+          const ssclAmount = taxableAmount * (ssclRate / 100);
+          const vatAmount = (taxableAmount + ssclAmount) * (vatRate / 100);
           
           return {
             product_id: item.productId,
             product_variant_id: item.variantId,
             quantity: item.quantity,
             unit_price: item.price,
-            discount_amount: parseFloat(distributedDiscount.toFixed(2)),
-            tax_amount: 0 
+            discount_amount: parseFloat(itemDiscount.toFixed(2)),
+            tax_amount: parseFloat((ssclAmount + vatAmount).toFixed(2)),
+            sscl_amount: parseFloat(ssclAmount.toFixed(2)),
+            vat_amount: parseFloat(vatAmount.toFixed(2)),
+            total_amount: parseFloat((taxableAmount + ssclAmount + vatAmount).toFixed(2))
           };
         }),
         payments: payments.map(p => ({
@@ -210,6 +220,12 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
         })),
         adjustment: parseFloat(adjustment || 0) || 0,
         paid_amount: parseFloat(totalPaid.toFixed(2)),
+        total_amount: parseFloat(subtotal.toFixed(2)),
+        discount_amount: parseFloat(getDiscountAmount().toFixed(2)),
+        tax_amount: parseFloat(getTaxAmount().toFixed(2)),
+        sscl_amount: parseFloat(getSSCLAmount().toFixed(2)),
+        vat_amount: parseFloat(getVATAmount().toFixed(2)),
+        payable_amount: parseFloat(total.toFixed(2)),
         status: targetStatus,
         is_wholesale: isWholesale,
         branch_id: selectedBranch?.id

@@ -36,24 +36,6 @@ export const ShiftManagerSheet = ({ isOpen, forceOpen, onClose }) => {
     }
   }, [isOpen, isOpening]);
 
-  // Clean keypad input
-  const handleKeypadSubmit = (value) => {
-    haptics.light();
-    if (value === 'C') {
-      setAmount('');
-    } else if (value === '⌫') {
-      setAmount(prev => prev.slice(0, -1));
-    } else if (value === '.') {
-      if (!amount.includes('.')) setAmount(prev => prev + '.');
-    } else {
-      setAmount(prev => {
-        const parts = prev.split('.');
-        if (parts[1] && parts[1].length >= 2) return prev; // Limit to 2 decimals
-        return prev + value;
-      });
-    }
-  };
-
   const currentVal = parseFloat(amount) || 0;
 
   const handleSubmit = async () => {
@@ -128,7 +110,7 @@ export const ShiftManagerSheet = ({ isOpen, forceOpen, onClose }) => {
                   className="h-12 px-4 bg-surface-muted rounded-xl flex items-center gap-2 text-text-secondary active:scale-95 transition-transform"
                 >
                   <LogOut size={18} />
-                  <span className="text-xs font-black uppercase tracking-widest hidden sm:inline">Logout</span>
+                  <span className="text-xs font-bold hidden sm:inline">Logout</span>
                 </button>
               )}
             </div>
@@ -140,44 +122,42 @@ export const ShiftManagerSheet = ({ isOpen, forceOpen, onClose }) => {
               </div>
             )}
 
-            {/* Display Input */}
-            <div className="bg-surface-muted rounded-3xl p-6 flex flex-col items-center justify-center mb-6 relative overflow-hidden group border border-glass-border/20 shadow-inner">
-              <span className="text-sm font-black text-text-secondary uppercase tracking-widest mb-2 opacity-50">
-                {isOpening ? 'Opening Cash Float' : 'Actual Cash Count'}
-              </span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-text-secondary opacity-40">LKR</span>
-                <span className={`text-6xl tracking-tighter ${amount ? 'font-black text-text-main' : 'font-medium text-text-secondary opacity-20'}`}>
-                  {amount || '0.00'}
-                </span>
+            {/* Usual Form Input */}
+            <div className="flex flex-col gap-2 mb-8">
+              <label 
+                htmlFor="cash-input"
+                className="text-[10px] font-bold text-text-secondary ml-1 opacity-50"
+              >
+                {isOpening ? 'Starting Cash Float' : 'Ending Cash Count'}
+              </label>
+              <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-sm font-black text-text-secondary opacity-40 group-focus-within:text-brand transition-colors">LKR</div>
+                <input
+                  id="cash-input"
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  onFocus={() => haptics.light()}
+                  className="w-full h-14 pl-16 pr-5 bg-surface-muted border border-glass-border/30 rounded-[1.25rem] text-base font-bold text-text-main focus:border-brand/50 focus:bg-surface outline-none transition-all shadow-inner"
+                  autoFocus
+                />
               </div>
-            </div>
-
-            {/* Keypad */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              {['1','2','3','4','5','6','7','8','9','C','0','⌫'].map(btn => (
-                <button
-                  key={btn}
-                  onClick={() => handleKeypadSubmit(btn)}
-                  className="h-16 bg-surface border border-glass-border/30 rounded-2xl flex items-center justify-center text-2xl font-black text-text-main active:scale-95 transition-transform active:bg-brand/10 active:text-brand shadow-sm"
-                >
-                  {btn}
-                </button>
-              ))}
             </div>
 
             {/* Action */}
             <button 
               disabled={isSubmitting || (!amount && !isOpening)} // Allow 0 for opening, but require entry for closing? Or maybe default to 0
               onClick={handleSubmit}
-              className={`w-full h-16 text-white rounded-2xl flex items-center justify-center gap-3 shadow-xl transition-all active:scale-[0.98] disabled:opacity-50 ${isOpening ? 'bg-brand shadow-brand/30' : 'bg-rose-500 shadow-rose-500/30'}`}
+              className={`w-full h-16 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50 border shadow-sm ${isOpening ? 'bg-surface border-brand/20 text-brand' : 'bg-surface border-rose-500/20 text-rose-500'}`}
             >
               {isSubmitting ? (
                 <div className="h-6 w-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   <CheckCircle2 size={24} strokeWidth={2.5} />
-                  <span className="text-[17px] font-black uppercase tracking-widest">
+                  <span className="text-[17px] font-bold">
                     {isOpening ? 'Confirm & Open' : 'Confirm & Close'}
                   </span>
                 </>

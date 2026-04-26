@@ -132,7 +132,7 @@ export const receiptService = {
             </tr>
           </thead>
           <tbody>
-            ${sale.items.map(item => `
+            ${(sale.items || []).map(item => `
               <tr>
                 <td colspan="3">
                   <div class="item-row-main">${item.product?.name || item.name}</div>

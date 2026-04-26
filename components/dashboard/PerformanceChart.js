@@ -27,82 +27,85 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
     );
   }
 
-  // Sample data if none provided
-  const chartData = data.length > 0 ? data : [
-    { label: 'Mon', value: 12500 },
-    { label: 'Tue', value: 18000 },
-    { label: 'Wed', value: 15400 },
-    { label: 'Thu', value: 21000 },
-    { label: 'Fri', value: 19000 },
-    { label: 'Sat', value: 25000 },
-    { label: 'Sun', value: 22000 },
-  ];
+  // Only use real data, no hardcoded fallbacks
+  const chartData = data || [];
+  const hasData = chartData.length > 0;
 
-  const maxVal = Math.max(...chartData.map(d => d.value)) || 1;
+  const maxVal = Math.max(...chartData.map(d => d.value), 0) || 1;
   const height = 120;
   const width = 300;
   
   const points = chartData.map((d, i) => ({
-    x: (i / (chartData.length - 1)) * width,
+    x: chartData.length > 1 ? (i / (chartData.length - 1)) * width : width / 2,
     y: height - (d.value / maxVal) * height
   }));
 
-  const pathData = `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}`;
-  const areaData = `${pathData} L ${width},${height} L 0,${height} Z`;
+  const pathData = points.length > 0 ? `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}` : "";
+  const areaData = points.length > 0 ? `${pathData} L ${points[points.length-1].x},${height} L ${points[0].x},${height} Z` : "";
 
   return (
-    <div className="glass-panel p-6 pb-4 rounded-[2.5rem] flex flex-col gap-4 overflow-hidden relative animate-in fade-in duration-700">
+    <div className="bg-surface p-6 pb-4 rounded-[2.5rem] flex flex-col gap-4 overflow-hidden relative animate-in fade-in duration-700 border border-glass-border/30 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
           <h4 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none mb-1 opacity-60">Weekly Performance</h4>
           <p className="text-sm font-black text-text-main leading-none">Sales Revenue</p>
         </div>
-        <div className="text-right">
-          <p className="text-xs font-black text-emerald-500 leading-none">+{Math.round((chartData[6].value / chartData[5].value - 1) * 100)}%</p>
-          <p className="text-[8px] font-bold text-text-secondary mt-1">vs Yesterday</p>
-        </div>
+        {hasData && (
+          <div className="text-right">
+            <p className="text-xs font-black text-emerald-500 leading-none">
+              {chartData.length > 1 ? `+${Math.round((chartData[chartData.length - 1].value / (chartData[chartData.length - 2].value || 1) - 1) * 100)}%` : '0%'}
+            </p>
+            <p className="text-[8px] font-bold text-text-secondary mt-1">vs Previous</p>
+          </div>
+        )}
       </div>
 
-      <div className="relative h-32 w-full mt-2">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
-          <line x1="0" y1="0" x2={width} y2="0" stroke="currentColor" strokeWidth="0.5" className="text-text-secondary/5" />
-          <line x1="0" y1={height/2} x2={width} y2={height/2} stroke="currentColor" strokeWidth="0.5" className="text-text-secondary/5" />
-          <line x1="0" y1={height} x2={width} y2={height} stroke="currentColor" strokeWidth="1" className="text-text-secondary/10" />
+      <div className="relative h-32 w-full mt-2 flex items-center justify-center">
+        {!hasData ? (
+          <div className="text-center opacity-20 flex flex-col items-center gap-2">
+             <div className="h-10 w-10 rounded-full border-2 border-dashed border-text-secondary" />
+             <p className="text-[10px] font-bold uppercase tracking-widest">No Pulse Data</p>
+          </div>
+        ) : (
+          <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+            <line x1="0" y1="0" x2={width} y2="0" stroke="currentColor" strokeWidth="0.5" className="text-text-secondary/5" />
+            <line x1="0" y1={height/2} x2={width} y2={height/2} stroke="currentColor" strokeWidth="0.5" className="text-text-secondary/5" />
+            <line x1="0" y1={height} x2={width} y2={height} stroke="currentColor" strokeWidth="1" className="text-text-secondary/10" />
 
-          {/* Static Path (Removed motion for performance) */}
-          <path
-            d={areaData}
-            fill="url(#gradient)"
-            className="opacity-20 transition-opacity duration-1000 ease-out"
-          />
-
-          <path
-            d={pathData}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-brand transition-all duration-1000 ease-out"
-          />
-
-          {points.map((p, i) => (
-            <circle
-              key={i}
-              cx={p.x}
-              cy={p.y}
-              r="4"
-              className="fill-brand stroke-surface stroke-2 transition-transform duration-500"
+            <path
+              d={areaData}
+              fill="url(#gradient)"
+              className="opacity-20"
             />
-          ))}
 
-          <defs>
-            <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--color-brand)" />
-              <stop offset="100%" stopColor="var(--color-brand)" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-        </svg>
+            <path
+              d={pathData}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-brand transition-all duration-1000 ease-out"
+            />
+
+            {points.map((p, i) => (
+              <circle
+                key={i}
+                cx={p.x}
+                cy={p.y}
+                r="4"
+                className="fill-brand stroke-surface stroke-2"
+              />
+            ))}
+
+            <defs>
+              <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--color-brand)" />
+                <stop offset="100%" stopColor="var(--color-brand)" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
+        )}
       </div>
 
       <div className="flex items-center justify-between px-1">

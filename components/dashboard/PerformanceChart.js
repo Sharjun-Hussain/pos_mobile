@@ -27,10 +27,22 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
     );
   }
 
-  // Only use real data, no hardcoded fallbacks
-  const chartData = data || [];
-  const hasData = chartData.length > 0;
+  // Enhanced data normalization to handle various backend response formats
+  let chartData = [];
+  if (Array.isArray(data)) {
+    chartData = data.map(d => ({
+      label: d.label || d.date || d.day || '',
+      value: parseFloat(d.value || d.total || d.amount || d.revenue || 0)
+    }));
+  } else if (data && typeof data === 'object') {
+    // Handle object-based data maps (e.g. { "Monday": 100, "Tuesday": 200 })
+    chartData = Object.entries(data).map(([key, val]) => ({
+      label: key,
+      value: typeof val === 'object' ? parseFloat(val.value || val.total || val.amount || 0) : parseFloat(val || 0)
+    }));
+  }
 
+  const hasData = chartData.length > 0;
   const maxVal = Math.max(...chartData.map(d => d.value), 0) || 1;
   const height = 120;
   const width = 300;
@@ -40,8 +52,18 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
     y: height - (d.value / maxVal) * height
   }));
 
-  const pathData = points.length > 0 ? `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}` : "";
-  const areaData = points.length > 0 ? `${pathData} L ${points[points.length-1].x},${height} L ${points[0].x},${height} Z` : "";
+  // Improved SVG path logic for single or multiple points
+  let pathData = "";
+  let areaData = "";
+  
+  if (points.length === 1) {
+    // For single point, show a horizontal line in the middle
+    pathData = `M 0,${points[0].y} L ${width},${points[0].y}`;
+    areaData = `M 0,${points[0].y} L ${width},${points[0].y} L ${width},${height} L 0,${height} Z`;
+  } else if (points.length > 1) {
+    pathData = `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}`;
+    areaData = `${pathData} L ${points[points.length - 1].x},${height} L ${points[0].x},${height} Z`;
+  }
 
   return (
     <div className="bg-surface p-6 pb-4 rounded-[2.5rem] flex flex-col gap-4 overflow-hidden relative animate-in fade-in duration-700 border border-glass-border/30 shadow-sm">
@@ -53,7 +75,9 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
         {hasData && (
           <div className="text-right">
             <p className="text-xs font-black text-emerald-500 leading-none">
-              {chartData.length > 1 ? `+${Math.round((chartData[chartData.length - 1].value / (chartData[chartData.length - 2].value || 1) - 1) * 100)}%` : '0%'}
+              {chartData.length > 1 && chartData[chartData.length - 2].value > 0 
+                ? `+${Math.round((chartData[chartData.length - 1].value / chartData[chartData.length - 2].value - 1) * 100)}%` 
+                : '0%'}
             </p>
             <p className="text-[8px] font-bold text-text-secondary mt-1">vs Previous</p>
           </div>
@@ -100,8 +124,8 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
 
             <defs>
               <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--color-brand)" />
-                <stop offset="100%" stopColor="var(--color-brand)" stopOpacity="0" />
+                <stop offset="0%" stopColor="#6366f1" />
+                <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
               </linearGradient>
             </defs>
           </svg>

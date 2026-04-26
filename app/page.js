@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, memo, useTransition } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo, useTransition } from 'react';
 import {
   Users,
   Package,
@@ -230,6 +230,43 @@ export default function Home() {
   const { data: salesData, isLoading: salesLoading } = useFetch('/sales?limit=5');
   const { data: productsData, isLoading: productsLoading } = useFetch('/products?limit=5');
 
+  // Fetch Sales Report for Chart Data (Last 7 Days)
+  const chartDateRange = useMemo(() => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 7);
+    return {
+      startDate: start.toISOString().split('T')[0],
+      endDate: end.toISOString().split('T')[0]
+    };
+  }, []);
+
+  const { data: chartReportData, isLoading: chartLoading } = useFetch(
+    `/reports/sales/daily?start_date=${chartDateRange.startDate}&end_date=${chartDateRange.endDate}`
+  );
+
+  const aggregatedChartData = useMemo(() => {
+    if (!chartReportData?.transactions) return null;
+    
+    const dailyMap = chartReportData.transactions.reduce((acc, sale) => {
+      const date = new Date(sale.date).toLocaleDateString('en-US', { weekday: 'short' });
+      acc[date] = (acc[date] || 0) + (parseFloat(sale.total) || 0);
+      return acc;
+    }, {});
+    
+    const series = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+      series.push({
+        label: dayName,
+        value: dailyMap[dayName] || 0
+      });
+    }
+    return series;
+  }, [chartReportData]);
+
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedSaleId, setSelectedSaleId] = useState(null);
@@ -276,6 +313,14 @@ export default function Home() {
     return 'Good Evening';
   };
 
+  const stats = statsData ? {
+    todayRevenue: statsData.todayRevenue || statsData.today_revenue || statsData.summary?.today_revenue || statsData.data?.today_revenue,
+    pendingInvoices: statsData.pendingInvoices || statsData.pending_invoices || statsData.summary?.pending_invoices || statsData.data?.pending_invoices,
+    lowStockCount: statsData.lowStockCount || statsData.low_stock_count || statsData.summary?.low_stock_count || statsData.data?.low_stock_count,
+    newCustomers: statsData.newCustomers || statsData.new_customers || statsData.summary?.new_customers || statsData.data?.new_customers,
+    chartData: statsData.chartData || statsData.chart_data || statsData.data?.chart_data || statsData.weekly_sales || statsData.weekly_revenue || statsData.performance || statsData.chart || statsData.data?.weekly_sales
+  } : null;
+
   return (
     <div className="h-[100dvh] overflow-y-auto no-scrollbar px-4 pb-24 flex flex-col gap-8 pt-[var(--sat)] pb-[var(--sab)] animate-in fade-in duration-700">
       {/* Header */}
@@ -317,14 +362,14 @@ export default function Home() {
 
       {/* Memoized Stats Section */}
       <DashboardStats 
-         stats={statsData} 
-         loading={loading} 
+         stats={stats} 
+         loading={statsLoading} 
          formatCurrency={formatCurrency} 
          t={t} 
       />
 
       {statsError && (
-        <div className="glass-panel p-4 rounded-2xl flex items-center justify-between bg-rose-500/5 border-rose-500/10">
+        <div className="bg-surface p-4 rounded-2xl flex items-center justify-between bg-rose-500/5 border border-rose-500/10 shadow-sm">
           <div className="flex items-center gap-3 text-rose-500">
             <AlertCircle size={18} />
             <span className="text-xs font-bold">Refresh failed</span>
@@ -335,20 +380,20 @@ export default function Home() {
         </div>
       )}
 
-      <QuickActionsSection loading={loading} router={router} t={t} />
+      <QuickActionsSection loading={userLoading} router={router} t={t} />
 
-      <BusinessPulse chartData={statsData?.chartData} loading={loading} />
+      <BusinessPulse chartData={aggregatedChartData || stats?.chartData} loading={chartLoading || statsLoading} />
 
       <TransactionsSection 
         recentSales={recentSales} 
-        loading={loading} 
+        loading={salesLoading} 
         onSaleClick={handleSaleClick} 
         router={router} 
       />
 
       <InventoryAlerts 
         lowStockItems={lowStockItems} 
-        loading={loading} 
+        loading={productsLoading} 
         router={router} 
       />
 

@@ -190,7 +190,7 @@ export default function SalesPage() {
       {/* Main Grid */}
       <div className="flex-1 overflow-y-auto px-4 pb-48 pt-[calc(var(--sat)+102px)] overscroll-contain no-scrollbar">
         {loading ? (
-          <ProductSkeleton />
+          <ProductSkeleton viewMode={posViewMode} />
         ) : error ? (
           <div className="glass-panel p-10 rounded-[3rem] text-center flex flex-col items-center gap-4 border-rose-500/20 mt-10 shadow-2xl">
             <p className="text-sm font-bold text-text-main">{t('common.error')}</p>

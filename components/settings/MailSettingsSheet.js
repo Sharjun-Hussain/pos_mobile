@@ -76,6 +76,7 @@ export const MailSettingsSheet = memo(({ isOpen, onClose }) => {
     unusualLogin: { enabled: false },
     highSales: { enabled: false, threshold: 100000 }
   });
+  const [rawSettings, setRawSettings] = useState({});
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -84,6 +85,7 @@ export const MailSettingsSheet = memo(({ isOpen, onClose }) => {
       const res = await api.settings.getModule('communication');
       if (res.status === 'success' && res.data) {
         const d = res.data;
+        setRawSettings(d);
         setEmailEnabled(d.email?.enabled || false);
         setProvider(d.email?.provider || 'smtp');
         setFromName(d.email?.fromName || '');
@@ -102,6 +104,23 @@ export const MailSettingsSheet = memo(({ isOpen, onClose }) => {
     }
   }, []);
 
+  const getProviderFields = useCallback(() => {
+    switch (provider) {
+      case 'smtp':
+        return ['Host', 'Port', 'Username', 'Password', 'From Email', 'Encryption'];
+      case 'brevo':
+        return ['API Key', 'Username', 'From Email'];
+      case 'sendgrid':
+        return ['API Key', 'From Email'];
+      case 'mailgun':
+        return ['Domain', 'API Key', 'Region'];
+      case 'ses':
+        return ['Access Key', 'Secret Key', 'Region'];
+      default:
+        return [];
+    }
+  }, [provider]);
+
   useEffect(() => {
     if (isOpen) {
       fetchData();
@@ -117,7 +136,9 @@ export const MailSettingsSheet = memo(({ isOpen, onClose }) => {
     haptics.medium();
 
     const payload = {
+      ...rawSettings,
       email: {
+        ...(rawSettings.email || {}),
         enabled: emailEnabled,
         provider,
         fromName,
@@ -302,39 +323,58 @@ export const MailSettingsSheet = memo(({ isOpen, onClose }) => {
                             <input
                               type="password"
                               value={config.Password}
-                              onChange={(e) => setConfig(prev => ({ ...prev, Password: e.target.value }))}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (config.Password === '********' && val.length > 8) {
+                                  setConfig(prev => ({ ...prev, Password: val.slice(-1) }));
+                                } else {
+                                  setConfig(prev => ({ ...prev, Password: val }));
+                                }
+                              }}
                               className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-[14px] font-bold text-text-main outline-none focus:border-brand/40 transition-all"
                             />
                           </InputField>
+
+                          <InputField label="Encryption Policy">
+                            <div className="flex bg-surface-muted p-1.5 rounded-2xl gap-1.5 border border-glass-border/20">
+                              {['None', 'SSL/TLS', 'STARTTLS'].map((enc) => (
+                                <button
+                                  key={enc}
+                                  onClick={() => { haptics.light(); setConfig(prev => ({ ...prev, Encryption: enc })); }}
+                                  className={`flex-1 h-11 rounded-xl text-[11px] font-bold transition-all ${
+                                    config.Encryption === enc
+                                      ? 'bg-white dark:bg-surface text-brand shadow-sm'
+                                      : 'text-text-secondary opacity-60'
+                                  }`}
+                                >
+                                  {enc}
+                                </button>
+                              ))}
+                            </div>
+                          </InputField>
                         </>
                       ) : (
-                        <InputField label="API Key">
-                          <input
-                            type="password"
-                            value={config['API Key'] || ''}
-                            onChange={(e) => setConfig(prev => ({ ...prev, 'API Key': e.target.value }))}
-                            className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-[14px] font-bold text-text-main outline-none focus:border-brand/40 transition-all"
-                          />
-                        </InputField>
-                      )}
-
-                      <InputField label="Encryption Policy">
-                        <div className="flex bg-surface-muted p-1.5 rounded-2xl gap-1.5 border border-glass-border/20">
-                          {['None', 'SSL/TLS', 'STARTTLS'].map((enc) => (
-                            <button
-                              key={enc}
-                              onClick={() => { haptics.light(); setConfig(prev => ({ ...prev, Encryption: enc })); }}
-                              className={`flex-1 h-11 rounded-xl text-[11px] font-bold transition-all ${
-                                config.Encryption === enc
-                                  ? 'bg-white dark:bg-surface text-brand shadow-sm'
-                                  : 'text-text-secondary opacity-60'
-                              }`}
-                            >
-                              {enc}
-                            </button>
+                        <div className="flex flex-col gap-6 animate-in fade-in duration-300">
+                          {getProviderFields().map(field => (
+                            <InputField key={field} label={`${field} Parameter`}>
+                              <input
+                                type={field.toLowerCase().includes('password') || field.includes('Key') || field.includes('Secret') || field.includes('Token') ? "password" : "text"}
+                                value={config[field] || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (config[field] === '********' && val.length > 8) {
+                                    setConfig(prev => ({ ...prev, [field]: val.slice(-1) }));
+                                  } else {
+                                    setConfig(prev => ({ ...prev, [field]: val }));
+                                  }
+                                }}
+                                placeholder={`Enter ${field.toLowerCase()}...`}
+                                className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-[14px] font-bold text-text-main outline-none focus:border-brand/40 transition-all"
+                              />
+                            </InputField>
                           ))}
                         </div>
-                      </InputField>
+                      )}
 
                       <button
                         onClick={handleTestConnection}

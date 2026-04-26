@@ -18,7 +18,7 @@ export const useAuthStore = create(
 
       // Actions
       setToken: (token) => set({ token, isAuthenticated: !!token }),
-      
+
       setUser: (user) => set({ user }),
 
       setSelectedBranch: (branch) => set({ selectedBranch: branch, lastSelectedBranchId: branch?.id }),
@@ -52,14 +52,41 @@ export const useAuthStore = create(
 
       setHydrated: () => {
         const { isAuthenticated, selectedBranch, lastSelectedBranchId, user } = get();
-        
+
         // Recover branch selection if authenticated but missing selection
         if (isAuthenticated && !selectedBranch && lastSelectedBranchId && user?.branches) {
           const found = user.branches.find(b => String(b.id) === String(lastSelectedBranchId));
           if (found) set({ selectedBranch: found });
         }
-        
+
         set({ isHydrated: true });
+      },
+
+      syncUser: async () => {
+        const { api } = require('@/services/api');
+        try {
+          const res = await api.auth.me();
+          if (res.status === 'success' && res.data) {
+            const newUser = res.data;
+            const currentBranch = get().selectedBranch;
+
+            let updatedBranch = null;
+            if (currentBranch) {
+              updatedBranch = newUser.branches?.find(b => b.id === currentBranch.id) || null;
+            }
+
+            if (!updatedBranch && newUser.branches?.length === 1) {
+              updatedBranch = newUser.branches[0];
+            }
+
+            set({ user: newUser, selectedBranch: updatedBranch });
+            return { success: true };
+          }
+          return { success: false };
+        } catch (err) {
+          console.error('User Sync Failed:', err);
+          return { success: false, error: err.message };
+        }
       },
     }),
     {

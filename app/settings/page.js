@@ -98,7 +98,7 @@ export default function SettingsPage() {
   const [isShiftManagerOpen, setIsShiftManagerOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
-  
+
   const { activeShift } = useShiftStore();
 
   useEffect(() => {
@@ -136,8 +136,8 @@ export default function SettingsPage() {
             <p className="text-[10px] font-black text-text-secondary leading-none opacity-40 uppercase tracking-widest">System Control</p>
           </div>
         </div>
-        <button 
-          onClick={() => { haptics.medium(); handleSync(); }} 
+        <button
+          onClick={() => { haptics.medium(); handleSync(); }}
           className={`h-11 w-11 bg-surface border border-glass-border/30 rounded-2xl flex items-center justify-center text-brand active:scale-90 transition-all shadow-sm ${isSyncing ? 'rotate-180' : ''}`}
         >
           <RefreshCcw size={18} strokeWidth={2.5} className={isSyncing ? 'animate-spin' : ''} />
@@ -148,7 +148,7 @@ export default function SettingsPage() {
       <section className="flex flex-col gap-5 mt-2">
         <div className="flex flex-col items-center justify-center py-4 gap-4">
           <div className="relative h-28 w-28 rounded-[2.75rem] border-4 border-white dark:border-white/5 shadow-2xl overflow-hidden bg-brand/5">
-             <img src={avatarSrc} alt={user?.name || "Profile"} className="w-full h-full object-cover" />
+            <img src={avatarSrc} alt={user?.name || "Profile"} className="w-full h-full object-cover" />
           </div>
           <div className="text-center">
             <h3 className="text-lg font-black text-text-main leading-tight">{user?.name || 'Inzeedo Admin'}</h3>
@@ -352,15 +352,15 @@ export default function SettingsPage() {
         onClose={() => setIsCurrencyOpen(false)}
       />
 
-      <BranchSelectionSheet 
+      <BranchSelectionSheet
         isOpen={isBranchSheetOpen}
         onClose={() => setIsBranchSheetOpen(false)}
       />
 
-      <ShiftManagerSheet 
-        isOpen={isShiftManagerOpen} 
-        onClose={() => setIsShiftManagerOpen(false)} 
-        forceOpen={false} 
+      <ShiftManagerSheet
+        isOpen={isShiftManagerOpen}
+        onClose={() => setIsShiftManagerOpen(false)}
+        forceOpen={false}
       />
     </div>
   );

@@ -50,7 +50,7 @@ const SettingItem = memo(({ icon: Icon, label, value, color = 'brand', onClick }
   return (
     <button
       onClick={() => { haptics.light(); onClick?.(); }}
-      className="w-full glass-panel p-4 rounded-[1.75rem] flex items-center justify-between active:scale-[0.98] transition-all hover:bg-brand/5 border-glass-border/30"
+      className="w-full bg-surface p-4 rounded-[1.75rem] flex items-center justify-between active:scale-[0.98] transition-transform border border-glass-border/30 shadow-sm"
     >
       <div className="flex items-center gap-4">
         <div className={`p-2.5 rounded-xl ${colors[color]}`}>
@@ -138,7 +138,7 @@ export default function SettingsPage() {
         </div>
         <button 
           onClick={() => { haptics.medium(); handleSync(); }} 
-          className={`h-11 w-11 glass-panel border border-glass-border/30 rounded-2xl flex items-center justify-center text-brand active:scale-90 transition-all ${isSyncing ? 'rotate-180' : ''}`}
+          className={`h-11 w-11 bg-surface border border-glass-border/30 rounded-2xl flex items-center justify-center text-brand active:scale-90 transition-all shadow-sm ${isSyncing ? 'rotate-180' : ''}`}
         >
           <RefreshCcw size={18} strokeWidth={2.5} className={isSyncing ? 'animate-spin' : ''} />
         </button>
@@ -208,7 +208,7 @@ export default function SettingsPage() {
 
 
         {/* Theme Switcher */}
-        <div className="w-full glass-panel p-5 rounded-[1.75rem] flex flex-col gap-5 border-glass-border/30">
+        <div className="w-full bg-surface p-5 rounded-[1.75rem] flex flex-col gap-5 border border-glass-border/30 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="p-2.5 rounded-xl bg-brand/10 text-brand">
               <Moon size={18} strokeWidth={2.5} />

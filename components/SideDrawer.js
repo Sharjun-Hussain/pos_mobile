@@ -14,12 +14,16 @@ import {
   ChevronRight,
   TrendingUp,
   Target,
-  Warehouse
+  Warehouse,
+  Store,
+  Package,
+  History
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { haptics } from '@/services/haptics';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 const MenuLink = React.memo(({ href, icon: Icon, label, onClick, isLast }) => {
   const pathname = usePathname();
@@ -66,6 +70,7 @@ const MenuGroup = React.memo(({ title, children }) => (
 MenuGroup.displayName = 'MenuGroup';
 
 export const SideDrawer = ({ isOpen, onClose }) => {
+  useHardwareBack(isOpen, onClose);
   const user = useAuthStore(state => state.user);
   const selectedBranch = useAuthStore(state => state.selectedBranch);
   const logout = useAuthStore(state => state.logout);
@@ -96,21 +101,22 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
+            role="dialog"
             className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[300px] bg-surface z-[201] flex flex-col shadow-2xl safe-area-inset-bottom border-r border-glass-border pt-[var(--sat)]"
             style={{ willChange: 'transform' }}
           >
             {/* Header / Brand */}
             <div className="p-5 pb-4 bg-surface border-b border-glass-border flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-xl overflow-hidden shadow-lg shadow-brand/20 border border-glass-border">
-                    <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" width={36} height={36} loading="lazy" />
+                <div className="flex items-center gap-3.5">
+                  <div className="h-10 w-10 rounded-xl overflow-hidden shadow-lg shadow-brand/20 border border-glass-border">
+                    <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" width={40} height={40} loading="lazy" />
                   </div>
-                  <div>
-                    <h2 className="text-sm font-black text-text-main leading-tight">
+                  <div className="flex flex-col justify-center">
+                    <h2 className="text-base font-black text-text-main leading-tight">
                       {user?.organization?.name || "Inzeedo"}
                     </h2>
-                    <span className="text-[9px] font-bold text-brand opacity-60">
+                    <span className="text-[11px] font-bold text-brand opacity-80 uppercase tracking-tight">
                       {selectedBranch?.name || 'Terminal'}
                     </span>
                   </div>
@@ -128,8 +134,8 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             <div className="flex-1 overflow-y-auto p-4 py-2 no-scrollbar">
               <MenuGroup title="Operations">
                 <MenuLink href="/" icon={Home} label="Dashboard" onClick={onClose} />
-                <MenuLink href="/sales" icon={ShoppingBag} label="Sales History" onClick={onClose} />
-                <MenuLink href="/inventory" icon={Box} label="Quick Inventory" onClick={onClose} />
+                <MenuLink href="/sales" icon={History} label="Sales History" onClick={onClose} />
+                <MenuLink href="/inventory" icon={Package} label="Quick Inventory" onClick={onClose} />
                 <MenuLink href="/customers" icon={Users} label="Customers" isLast onClick={onClose} />
               </MenuGroup>
 

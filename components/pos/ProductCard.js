@@ -13,24 +13,29 @@ const ProductCard = memo(({ product, onAdd, viewMode }) => {
     return (
       <button 
         onClick={() => onAdd(product)}
-        className="glass-panel p-3 px-4 rounded-2xl flex items-center justify-between active:scale-[0.98] transition-all border-glass-border group relative overflow-hidden"
+        className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer w-full text-left bg-transparent"
       >
-        <div className="flex-1 text-left flex flex-col justify-center min-w-0 pr-4">
-          <span className="font-bold text-text-main text-sm truncate leading-tight mb-0.5">
-            {product.name}
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-medium text-text-secondary opacity-60">
-              {product.category || 'General'}
-            </span>
-            {product.variants?.length > 1 && (
-              <>
-                <div className="h-1 w-1 rounded-full bg-glass-border" />
-                <span className="text-[10px] font-bold text-brand uppercase tracking-tighter">
-                  {product.variants.length} Variants
-                </span>
-              </>
-            )}
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="h-10 w-10 rounded-xl bg-surface-muted flex items-center justify-center flex-shrink-0 text-text-secondary border border-glass-border/20 group-hover:text-brand transition-colors">
+            <Package size={18} />
+          </div>
+          <div className="overflow-hidden">
+            <h4 className="font-bold text-text-main text-sm truncate leading-tight mb-0.5">
+              {product.name}
+            </h4>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-text-secondary opacity-60">
+                {product.category || 'General'}
+              </span>
+              {product.variants?.length > 1 && (
+                <>
+                  <div className="h-1 w-1 rounded-full bg-glass-border/30" />
+                  <span className="text-[11px] font-black text-brand uppercase tracking-tighter">
+                    {product.variants.length} Variants
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         </div>
         <div className="text-right flex flex-col items-end">

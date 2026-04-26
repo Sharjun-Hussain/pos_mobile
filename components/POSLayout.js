@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Home, ShoppingBag, Box, Settings, User, Menu } from 'lucide-react';
+import { Home, ShoppingBag, Box, Settings, User, Menu, Store, Package, History } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { SideDrawer } from './SideDrawer';
@@ -151,17 +151,17 @@ export default function POSLayout({ children }) {
       {!isAuthOptionalPage && (
         <nav className="bottom-nav">
           <NavItem href="/" icon={Home} label="Home" />
-          <NavItem href="/sales" icon={ShoppingBag} label="History" />
+          <NavItem href="/sales" icon={History} label="History" />
           <div className="relative -top-6">
             <Link 
               href="/pos"
               onClick={() => haptics.medium()}
               className="flex h-16 w-16 items-center justify-center rounded-full bg-brand text-white shadow-lg shadow-brand/20 active:scale-90 transition-transform"
             >
-              <Box size={28} />
+              <Store size={28} />
             </Link>
           </div>
-          <NavItem href="/inventory" icon={Box} label="Items" />
+          <NavItem href="/inventory" icon={Package} label="Items" />
           <NavItem href="/settings" icon={Settings} label="Settings" />
         </nav>
       )}

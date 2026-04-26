@@ -48,7 +48,7 @@ const apiRequest = async (endpoint, options = {}, isRetry = false) => {
   const selectedBranch = useAuthStore.getState().selectedBranch;
   let finalEndpoint = endpoint;
   
-  if (selectedBranch?.id) {
+  if (selectedBranch?.id && !options.skipBranch) {
     const separator = finalEndpoint.includes('?') ? '&' : '?';
     finalEndpoint = `${finalEndpoint}${separator}branch_id=${selectedBranch.id}`;
   }
@@ -189,8 +189,8 @@ export const api = {
   settings: {
     getBusiness: () => api.get('/settings/business'),
     updateBusiness: (data) => api.put('/settings/business', data),
-    getModule: (category) => api.get(`/settings/${category}`),
-    updateModule: (category, settings_data) => api.post(`/settings/${category}`, { settings_data }),
+    getModule: (category) => apiRequest(`/settings/${category}`, { method: 'GET', skipBranch: true }),
+    updateModule: (category, settings_data) => apiRequest(`/settings/${category}`, { method: 'POST', body: JSON.stringify({ settings_data }), skipBranch: true }),
     getGlobal: () => api.get('/settings/global'),
     uploadLogo: (file) => {
       const formData = new FormData();

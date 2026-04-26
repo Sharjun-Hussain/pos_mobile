@@ -19,6 +19,7 @@ import {
   RefreshCcw,
   Percent,
   Calculator,
+  MailIcon,
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -30,6 +31,7 @@ import { PosTerminalSheet } from '@/components/settings/PosTerminalSheet';
 import { PosReceiptSheet } from '@/components/settings/PosReceiptSheet';
 import { PosPaymentsSheet } from '@/components/settings/PosPaymentsSheet';
 import { PosTaxesSheet } from '@/components/settings/PosTaxesSheet';
+import { MailSettingsSheet } from '@/components/settings/MailSettingsSheet';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { useTheme } from 'next-themes';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -93,6 +95,7 @@ export default function SettingsPage() {
   const [isPosReceiptOpen, setIsPosReceiptOpen] = useState(false);
   const [isPosPaymentsOpen, setIsPosPaymentsOpen] = useState(false);
   const [isPosTaxesOpen, setIsPosTaxesOpen] = useState(false);
+  const [isMailSettingsOpen, setIsMailSettingsOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isShiftManagerOpen, setIsShiftManagerOpen] = useState(false);
@@ -198,11 +201,11 @@ export default function SettingsPage() {
       <section className="flex flex-col gap-3">
         <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">{t('settings.preferences')}</p>
         <SettingItem
-          icon={Bell}
-          label={t('settings.notifications')}
-          value="Standard Alerts Active"
+          icon={MailIcon}
+          label="Mail & Notifications"
+          value="Alert Protocols & Gateway"
           color="blue"
-          onClick={() => { }}
+          onClick={() => setIsMailSettingsOpen(true)}
         />
 
 
@@ -340,6 +343,11 @@ export default function SettingsPage() {
       <PosTaxesSheet
         isOpen={isPosTaxesOpen}
         onClose={() => setIsPosTaxesOpen(false)}
+      />
+
+      <MailSettingsSheet
+        isOpen={isMailSettingsOpen}
+        onClose={() => setIsMailSettingsOpen(false)}
       />
 
       <LanguageSelectionSheet

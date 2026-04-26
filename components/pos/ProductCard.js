@@ -50,14 +50,14 @@ const ProductCard = memo(({ product, onAdd, viewMode }) => {
   return (
     <button 
       onClick={() => onAdd(product)}
-      className="glass-panel p-1.5 rounded-2xl flex flex-col items-center gap-2 active:scale-95 transition-all border-glass-border group relative aspect-[4/5] overflow-hidden"
+      className="bg-surface p-1.5 rounded-2xl flex flex-col items-center gap-2 active:scale-95 transition-transform border border-glass-border/30 group relative aspect-[4/5] overflow-hidden shadow-sm"
     >
       {product.variants?.length > 1 && (
         <div className="absolute top-1.5 right-1.5 p-1 bg-brand/10 text-brand rounded-lg shadow-sm z-10">
           <Maximize2 size={8} strokeWidth={4} />
         </div>
       )}
-      <div className="w-full aspect-square rounded-xl bg-surface-muted overflow-hidden border border-glass-border shadow-inner group-hover:scale-105 transition-transform duration-500 relative">
+      <div className="w-full aspect-square rounded-xl bg-surface-muted overflow-hidden border border-glass-border/20 shadow-inner relative">
         {product.image ? (
           <img 
             src={product.image} 

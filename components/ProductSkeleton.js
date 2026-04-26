@@ -27,7 +27,7 @@ export const ProductSkeleton = ({ viewMode = 'grid' }) => {
   return (
     <div className="grid grid-cols-3 gap-3">
       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-        <div key={i} className="glass-panel p-1.5 rounded-2xl flex flex-col items-center gap-2 animate-pulse aspect-[4/5]">
+        <div key={i} className="bg-surface p-1.5 rounded-2xl flex flex-col items-center gap-2 animate-pulse aspect-[4/5] border border-glass-border/20 shadow-sm">
           <div className="w-full aspect-square rounded-xl bg-surface-muted" />
           <div className="flex flex-col items-center gap-1 w-full px-1">
             <div className="h-2.5 w-full bg-surface-muted rounded" />

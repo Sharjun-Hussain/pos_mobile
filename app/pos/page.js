@@ -38,6 +38,7 @@ export default function SalesPage() {
   const [error, setError] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isVariantOpen, setIsVariantOpen] = useState(false);
@@ -46,6 +47,14 @@ export default function SalesPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -97,12 +106,13 @@ export default function SalesPage() {
   };
 
   const filteredProducts = useMemo(() => {
+    const query = debouncedQuery.toLowerCase();
     return products.filter(p => {
       const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = !query || p.name.toLowerCase().includes(query);
       return matchesCategory && matchesSearch;
     });
-  }, [products, activeCategory, searchQuery]);
+  }, [products, activeCategory, debouncedQuery]);
 
   // STABLE HANDLERS
   const handleAddToCart = useCallback((product) => {
@@ -188,7 +198,7 @@ export default function SalesPage() {
       </header>
 
       {/* Main Grid */}
-      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-[calc(var(--sat)+102px)] overscroll-contain no-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-[calc(var(--sat)+102px)] overscroll-contain no-scrollbar" style={{ willChange: 'scroll-position' }}>
         {loading ? (
           <ProductSkeleton viewMode={posViewMode} />
         ) : error ? (
@@ -202,7 +212,7 @@ export default function SalesPage() {
           </div>
         ) : (
           <div className={posViewMode === 'grid' ? "grid grid-cols-3 gap-3" : "flex flex-col gap-2"}>
-            {filteredProducts.map(p => (
+            {filteredProducts.slice(0, 60).map(p => (
               <ProductCard 
                 key={p.id}
                 product={p}

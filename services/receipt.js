@@ -165,24 +165,32 @@ export const receiptService = {
 
         <table>
           <thead>
-            <tr>
-              <th style="width: 50%;">ITEM/QTY</th>
-              <th class="right" style="width: 25%;">PRICE</th>
-              <th class="right" style="width: 25%;">TOTAL</th>
+            <tr class="header">
+              <th style="width: 50%;">${t('pos.item_qty')}</th>
+              <th class="right" style="width: 25%;">${t('pos.price_col')}</th>
+              <th class="right" style="width: 25%;">${t('pos.amount_col')}</th>
             </tr>
           </thead>
           <tbody>
-            ${(sale.items || []).map(item => `
+            ${(sale.items || sale.sale_items || []).map(item => `
               <tr>
-                <td>
+                <td style="width: 50%; min-width: 50%;">
                   <div class="item-row">
-                    <span class="item-name">${item.product_name || item.product?.name || item.name || 'Unknown Item'}</span>
-                    <span class="item-qty">(x${parseFloat(item.quantity)})</span>
+                    <span class="item-name">${Number(item.quantity)} @ ${
+                      item.product_name || 
+                      item.product?.name || 
+                      item.product_variant?.product?.name || 
+                      item.variant?.product?.name || 
+                      item.name || 
+                      'Item'
+                    }</span>
                   </div>
-                  ${(item.variant?.name || item.variant_name) ? `<span class="item-variant">${item.variant?.name || item.variant_name}</span>` : ''}
+                  ${(item.variant?.name || item.product_variant?.name || item.variant_name || item.product_variant_name) ? `
+                    <div class="item-variant" style="padding-left: 12px; font-size: 9px;">- ${item.variant?.name || item.product_variant?.name || item.variant_name || item.product_variant_name}</div>
+                  ` : ''}
                 </td>
-                <td class="right">${parseFloat(item.unit_price || item.price).toLocaleString()}</td>
-                <td class="right bold">${parseFloat(item.total_amount).toLocaleString()}</td>
+                <td class="right" style="width: 25%;">${parseFloat(item.unit_price || item.price || 0).toLocaleString()}</td>
+                <td class="right bold" style="width: 25%;">${parseFloat(item.total_amount || 0).toLocaleString()}</td>
               </tr>
             `).join('')}
           </tbody>

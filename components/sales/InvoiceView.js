@@ -75,30 +75,39 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
       {/* Items Table */}
       <table className="w-full my-4 border-collapse">
         <thead>
-          <tr className="border-b border-black text-left">
-            <th className="py-1 font-black uppercase">{t('pos.item')}/{t('checkout.qty')}</th>
-            <th className="py-1 text-right font-black uppercase">{t('pos.price')}</th>
-            <th className="py-1 text-right font-black uppercase">{t('pos.total')}</th>
-          </tr>
+            <tr className="border-b border-black text-left">
+              <th className="py-1 font-black uppercase text-[10px] w-[50%]">{t('pos.item_qty')}</th>
+              <th className="py-1 text-right font-black uppercase text-[10px] w-[25%]">{t('pos.price_col')}</th>
+              <th className="py-1 text-right font-black uppercase text-[10px] w-[25%]">{t('pos.amount_col')}</th>
+            </tr>
         </thead>
         <tbody className="divide-y divide-dashed divide-black/20">
-          {sale.items?.map((item, idx) => (
+          {(sale.items || sale.sale_items || []).map((item, idx) => (
             <tr key={idx} className="align-top">
-              <td className="py-2 pr-2">
-                <div className="leading-tight">
-                  <span className="font-bold">
-                    {item.product_name || item.product?.name || item.name || t("pos.item")}
-                  </span>
-                  <span className="font-normal opacity-70 ml-1 whitespace-nowrap">
-                    (x{parseFloat(item.quantity || 0)})
-                  </span>
+              <td className="py-2 pr-2" style={{ width: '50%', minWidth: '50%' }}>
+                <div className="leading-tight flex flex-col">
+                  <div className="font-bold text-xs">
+                    {Number(item.quantity || 0)} @ {item.product_name || 
+                     item.product?.name || 
+                     item.product_variant?.product?.name || 
+                     item.variant?.product?.name || 
+                     item.name || 
+                     t("pos.item")}
+                  </div>
                 </div>
-                {(item.variant?.name || item.variant_name) && (
-                  <div className="text-[9px] opacity-70">{item.variant?.name || item.variant_name}</div>
+                {(item.variant?.name || item.product_variant?.name || item.variant_name || item.product_variant_name) && (
+                  <div className="text-[10px] opacity-60 italic font-medium mt-0.5 pl-3 flex items-start gap-1">
+                    <span>-</span>
+                    <span>{item.variant?.name || item.product_variant?.name || item.variant_name || item.product_variant_name}</span>
+                  </div>
                 )}
               </td>
-              <td className="text-right py-2 whitespace-nowrap">{parseFloat(item.unit_price || item.price || 0).toLocaleString()}</td>
-              <td className="text-right py-2 font-bold whitespace-nowrap">{parseFloat(item.total_amount || 0).toLocaleString()}</td>
+              <td className="text-right py-2 whitespace-nowrap" style={{ width: '25%' }}>
+                {parseFloat(item.unit_price || item.price || 0).toLocaleString()}
+              </td>
+              <td className="text-right py-2 font-bold whitespace-nowrap" style={{ width: '25%' }}>
+                {parseFloat(item.total_amount || 0).toLocaleString()}
+              </td>
             </tr>
           ))}
         </tbody>

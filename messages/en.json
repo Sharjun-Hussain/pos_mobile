@@ -24,7 +24,10 @@
     "vat": "VAT",
     "change": "CHANGE",
     "policy": "POLICY",
-    "scanForVerification": "Scan for verification"
+    "scanForVerification": "Scan for verification",
+    "item_qty": "ITEM & QTY",
+    "price_col": "PRICE",
+    "amount_col": "AMOUNT"
   },
   "checkout": {
     "reviewOrder": "Review Order",

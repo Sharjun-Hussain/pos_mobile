@@ -177,7 +177,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   };
 
   const handleFinish = async (targetStatus = 'completed') => {
-    if (cart.length === 0) return;
+    if (cart.length === 0 || isSyncing) return;
 
     if (!selectedCustomer && totalPaid < total) {
       alert("Walk-in customers must pay in full.");
@@ -228,15 +228,37 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
         payable_amount: parseFloat(total.toFixed(2)),
         status: targetStatus,
         is_wholesale: isWholesale,
-        branch_id: selectedBranch?.id
+        branch_id: selectedBranch?.id,
+        notes: `[Terminal: MOBILE-POS]`
       };
 
       const res = await api.sales.create(payload);
       
       if (res.status === 'success') {
+        const saleResponse = res.data?.sale || res.data;
+        
+        // Enrich the server response with our detailed local cart data (Names and Variants)
+        const enrichedSale = {
+          ...saleResponse,
+          cashier: saleResponse.cashier || useAuthStore.getState().user,
+          items: (saleResponse.items || []).map(serverItem => {
+            // Find the item in our cart to get the friendly names
+            const localItem = cart.find(c => 
+              c.variantId === serverItem.product_variant_id || 
+              c.productId === serverItem.product_id
+            );
+            
+            return {
+                ...serverItem,
+                product_name: localItem?.productName || localItem?.name || serverItem.product_name,
+                variant_name: localItem?.variantName !== 'Default' ? localItem?.variantName : null
+            };
+          })
+        };
+
         haptics.heavy();
         clearCart(); 
-        onFinish(res.data?.sale || res.data); 
+        onFinish(enrichedSale); 
         
         setTimeout(() => {
           setStepState([1, 0]);
@@ -625,7 +647,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                           <div className="absolute bottom-full left-0 w-48 bg-surface rounded-2xl shadow-2xl p-1.5 border border-glass-border mb-2 z-[200] animate-in fade-in slide-in-from-bottom-2 duration-200">
                             <button 
                               onClick={() => { haptics.medium(); handleFinish('draft'); }}
-                              className="w-full p-3 rounded-xl flex items-center gap-3 text-text-main hover:bg-brand/5 active:bg-brand/10 transition-colors"
+                              disabled={isSyncing}
+                              className="w-full p-3 rounded-xl flex items-center gap-3 text-text-main hover:bg-brand/5 active:bg-brand/10 transition-colors disabled:opacity-50"
                             >
                               <div className="h-8 w-8 rounded-lg bg-brand/10 flex items-center justify-center text-brand">
                                 <Plus size={16} strokeWidth={3} />

@@ -34,7 +34,9 @@ export const useCartStore = create(
                 variantId: product.id,
                 productId: product.productId,
                 barcode: product.barcode,
-                name: product.fullName,
+                name: product.fullName, // Keep fullName for UI consistency where needed
+                productName: product.name, // Short name
+                variantName: product.variantName, // Attributes (Color, Size etc)
                 size: product.variantName,
                 quantity: 1,
                 price,

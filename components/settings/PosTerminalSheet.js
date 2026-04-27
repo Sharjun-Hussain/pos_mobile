@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { X, Smartphone, Volume2, FileText, ShieldAlert, Save, Check } from 'lucide-react';
+import { X, Smartphone, Volume2, FileText, ShieldAlert, Save, Check, Calculator } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -35,7 +35,7 @@ ToggleRow.displayName = 'ToggleRow';
 
 export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
   const {
-    terminalName, enableSound, checkoutPreview, showTaxBreakdown,
+    terminalName, enableSound, checkoutPreview, showTaxBreakdown, requireShift,
     setTerminalSetting, updatePOSSettings
   } = useSettingsStore();
 
@@ -43,14 +43,20 @@ export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [form, setForm] = useState({ terminalName: '', enableSound: true, checkoutPreview: true, showTaxBreakdown: false });
+  const [form, setForm] = useState({ 
+    terminalName: '', 
+    enableSound: true, 
+    checkoutPreview: true, 
+    showTaxBreakdown: false,
+    requireShift: true 
+  });
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ terminalName, enableSound, checkoutPreview, showTaxBreakdown });
+      setForm({ terminalName, enableSound, checkoutPreview, showTaxBreakdown, requireShift });
       setSuccess(false);
     }
-  }, [isOpen, terminalName, enableSound, checkoutPreview, showTaxBreakdown]);
+  }, [isOpen, terminalName, enableSound, checkoutPreview, showTaxBreakdown, requireShift]);
 
   const setField = useCallback((key, val) => setForm(f => ({ ...f, [key]: val })), []);
 
@@ -61,7 +67,8 @@ export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
     const res = await updatePOSSettings({
       enableSound: form.enableSound,
       checkoutPreview: form.checkoutPreview,
-      showTaxBreakdown: form.showTaxBreakdown
+      showTaxBreakdown: form.showTaxBreakdown,
+      requireShift: form.requireShift
     });
     if (res.success) {
       haptics.heavy();
@@ -104,11 +111,22 @@ export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
                 <ToggleRow icon={Volume2} color="bg-blue-500/10 text-blue-500" label="Haptic & Audio" desc="Synthesize sounds on scan" enabled={form.enableSound} onToggle={() => setField('enableSound', !form.enableSound)} />
                 <ToggleRow icon={FileText} color="bg-orange-500/10 text-orange-500" label="Checkout Preview" desc="Verify items before payment" enabled={form.checkoutPreview} onToggle={() => setField('checkoutPreview', !form.checkoutPreview)} />
                 <ToggleRow icon={ShieldAlert} color="bg-indigo-500/10 text-indigo-500" label="Tax Transparency" desc="Display breakdown in checkout" enabled={form.showTaxBreakdown} onToggle={() => setField('showTaxBreakdown', !form.showTaxBreakdown)} />
+                <ToggleRow icon={Calculator} color="bg-brand/10 text-brand" label="Shift Management" desc="Require opening/closing shift" enabled={form.requireShift} onToggle={() => setField('requireShift', !form.requireShift)} />
               </div>
             </div>
             <div className="absolute bottom-0 left-0 right-0 px-8 py-6 pb-[calc(var(--sab)+1.5rem)] bg-gradient-to-t from-surface via-surface/95 to-transparent border-t border-glass-border/10">
-              <button onClick={handleSave} disabled={loading || success} className={`w-full h-14 rounded-2xl text-white font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-xl disabled:opacity-70 ${success ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-brand shadow-brand/20'}`}>
-                {loading ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : success ? <><Check size={18} strokeWidth={3} /> Settings Saved</> : <><Save size={17} /> Save Settings</>}
+              <button 
+                onClick={handleSave} 
+                disabled={loading || success} 
+                className={`w-full h-14 rounded-2xl text-white font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-xl disabled:opacity-70 ${success ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-brand shadow-brand/20'}`}
+              >
+                {loading ? (
+                  <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : success ? (
+                  <><Check size={18} strokeWidth={3} /> Settings Saved</>
+                ) : (
+                  <><Save size={17} /> Save Settings</>
+                )}
               </button>
             </div>
           </div>

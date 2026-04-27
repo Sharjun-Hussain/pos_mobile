@@ -31,6 +31,7 @@ const NavItem = ({ href, icon: Icon, label }) => {
 import { Preferences } from '@capacitor/preferences';
 import { App } from '@capacitor/app';
 import { Toast } from '@capacitor/toast';
+import { useSettingsStore } from '@/store/useSettingsStore';
 
 export default function POSLayout({ children }) {
   const isDrawerOpen = useUIStore(state => state.isDrawerOpen);
@@ -43,16 +44,17 @@ export default function POSLayout({ children }) {
   const isOnboardingPage = pathname === '/onboarding';
   const isRecoveryPage = pathname === '/forgot-password' || pathname === '/reset-password';
   const isAuthOptionalPage = isLoginPage || isSetupPage || isOnboardingPage || isRecoveryPage;
-  
+
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const isHydrated = useAuthStore(state => state.isHydrated);
   const activeShift = useShiftStore(state => state.activeShift);
   const setShift = useShiftStore(state => state.setShift);
+  const requireShift = useSettingsStore(state => state.requireShift);
   const [isCheckingShift, setIsCheckingShift] = useState(false);
 
   // Fetch active shift logic
   useEffect(() => {
-    if (isHydrated && isAuthenticated && !isAuthOptionalPage && !activeShift && !isCheckingShift) {
+    if (requireShift && isHydrated && isAuthenticated && !isAuthOptionalPage && !activeShift && !isCheckingShift) {
       const fetchShift = async () => {
         setIsCheckingShift(true);
         try {
@@ -68,7 +70,7 @@ export default function POSLayout({ children }) {
       };
       fetchShift();
     }
-  }, [isHydrated, isAuthenticated, isAuthOptionalPage, activeShift]);
+  }, [requireShift, isHydrated, isAuthenticated, isAuthOptionalPage, activeShift]);
 
   useEffect(() => {
     const checkConfig = async () => {
@@ -103,7 +105,7 @@ export default function POSLayout({ children }) {
       // Check for active UI overlays (sheets, modals, etc)
       // Most of our sheets use Vaul (role="dialog") or have specific classes
       const activeOverlay = document.querySelector('[role="dialog"], .vaul-drawer, [data-state="open"]');
-      
+
       if (activeOverlay) {
         // If an overlay is detected, the local component listener should handle it.
         // We exit early to prevent the layout from navigating back as well.
@@ -142,7 +144,7 @@ export default function POSLayout({ children }) {
       />
 
       {/* Force Shift Manager if not public and no active shift */}
-      <ShiftManagerSheet forceOpen={!isAuthOptionalPage && isHydrated && isAuthenticated && !activeShift && !isCheckingShift} />
+      <ShiftManagerSheet forceOpen={requireShift && !isAuthOptionalPage && isHydrated && isAuthenticated && !activeShift && !isCheckingShift} />
 
       <main className={`flex-1 ${isAuthOptionalPage ? '' : 'pb-20'}`}>
         {children}
@@ -153,7 +155,7 @@ export default function POSLayout({ children }) {
           <NavItem href="/" icon={Home} label="Home" />
           <NavItem href="/sales" icon={History} label="History" />
           <div className="relative -top-6">
-            <Link 
+            <Link
               href="/pos"
               onClick={() => haptics.medium()}
               className="flex h-16 w-16 items-center justify-center rounded-full bg-brand text-white shadow-lg shadow-brand/20 active:scale-90 transition-transform"

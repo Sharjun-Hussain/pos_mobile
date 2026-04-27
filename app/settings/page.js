@@ -20,6 +20,7 @@ import {
   Percent,
   Calculator,
   MailIcon,
+  Lock,
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -83,7 +84,8 @@ export default function SettingsPage() {
     currency,
     paperWidth,
     activePaymentMethods,
-    language
+    language,
+    requireShift
   } = useSettingsStore();
 
   const [mounted, setMounted] = useState(false);
@@ -275,9 +277,16 @@ export default function SettingsPage() {
           color="rose"
           onClick={() => setIsPosTaxesOpen(true)}
         />
-        {activeShift && (
+        <SettingItem
+          icon={Calculator}
+          label="Shift Protocol"
+          value={requireShift ? "Mandatory Opening/Closing" : "Bypassed / Not Required"}
+          color={requireShift ? "brand" : "rose"}
+          onClick={() => setIsPosTerminalOpen(true)}
+        />
+        {requireShift && activeShift && (
           <SettingItem
-            icon={Calculator}
+            icon={Lock}
             label="End Shift (Z-Read)"
             value="Close terminal drawer"
             color="rose"

@@ -28,6 +28,7 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useShiftStore } from '@/store/useShiftStore';
 
 export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   // Consume Global Stores
@@ -47,7 +48,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     getSSCLAmount 
   } = useCartStore();
   const { selectedBranch } = useAuthStore();
-  const { isWholesale, activePaymentMethods, currency: currentCurrency, checkoutPreview, vatRate, ssclRate } = useSettingsStore();
+  const { isWholesale, activePaymentMethods, currency: currentCurrency, checkoutPreview, vatRate, ssclRate, requireShift } = useSettingsStore();
+  const { activeShift } = useShiftStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
 
@@ -229,6 +231,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
         status: targetStatus,
         is_wholesale: isWholesale,
         branch_id: selectedBranch?.id,
+        shift_id: activeShift?.id || null,
         notes: `[Terminal: MOBILE-POS]`
       };
 

@@ -18,6 +18,7 @@ export const useSettingsStore = create(
       showTaxBreakdown: false,
       checkoutPreview: true,
       posViewMode: 'grid',
+      requireShift: true,
       
       // Hardware/Receipt
       paperWidth: '80mm',
@@ -59,6 +60,7 @@ export const useSettingsStore = create(
               refundPolicy: d.refundPolicy ?? get().refundPolicy,
               paperWidth: d.paperWidth ?? get().paperWidth,
               activePaymentMethods: d.activePaymentMethods ?? get().activePaymentMethods,
+              requireShift: d.requireShift !== undefined ? d.requireShift : get().requireShift,
             });
           }
 
@@ -104,7 +106,8 @@ export const useSettingsStore = create(
           footerText: newData.footerText,
           refundPolicy: newData.refundPolicy,
           paperWidth: newData.paperWidth,
-          activePaymentMethods: newData.activePaymentMethods
+          activePaymentMethods: newData.activePaymentMethods,
+          requireShift: newData.requireShift
         };
         
         try {

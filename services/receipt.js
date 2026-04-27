@@ -24,7 +24,8 @@ export const receiptService = {
       footerText, 
       refundPolicy,
       paperWidth,
-      terminalName 
+      terminalName,
+      businessPhone
     } = useSettingsStore.getState();
 
     const formatDate = (dateStr) => {
@@ -105,6 +106,7 @@ export const receiptService = {
             margin: 4px 0; 
             border-bottom: 1px dashed #000; 
             padding-bottom: 4px; 
+            padding-top: 4px;
           }
           
           @media print {
@@ -121,11 +123,11 @@ export const receiptService = {
           <div class="bold" style="font-size: 18px; line-height: 1.1;">${businessName || 'Inzeedo POS'}</div>
           <div style="opacity: 0.8; margin-top: 4px;">
             <div>${sale.branch?.address || ''}</div>
-            <div>TEL: ${sale.branch?.phone || ''}</div>
+            <div>TEL: ${sale.branch?.phone || businessPhone || '+94 112 345 678'}</div>
             ${taxId ? `<div>VAT/TIN: ${taxId}</div>` : ''}
           </div>
           ${headerText && headerText !== 'Sale Invoice' ? `
-            <div class="bold" style="margin-top: 8px; border-top: 1px solid #000; pt-1">${headerText}</div>
+            <div class="bold" style="margin-top: 8px; border-top: 1px solid #000; padding-top: 4px;">${headerText}</div>
           ` : ''}
         </div>
 
@@ -174,7 +176,7 @@ export const receiptService = {
               <tr>
                 <td>
                   <div class="item-row">
-                    <span class="item-name">${item.product?.name || item.name}</span>
+                    <span class="item-name">${item.product_name || item.product?.name || item.name || 'Unknown Item'}</span>
                     <span class="item-qty">(x${parseFloat(item.quantity)})</span>
                   </div>
                   ${(item.variant?.name || item.variant_name) ? `<span class="item-variant">${item.variant?.name || item.variant_name}</span>` : ''}

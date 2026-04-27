@@ -8,7 +8,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { format } from 'date-fns';
 
 export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
-  const { showLogo, businessLogo, businessName, taxId, headerText, footerText, refundPolicy } = useSettingsStore();
+  const { showLogo, businessLogo, businessName, taxId, headerText, footerText, refundPolicy, businessPhone } = useSettingsStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
 
@@ -34,7 +34,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
         </h1>
         <div className="opacity-80 leading-tight">
           <p>{sale.branch?.address || "Main Distribution Hub"}</p>
-          <p>{t('pos.tel')}: {sale.branch?.phone || "+94 112 345 678"}</p>
+          <p>{t('pos.tel')}: {sale.branch?.phone || businessPhone || "+94 112 345 678"}</p>
           {taxId && <p>{t('pos.vat')}: {taxId}</p>}
         </div>
         {headerText && headerText !== "Sale Invoice" && (
@@ -87,7 +87,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
               <td className="py-2 pr-2">
                 <div className="leading-tight">
                   <span className="font-bold">
-                    {item.product?.name || item.name || t("pos.item")}
+                    {item.product_name || item.product?.name || item.name || t("pos.item")}
                   </span>
                   <span className="font-normal opacity-70 ml-1 whitespace-nowrap">
                     (x{parseFloat(item.quantity || 0)})

@@ -34,6 +34,7 @@ export const useSettingsStore = create(
       ssclRate: 2.5,
       businessLogo: '',
       activePaymentMethods: ['cash', 'card'],
+      businessPhone: '',
       
       // Actions
       setWholesale: (val) => set({ isWholesale: val }),
@@ -70,7 +71,8 @@ export const useSettingsStore = create(
               businessName: b.name || '',
               taxId: b.tax_id || '',
               currency: b.currency || 'LKR',
-              businessLogo: logoUrl || ''
+              businessLogo: logoUrl || '',
+              businessPhone: b.phone || ''
             });
           }
            // 3. Fetch General/Finance Settings (Tax Rate, VAT, SSCL)

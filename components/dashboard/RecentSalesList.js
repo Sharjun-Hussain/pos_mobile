@@ -1,7 +1,7 @@
 "use client";
 
 import React, { memo } from 'react';
-import { Clock, ChevronRight, User } from 'lucide-react';
+import { Clock, ChevronRight, User, RotateCcw } from 'lucide-react';
 import { useCurrency } from '@/hooks/useCurrency';
 
 export const RecentSalesList = memo(({ sales = [], isLoading, onSaleClick }) => {
@@ -52,40 +52,51 @@ export const RecentSalesList = memo(({ sales = [], isLoading, onSaleClick }) => 
 
   return (
     <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      {sales.map((sale) => (
-        <button
-          key={sale.id}
-          onClick={() => onSaleClick?.(sale)}
-          className="glass-panel p-4 rounded-[2rem] flex items-center justify-between active:scale-[0.98] transition-all hover:bg-surface-muted/30"
-        >
-          <div className="flex items-center gap-4 text-left">
-            <div className="h-11 w-11 rounded-2xl bg-brand/10 text-brand flex items-center justify-center">
-              <User size={20} />
-            </div>
-            <div>
-              <h5 className="text-sm font-bold text-text-main line-clamp-1">
-                {sale.customer?.name || "Walk-in Guest"}
-              </h5>
-              <div className="flex items-center gap-2 mt-1">
-                <p className="text-xs font-bold text-text-secondary opacity-60 flex items-center gap-1 uppercase tracking-wider">
-                  <Clock size={10} /> {getTimeAgo(sale.created_at)}
-                </p>
-                <div className="h-1 w-1 rounded-full bg-text-secondary/20" />
-                <p className="text-xs font-bold text-brand uppercase">{sale.payment_method || 'CASH'}</p>
+      {sales.map((item) => {
+        const isReturn = item.txType === 'return';
+        const amount = isReturn ? parseFloat(item.refund_amount || 0) : parseFloat(item.payable_amount || 0);
+        
+        return (
+          <button
+            key={item.id}
+            onClick={() => onSaleClick?.(item)}
+            className="glass-panel p-4 rounded-[2rem] flex items-center justify-between active:scale-[0.98] transition-all hover:bg-surface-muted/30"
+          >
+            <div className="flex items-center gap-4 text-left">
+              <div className={`h-11 w-11 rounded-2xl flex items-center justify-center ${
+                isReturn ? 'bg-rose-500/10 text-rose-500' : 'bg-brand/10 text-brand'
+              }`}>
+                {isReturn ? <RotateCcw size={20} /> : <User size={20} />}
+              </div>
+              <div>
+                <h5 className="text-sm font-bold text-text-main line-clamp-1">
+                  {isReturn ? (item.invoice_number || 'Sale Return') : (item.customer?.name || "Walk-in Guest")}
+                </h5>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-xs font-bold text-text-secondary opacity-60 flex items-center gap-1 uppercase tracking-wider">
+                    <Clock size={10} /> {getTimeAgo(item.created_at)}
+                  </p>
+                  <div className="h-1 w-1 rounded-full bg-text-secondary/20" />
+                  <p className={`text-xs font-bold uppercase ${isReturn ? 'text-rose-500' : 'text-brand'}`}>
+                    {isReturn ? 'REFUND' : (item.payment_method || 'CASH')}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-sm font-black text-text-main leading-none">
-                {formatCurrency(parseFloat(sale.payable_amount))}
-              </p>
-              <p className="text-[10px] font-bold text-text-secondary mt-1 tracking-tight">{sale.invoice_number}</p>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className={`text-sm font-black leading-none ${isReturn ? 'text-rose-500' : 'text-text-main'}`}>
+                  {isReturn && '-'} {formatCurrency(amount)}
+                </p>
+                <p className="text-[10px] font-bold text-text-secondary mt-1 tracking-tight">
+                  {isReturn ? (item.return_number || item.id.slice(0,8)) : item.invoice_number}
+                </p>
+              </div>
+              <ChevronRight size={16} className="text-text-secondary opacity-30" />
             </div>
-            <ChevronRight size={16} className="text-text-secondary opacity-30" />
-          </div>
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 });

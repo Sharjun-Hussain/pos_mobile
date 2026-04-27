@@ -9,7 +9,8 @@ import {
   AlertCircle,
   DollarSign,
   FileText,
-  Menu
+  Menu,
+  RotateCcw
 } from 'lucide-react';
 import { api } from '@/services/api';
 import { haptics } from '@/services/haptics';
@@ -227,8 +228,21 @@ export default function Home() {
 
   const { data: userData, isLoading: userLoading } = useFetch('/auth/me');
   const { data: statsData, error: statsError, isLoading: statsLoading } = useFetch('/reports/dashboard/summary');
-  const { data: salesData, isLoading: salesLoading } = useFetch('/sales?limit=5');
+  const { data: salesData, isLoading: salesLoading } = useFetch('/sales?limit=10');
+  const { data: returnsData, isLoading: returnsLoading } = useFetch('/sales/returns/list?limit=10');
   const { data: productsData, isLoading: productsLoading } = useFetch('/products?limit=5');
+
+  const recentTransactions = useMemo(() => {
+    const s = salesData?.data || salesData || [];
+    const r = returnsData?.data || returnsData || [];
+    
+    const salesWithType = Array.isArray(s) ? s.map(item => ({ ...item, txType: 'sale' })) : [];
+    const returnsWithType = Array.isArray(r) ? r.map(item => ({ ...item, txType: 'return' })) : [];
+    
+    return [...salesWithType, ...returnsWithType]
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, 5);
+  }, [salesData, returnsData]);
 
   // Fetch Sales Report for Chart Data (Last 7 Days)
   const chartDateRange = useMemo(() => {
@@ -292,16 +306,15 @@ export default function Home() {
     }
   }, [isHydrated, isAuthenticated, selectedBranch, userData?.user?.branches?.length, user?.branches?.length]);
 
-  const loading = userLoading || statsLoading || salesLoading || productsLoading;
-  const recentSales = salesData?.data || salesData || [];
+  const loading = userLoading || statsLoading || salesLoading || returnsLoading || productsLoading;
   const lowStockItems = (productsData?.data || productsData || []).filter(p => p.stock <= (p.reorder_level || 5));
   const displayUser = userData?.user || user;
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUser?.name || 'Felix'}`;
   
-  const handleSaleClick = useCallback((sale) => {
+  const handleSaleClick = useCallback((item) => {
     haptics.medium();
     startTransition(() => {
-        setSelectedSaleId(sale.id);
+        setSelectedSaleId(item.sale_id || item.id);
         setIsDetailsOpen(true);
     });
   }, []);
@@ -385,8 +398,8 @@ export default function Home() {
       <BusinessPulse chartData={aggregatedChartData || stats?.chartData} loading={chartLoading || statsLoading} />
 
       <TransactionsSection 
-        recentSales={recentSales} 
-        loading={salesLoading} 
+        recentSales={recentTransactions} 
+        loading={salesLoading || returnsLoading} 
         onSaleClick={handleSaleClick} 
         router={router} 
       />

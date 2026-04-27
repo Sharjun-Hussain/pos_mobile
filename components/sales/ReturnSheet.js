@@ -25,6 +25,8 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
+  const getReturnedQty = (item) => parseFloat(item.returned_quantity || item.quantity_returned || item.return_qty || 0);
+
   useEffect(() => {
     if (isOpen && sale) {
       // Initialize return items with 0 quantity initially
@@ -41,7 +43,10 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
   const updateQuantity = (itemId, delta) => {
     setReturnItems(prev => prev.map(item => {
       if (item.id === itemId) {
-        const newQty = Math.max(0, Math.min(item.quantity, item.return_quantity + delta));
+        const alreadyReturned = getReturnedQty(item);
+        const maxReturnable = item.quantity - alreadyReturned;
+        const newQty = Math.max(0, Math.min(maxReturnable, item.return_quantity + delta));
+        
         if (newQty !== item.return_quantity) haptics.light();
         return { ...item, return_quantity: newQty };
       }
@@ -80,10 +85,11 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
 
       const res = await api.sales.returns.create(payload);
       if (res.status === 'success') {
-        haptics.heavy();
+        haptics.success();
         await Toast.show({
           text: 'Return processed successfully',
-          duration: 'long'
+          duration: 'long',
+          position: 'bottom'
         });
         onFinish();
         onClose();
@@ -91,9 +97,11 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
     } catch (err) {
       const msg = err.message || 'Refund processing failed';
       setError(msg);
+      haptics.error();
       await Toast.show({
-        text: msg,
-        duration: 'long'
+        text: 'Return Failed: ' + (msg.length > 40 ? 'Quantity Limit Exceeded' : msg),
+        duration: 'long',
+        position: 'bottom'
       });
     } finally {
       setIsSubmitting(false);
@@ -144,7 +152,10 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
                   <div key={item.id} className="bg-surface-muted p-4 rounded-2xl border border-glass-border/20 flex items-center justify-between">
                     <div className="flex-1 overflow-hidden pr-4">
                       <h4 className="text-[12px] font-bold text-text-main truncate">{item.product?.name}</h4>
-                      <p className="text-[10px] font-bold text-text-secondary opacity-40 mt-0.5">Purchased: {item.quantity}</p>
+                      <p className="text-[10px] font-bold text-text-secondary opacity-40 mt-0.5">
+                        Purchased: {item.quantity} 
+                        {getReturnedQty(item) > 0 && <span className="text-rose-500 ml-1">(Returned: {getReturnedQty(item)})</span>}
+                      </p>
                     </div>
                     
                     <div className="flex items-center gap-3">
@@ -159,7 +170,7 @@ export const ReturnSheet = ({ isOpen, onClose, sale, onFinish }) => {
                       </span>
                       <button 
                         onClick={() => updateQuantity(item.id, 1)}
-                        className={`text-text-secondary opacity-20 active:scale-90 transition-transform ${item.return_quantity < item.quantity ? 'text-brand opacity-100' : ''}`}
+                        className={`text-text-secondary opacity-20 active:scale-90 transition-transform ${item.return_quantity + getReturnedQty(item) < item.quantity ? 'text-brand opacity-100' : 'pointer-events-none'}`}
                       >
                         <PlusCircle size={22} />
                       </button>

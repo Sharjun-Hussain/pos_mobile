@@ -12,8 +12,15 @@ export const receiptService = {
   /**
    * Generates a thermal receipt layout and triggers the print dialog.
    */
-  print: async (sale) => {
+  print: async (sale, t) => {
     if (!sale) return;
+
+    // Use provided translation function or fallback to a simple mapper
+    const translate = t || ((key) => {
+      const parts = key.split('.');
+      const label = parts[parts.length - 1];
+      return label.charAt(0).toUpperCase() + label.slice(1).replace(/_/g, ' ');
+    });
 
     const { 
       showLogo, 
@@ -166,9 +173,9 @@ export const receiptService = {
         <table>
           <thead>
             <tr class="header">
-              <th style="width: 50%;">${t('pos.item_qty')}</th>
-              <th class="right" style="width: 25%;">${t('pos.price_col')}</th>
-              <th class="right" style="width: 25%;">${t('pos.amount_col')}</th>
+              <th style="width: 50%;">${translate('pos.item_qty')}</th>
+              <th class="right" style="width: 25%;">${translate('pos.price_col')}</th>
+              <th class="right" style="width: 25%;">${translate('pos.amount_col')}</th>
             </tr>
           </thead>
           <tbody>
@@ -198,30 +205,30 @@ export const receiptService = {
 
         <div style="margin-top: 4px;">
           <div class="row">
-            <span>${t('checkout.subtotal')}:</span>
+            <span>${translate('checkout.subtotal')}:</span>
             <span>${parseFloat(sale.total_amount).toLocaleString()}</span>
           </div>
           ${parseFloat(sale.discount_amount) > 0 ? `
             <div class="row" style="color: #15803d; font-size: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 2px; margin-bottom: 2px;">
-              <span>${t('checkout.discount')}:</span>
+              <span>${translate('checkout.discount')}:</span>
               <span>- ${parseFloat(sale.discount_amount).toLocaleString()}</span>
             </div>
           ` : ''}
           ${parseFloat(sale.tax_amount) > 0 ? `
             <div class="row">
-              <span>${t('checkout.vat')}:</span>
+              <span>${translate('checkout.vat')}:</span>
               <span>${parseFloat(sale.tax_amount).toLocaleString()}</span>
             </div>
           ` : ''}
           ${parseFloat(sale.adjustment || 0) !== 0 ? `
             <div class="row">
-              <span>${t('checkout.adjustment')}:</span>
+              <span>${translate('checkout.adjustment')}:</span>
               <span>${parseFloat(sale.adjustment).toLocaleString()}</span>
             </div>
           ` : ''}
           
           <div class="row grand-total">
-            <span>${t('pos.total')}:</span>
+            <span>${translate('pos.total')}:</span>
             <span>${parseFloat(sale.payable_amount).toLocaleString()}</span>
           </div>
         </div>

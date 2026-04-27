@@ -13,12 +13,14 @@ import { api } from '@/services/api';
 import { receiptService } from '@/services/receipt';
 import { InvoiceView } from './InvoiceView';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, onReturnTrigger }) => {
   useHardwareBack(isOpen, onClose);
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isOpen && saleId) {
@@ -46,8 +48,8 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, onReturnTrigger
   const handlePrint = useCallback(() => {
     if (!sale) return;
     haptics.medium();
-    receiptService.print(sale);
-  }, [sale]);
+    receiptService.print(sale, t);
+  }, [sale, t]);
 
   return (
     <Drawer.Root 

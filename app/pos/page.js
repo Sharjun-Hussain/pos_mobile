@@ -174,7 +174,7 @@ export default function SalesPage() {
     
     // Auto-print receipt
     if (saleData) {
-      receiptService.print(saleData);
+      receiptService.print(saleData, t);
     }
     
     // Show native toast

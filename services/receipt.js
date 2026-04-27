@@ -23,7 +23,8 @@ export const receiptService = {
       headerText, 
       footerText, 
       refundPolicy,
-      paperWidth 
+      paperWidth,
+      terminalName 
     } = useSettingsStore.getState();
 
     const formatDate = (dateStr) => {
@@ -65,42 +66,49 @@ export const receiptService = {
             margin: 0; 
             padding: 8mm 4mm; 
             font-family: 'Courier New', Courier, monospace; 
-            font-size: 12px; 
-            line-height: 1.3;
+            font-size: 11px; 
+            line-height: 1.2;
             color: #000;
             background: #fff;
           }
           .center { text-align: center; }
           .right { text-align: right; }
           .bold { font-weight: bold; }
-          .divider { border-top: 1px dashed #000; margin: 6px 0; }
-          .double-divider { border-top: 2px solid #000; margin: 8px 0; }
-          .row { display: flex; justify-content: space-between; margin: 2px 0; }
+          .black { font-weight: 900; }
+          .divider { border-top: 1px dashed #000; margin: 4px 0; }
+          .thick-divider { border-top: 2px solid #000; margin: 6px 0; }
+          .row { display: flex; justify-content: space-between; margin: 1px 0; }
           .header { margin-bottom: 12px; }
-          .footer { margin-top: 20px; font-size: 10px; opacity: 0.8; }
+          .footer { margin-top: 15px; font-size: 9px; opacity: 0.8; }
           
-          table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+          table { width: 100%; border-collapse: collapse; margin: 12px 0; }
           th { text-align: left; border-bottom: 1px solid #000; padding: 4px 0; font-size: 10px; text-transform: uppercase; }
-          td { padding: 4px 0; vertical-align: top; }
+          td { padding: 6px 0; vertical-align: top; border-bottom: 1px dashed rgba(0,0,0,0.15); }
           
-          .item-name { font-weight: bold; font-size: 12px; display: block; }
-          .item-desc { font-size: 10px; opacity: 0.7; }
+          .item-row { display: block; }
+          .item-name { font-weight: bold; font-size: 11px; }
+          .item-qty { font-weight: normal; opacity: 0.7; margin-left: 4px; }
+          .item-variant { font-size: 9px; opacity: 0.7; display: block; margin-top: 1px; }
           
-          .total-row { font-size: 15px; font-weight: 900; margin-top: 4px; padding-top: 4px; }
+          .grand-total { 
+            font-size: 14px; 
+            font-weight: 900; 
+            padding-top: 4px; 
+            margin-top: 4px;
+            border-top: 2px solid #000;
+          }
           .qr-container { margin: 15px 0; text-align: center; }
           .qr-image { width: 80px; height: 80px; }
-          .sale-badge { 
-             text-align: center; 
-             font-size: 10px; 
-             font-weight: bold; 
-             border: 1px solid #000; 
-             margin: 5px auto; 
-             padding: 2px 8px;
-             display: inline-block;
+          .sale-type { 
+            font-weight: bold; 
+            font-size: 10px; 
+            margin: 4px 0; 
+            border-bottom: 1px dashed #000; 
+            padding-bottom: 4px; 
           }
           
           @media print {
-            body { padding: 0 4mm 8mm 4mm; }
+            body { padding: 4mm; }
             .no-print { display: none; }
           }
         </style>
@@ -108,21 +116,21 @@ export const receiptService = {
       <body>
         <div class="center header">
           ${showLogo && businessLogo ? `
-            <img src="${businessLogo}" style="max-width: 120px; max-height: 60px; object-fit: contain; margin-bottom: 10px;" />
+            <img src="${businessLogo}" style="width: 60px; height: 60px; object-fit: contain; margin-bottom: 8px;" />
           ` : ''}
-          <div class="bold" style="font-size: 16px; line-height: 1.1;">${headerText || businessName || 'INZEEDO POS'}</div>
-          ${sale.branch?.name ? `<div style="text-transform: uppercase; font-size: 11px; margin-top: 2px;">${sale.branch.name}</div>` : ''}
-          <div style="font-size: 10px;">${sale.branch?.address || ''}</div>
-          <div style="font-size: 10px;">TEL: ${sale.branch?.phone || ''}</div>
-          ${taxId ? `<div style="font-size: 10px;">TIN: ${taxId}</div>` : ''}
+          <div class="bold" style="font-size: 18px; line-height: 1.1;">${businessName || 'Inzeedo POS'}</div>
+          <div style="opacity: 0.8; margin-top: 4px;">
+            <div>${sale.branch?.address || ''}</div>
+            <div>TEL: ${sale.branch?.phone || ''}</div>
+            ${taxId ? `<div>VAT/TIN: ${taxId}</div>` : ''}
+          </div>
+          ${headerText && headerText !== 'Sale Invoice' ? `
+            <div class="bold" style="margin-top: 8px; border-top: 1px solid #000; pt-1">${headerText}</div>
+          ` : ''}
         </div>
 
-        <div class="divider"></div>
+        <div class="divider" style="border-top-style: dashed;"></div>
         
-        <div class="center">
-           <div class="sale-badge">${(sale.is_wholesale ? 'WHOLESALE' : 'RETAIL').toUpperCase()} SALE</div>
-        </div>
-
         <div class="row">
           <span>INVOICE:</span>
           <span class="bold">${sale.invoice_number || 'DRAFT'}</span>
@@ -131,35 +139,46 @@ export const receiptService = {
           <span>DATE:</span>
           <span>${formatDate(sale.created_at)}</span>
         </div>
-        <div class="row">
-          <span>CASHIER:</span>
-          <span>${sale.cashier?.name || 'Staff User'}</span>
+        
+        <div class="center sale-type">
+          ${(sale.is_wholesale ? 'WHOLESALE' : 'RETAIL').toUpperCase()} SALE
         </div>
+
         ${sale.customer ? `
           <div class="row">
             <span>CUSTOMER:</span>
-            <span class="bold">${sale.customer.name}</span>
+            <span>${sale.customer.name}</span>
+          </div>
+        ` : ''}
+        <div class="row">
+          <span>USER:</span>
+          <span>${sale.cashier?.name || 'Staff User'}</span>
+        </div>
+        ${terminalName ? `
+          <div class="row" style="opacity: 0.6; font-size: 9px;">
+            <span>TERMINAL:</span>
+            <span>${terminalName.toUpperCase()}</span>
           </div>
         ` : ''}
 
         <table>
           <thead>
             <tr>
-              <th style="width: 45%;">ITEM/QTY</th>
+              <th style="width: 50%;">ITEM/QTY</th>
               <th class="right" style="width: 25%;">PRICE</th>
-              <th class="right" style="width: 30%;">TOTAL</th>
+              <th class="right" style="width: 25%;">TOTAL</th>
             </tr>
           </thead>
           <tbody>
             ${(sale.items || []).map(item => `
               <tr>
-                <td colspan="3">
-                  <span class="item-name">${item.product?.name || item.name}</span>
-                  <span class="item-desc">${item.variant?.name || item.variant_name || 'Standard'}</span>
+                <td>
+                  <div class="item-row">
+                    <span class="item-name">${item.product?.name || item.name}</span>
+                    <span class="item-qty">(x${parseFloat(item.quantity)})</span>
+                  </div>
+                  ${(item.variant?.name || item.variant_name) ? `<span class="item-variant">${item.variant?.name || item.variant_name}</span>` : ''}
                 </td>
-              </tr>
-              <tr style="border-bottom: 1px dotted #ccc;">
-                <td class="bold">x ${parseFloat(item.quantity)}</td>
                 <td class="right">${parseFloat(item.unit_price || item.price).toLocaleString()}</td>
                 <td class="right bold">${parseFloat(item.total_amount).toLocaleString()}</td>
               </tr>
@@ -167,84 +186,75 @@ export const receiptService = {
           </tbody>
         </table>
 
-        <div class="divider"></div>
-
-        <div class="row">
-          <span>SUB TOTAL:</span>
-          <span>${parseFloat(sale.total_amount).toLocaleString()}</span>
-        </div>
-        ${parseFloat(sale.discount_amount) > 0 ? `
+        <div style="margin-top: 4px;">
           <div class="row">
-            <span>SAVINGS (DISC):</span>
-            <span>- ${parseFloat(sale.discount_amount).toLocaleString()}</span>
+            <span>SUB TOTAL:</span>
+            <span>${parseFloat(sale.total_amount).toLocaleString()}</span>
           </div>
-        ` : ''}
-        ${parseFloat(sale.sscl_amount) > 0 ? `
-          <div class="row">
-            <span>SSCL:</span>
-            <span>${parseFloat(sale.sscl_amount).toLocaleString()}</span>
+          ${parseFloat(sale.discount_amount) > 0 ? `
+            <div class="row" style="color: #15803d; font-size: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 2px; margin-bottom: 2px;">
+              <span>TOTAL DISCOUNT:</span>
+              <span>${parseFloat(sale.discount_amount).toLocaleString()}</span>
+            </div>
+          ` : ''}
+          ${parseFloat(sale.tax_amount) > 0 ? `
+            <div class="row">
+              <span>TAX:</span>
+              <span>${parseFloat(sale.tax_amount).toLocaleString()}</span>
+            </div>
+          ` : ''}
+          ${parseFloat(sale.adjustment || 0) !== 0 ? `
+            <div class="row">
+              <span>ADJUSTMENT:</span>
+              <span>${parseFloat(sale.adjustment).toLocaleString()}</span>
+            </div>
+          ` : ''}
+          
+          <div class="row grand-total">
+            <span>GRAND TOTAL:</span>
+            <span>${parseFloat(sale.payable_amount).toLocaleString()}</span>
           </div>
-        ` : ''}
-        ${parseFloat(sale.vat_amount) > 0 ? `
-          <div class="row">
-            <span>VAT:</span>
-            <span>${parseFloat(sale.vat_amount).toLocaleString()}</span>
-          </div>
-        ` : (parseFloat(sale.tax_amount) > 0 && !sale.sscl_amount) ? `
-          <div class="row">
-            <span>TAX:</span>
-            <span>${parseFloat(sale.tax_amount).toLocaleString()}</span>
-          </div>
-        ` : ''}
-        ${parseFloat(sale.adjustment || 0) !== 0 ? `
-          <div class="row">
-            <span>ADJUSTMENT:</span>
-            <span>${parseFloat(sale.adjustment).toLocaleString()}</span>
-          </div>
-        ` : ''}
-        
-        <div class="double-divider"></div>
-        
-        <div class="row total-row">
-          <span>GRAND TOTAL:</span>
-          <span>LKR ${parseFloat(sale.payable_amount).toLocaleString()}</span>
         </div>
 
-        <div class="divider"></div>
-        
-        ${sale.payments && sale.payments.length > 0 ? sale.payments.map(pmt => `
-            <div class="row bold">
-              <span class="uppercase">${pmt.payment_method} PAID:</span>
-              <span>LKR ${parseFloat(pmt.amount).toLocaleString()}</span>
+        <div style="margin-top: 8px; border-top: 1px dashed #000; pt-2;">
+          ${sale.payments && sale.payments.length > 0 ? sale.payments.map(pmt => `
+              <div class="row" style="font-size: 11px;">
+                <span class="uppercase">${pmt.payment_method} PAID:</span>
+                <span class="bold">${parseFloat(pmt.amount).toLocaleString()}</span>
+              </div>
+          `).join('') : `
+              <div class="row" style="font-size: 11px;">
+                <span class="uppercase">${sale.payment_method || 'CASH'} PAID:</span>
+                <span class="bold">${parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString()}</span>
+              </div>
+          `}
+          
+          ${(parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount)) ? `
+            <div class="row" style="font-weight: bold; border-top: 1px solid rgba(0,0,0,0.1); mt-1; pt-1;">
+              <span>CHANGE:</span>
+              <span>${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString()}</span>
             </div>
-        `).join('') : `
-            <div class="row bold">
-              <span class="uppercase">${sale.payment_method || 'CASH'} PAID:</span>
-              <span>LKR ${parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString()}</span>
-            </div>
-        `}
-        
-        ${(parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount)) ? `
-          <div class="row">
-            <span>CHANGE:</span>
-            <span>LKR ${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString()}</span>
-          </div>
-        ` : ''}
+          ` : ''}
+        </div>
 
         <div class="qr-container">
           <img class="qr-image" src="${qrUrl}" alt="Verification QR" />
-          <div style="font-size: 7px; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5;">Scan for digital verification</div>
+          <div style="font-size: 7px; margin-top: 4px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.4; font-weight: bold;">Scan for digital verification</div>
         </div>
 
         <div class="footer center">
-          ${refundPolicy ? `<div style="border-bottom: 1px dashed #ccc; padding-bottom: 8px; margin-bottom: 8px; font-size: 9px; line-height: 1.2;"><b>POLICIES:</b> ${refundPolicy}</div>` : ''}
-          <div class="bold italic">"${footerText || 'Thank you for your business!'}"</div>
-          <div style="margin-top: 15px;">
-            <div class="bold">POWRED BY INZEEDO POS</div>
-            <div style="font-size: 8px; opacity: 0.6;">A Premium Enterprise Cloud Solution</div>
+          ${refundPolicy ? `
+            <div style="border-bottom: 1px dashed #ccc; padding-bottom: 4px; margin-bottom: 8px; font-size: 9px;">
+              <span class="bold">REFUND/RETURN POLICY:</span><br/>
+              ${refundPolicy}
+            </div>
+          ` : ''}
+          ${footerText ? `<div style="font-size: 10px; margin-bottom: 8px; white-space: pre-wrap;">${footerText}</div>` : ''}
+          
+          <div style="opacity: 0.5; margin-top: 12px; line-height: 1.1;">
+            <div class="bold" style="font-size: 8px;">A next-generation enterprise solution by Inzeedo</div>
+            <div style="font-size: 7px;">© 2026 Inzeedo. All rights reserved.</div>
           </div>
-          <br/>
-          <div style="font-size: 9px; border: 1px solid #000; padding: 2px;">*** CUSTOMER COPY ***</div>
         </div>
 
         <script>
@@ -266,3 +276,4 @@ export const receiptService = {
     }
   }
 };
+

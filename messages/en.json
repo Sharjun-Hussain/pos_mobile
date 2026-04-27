@@ -13,7 +13,18 @@
     "items": "Items",
     "itemsSelected": "Items Selected",
     "reviewCart": "Review Cart",
-    "total": "Total"
+    "total": "Total",
+    "item": "Item",
+    "invoice": "INVOICE",
+    "date": "DATE",
+    "user": "USER",
+    "customer": "CUSTOMER",
+    "terminal": "TERMINAL",
+    "tel": "TEL",
+    "vat": "VAT",
+    "change": "CHANGE",
+    "policy": "POLICY",
+    "scanForVerification": "Scan for verification"
   },
   "checkout": {
     "reviewOrder": "Review Order",

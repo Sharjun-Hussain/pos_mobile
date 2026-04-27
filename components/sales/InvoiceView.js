@@ -5,190 +5,186 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
+import { format } from 'date-fns';
 
 export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
-  const { showLogo, businessLogo } = useSettingsStore();
+  const { showLogo, businessLogo, businessName, taxId, headerText, footerText, refundPolicy } = useSettingsStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
 
   if (!sale) return null;
 
-  const formatDate = (dateStr) => {
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleString('en-GB', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      }).replace(',', '');
-    } catch (e) {
-      return dateStr;
-    }
-  };
-
   const qrData = JSON.stringify({
     invoice: sale.invoice_number || "Draft",
-    date: sale.created_at ? sale.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
-    total: (sale.payable_amount || 0).toString()
+    date: sale.created_at ? format(new Date(sale.created_at), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+    total: (sale.payable_amount || sale.net_total || 0).toString()
   });
 
   return (
-    <div className="bg-white text-black p-6 font-mono text-[12px] leading-tight shadow-inner min-h-[500px]">
-      {/* Logo */}
-      {showLogo && businessLogo && (
-        <div className="flex justify-center mb-6">
-          <img src={businessLogo} alt="Business Logo" className="max-w-[140px] max-h-[70px] object-contain" />
-        </div>
-      )}
-
+    <div className="bg-white text-black p-6 font-mono text-[11px] leading-tight shadow-inner min-h-[500px] w-full max-w-[400px] mx-auto">
       {/* Header */}
-      <div className="text-center space-y-1 mb-6">
+      <div className="text-center space-y-1 mb-4">
+        {showLogo && businessLogo && (
+          <div className="flex justify-center mb-2">
+            <img src={businessLogo} alt="Business Logo" className="w-16 h-16 object-contain" />
+          </div>
+        )}
         <h1 className="text-lg font-black uppercase tracking-tight">
-          {sale.branch?.organization?.name || "Inzeedo POS"}
+          {businessName || "Inzeedo POS"}
         </h1>
-        <div className="opacity-80 text-[10px]">
+        <div className="opacity-80 leading-tight">
           <p>{sale.branch?.address || "Main Distribution Hub"}</p>
-          <p>Tel: {sale.branch?.phone || "+94 112 345 678"}</p>
-          {(sale.branch?.organization?.tax_id || sale.tax_id) && (
-            <p>{t('checkout.tin')}: {sale.branch?.organization?.tax_id || sale.tax_id}</p>
-          )}
+          <p>{t('pos.tel')}: {sale.branch?.phone || "+94 112 345 678"}</p>
+          {taxId && <p>{t('pos.vat')}: {taxId}</p>}
         </div>
+        {headerText && headerText !== "Sale Invoice" && (
+          <p className="mt-2 font-bold border-t border-black pt-1">{headerText}</p>
+        )}
       </div>
 
-      {/* Stats / Info */}
-      <div className="border-y border-dashed border-black/30 py-3 my-4 space-y-1">
+      <div className="border-y border-dashed border-black py-2 my-2 space-y-0.5">
         <div className="flex justify-between">
-          <span className="font-bold uppercase">{t('common.search')}:</span>
-          <span className="font-black">{sale.invoice_number}</span>
+          <span>{t('pos.invoice')}:</span>
+          <span className="font-bold">{sale.invoice_number || "Draft"}</span>
         </div>
         <div className="flex justify-between">
-          <span>DATE:</span>
-          <span>{formatDate(sale.created_at)}</span>
+          <span>{t('pos.date')}:</span>
+          <span>{sale.created_at ? format(new Date(sale.created_at), "yyyy-MM-dd HH:mm") : format(new Date(), "yyyy-MM-dd HH:mm")}</span>
         </div>
-        <div className="flex justify-between">
-          <span>CUSTOMER:</span>
-          <span className="font-bold">{sale.customer?.name || "Walk-in Guest"}</span>
+        <div className="text-center font-bold text-[10px] my-1 border-b border-dashed border-black/30 pb-0.5">
+          {(sale.is_wholesale ? t('pos.wholesale') : t('pos.retail')).toUpperCase()} SALE
         </div>
+        {sale.customer && (
+          <div className="flex justify-between">
+            <span>{t('pos.customer')}:</span>
+            <span>{sale.customer.name}</span>
+          </div>
+        )}
         <div className="flex justify-between">
-          <span>CASHIER:</span>
+          <span>{t('pos.user')}:</span>
           <span>{sale.cashier?.name || "System Admin"}</span>
         </div>
-        <div className="flex justify-between opacity-60 text-[10px] pt-1">
-          <span>TERMINAL:</span>
-          <span>{terminalName}</span>
-        </div>
+        {terminalName && (
+          <div className="flex justify-between border-t border-dashed border-black/10 mt-1 pt-0.5 text-[9px] opacity-60">
+            <span>{t('pos.terminal')}:</span>
+            <span>{terminalName.toUpperCase()}</span>
+          </div>
+        )}
       </div>
 
       {/* Items Table */}
-      <table className="w-full my-6 border-collapse">
+      <table className="w-full my-4 border-collapse">
         <thead>
-          <tr className="border-b border-black text-left text-[10px]">
-            <th className="py-2 pb-1 font-black">ITEM & PRICE</th>
-            <th className="py-2 pb-1 text-right font-black">QTY</th>
-            <th className="py-2 pb-1 text-right font-black">TOTAL</th>
+          <tr className="border-b border-black text-left">
+            <th className="py-1 font-black uppercase">{t('pos.item')}/{t('checkout.qty')}</th>
+            <th className="py-1 text-right font-black uppercase">{t('pos.price')}</th>
+            <th className="py-1 text-right font-black uppercase">{t('pos.total')}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-dashed divide-black/10">
-          {sale.items?.map((item) => (
-            <tr key={item.id} className="align-top">
-              <td className="py-3 pr-2">
-                <div className="font-black text-[12px] leading-tight mb-0.5">
-                  {item.product?.name || item.name}
+        <tbody className="divide-y divide-dashed divide-black/20">
+          {sale.items?.map((item, idx) => (
+            <tr key={idx} className="align-top">
+              <td className="py-2 pr-2">
+                <div className="leading-tight">
+                  <span className="font-bold">
+                    {item.product?.name || item.name || t("pos.item")}
+                  </span>
+                  <span className="font-normal opacity-70 ml-1 whitespace-nowrap">
+                    (x{parseFloat(item.quantity || 0)})
+                  </span>
                 </div>
-                <div className="text-[10px] opacity-70">
-                  {item.variant?.name || "Standard"} @ {formatCurrency(Math.round(item.unit_price))}
-                </div>
+                {(item.variant?.name || item.variant_name) && (
+                  <div className="text-[9px] opacity-70">{item.variant?.name || item.variant_name}</div>
+                )}
               </td>
-              <td className="text-right py-3 font-bold">{item.quantity}</td>
-              <td className="text-right py-3 font-black">
-                {formatCurrency(Math.round(item.total_amount))}
-              </td>
+              <td className="text-right py-2 whitespace-nowrap">{parseFloat(item.unit_price || item.price || 0).toLocaleString()}</td>
+              <td className="text-right py-2 font-bold whitespace-nowrap">{parseFloat(item.total_amount || 0).toLocaleString()}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       {/* Totals Section */}
-      <div className="border-t border-black pt-4 space-y-1.5">
+      <div className="border-t border-black pt-2 space-y-1">
         <div className="flex justify-between">
-          <span className="font-bold">SUB TOTAL:</span>
-          <span>{formatCurrency(Math.round(sale.total_amount))}</span>
+          <span>{t('pos.subtotal') || 'SUB TOTAL'}:</span>
+          <span>{parseFloat(sale.total_amount).toLocaleString()}</span>
         </div>
-        
+
         {sale.discount_amount > 0 && (
-          <div className="flex justify-between text-emerald-700 italic">
-            <span>SAVINGS (DISCOUNT):</span>
-            <span>- {formatCurrency(Math.round(sale.discount_amount))}</span>
-          </div>
-        )}
-        
-        {sale.sscl_amount > 0 && (
-          <div className="flex justify-between">
-            <span>SSCL:</span>
-            <span>{formatCurrency(Math.round(sale.sscl_amount))}</span>
+          <div className="flex justify-between text-[10px] text-green-700 border-b border-dashed border-black/20 pb-1 mb-1 italic">
+            <span>{t('checkout.totalDiscount') || 'TOTAL DISCOUNT'}:</span>
+            <span>- {parseFloat(sale.discount_amount).toLocaleString()}</span>
           </div>
         )}
 
-        {sale.vat_amount > 0 ? (
+        {parseFloat(sale.tax_amount || 0) > 0 && (
           <div className="flex justify-between">
-            <span>VAT:</span>
-            <span>{formatCurrency(Math.round(sale.vat_amount))}</span>
-          </div>
-        ) : (sale.tax_amount > 0 && !sale.sscl_amount) ? (
-          <div className="flex justify-between">
-            <span>TAX:</span>
-            <span>{formatCurrency(Math.round(sale.tax_amount))}</span>
-          </div>
-        ) : null}
-
-        {sale.adjustment !== 0 && (
-          <div className="flex justify-between">
-            <span>ADJUSTMENT:</span>
-            <span>{sale.adjustment > 0 ? '+' : '-'} {formatCurrency(Math.round(Math.abs(sale.adjustment)))}</span>
+            <span>{t('checkout.tax') || 'TAX'}:</span>
+            <span>{parseFloat(sale.tax_amount).toLocaleString()}</span>
           </div>
         )}
 
-        <div className="flex justify-between text-base font-black border-t-2 border-black pt-2 mt-2">
-          <span>{t('checkout.payableAmount')}:</span>
-          <span>{formatCurrency(Math.round(sale.payable_amount))}</span>
+        {parseFloat(sale.adjustment || 0) !== 0 && (
+          <div className="flex justify-between">
+            <span>{t('checkout.adjustment') || 'ADJUSTMENT'}:</span>
+            <span>{parseFloat(sale.adjustment).toLocaleString()}</span>
+          </div>
+        )}
+
+        <div className="flex justify-between text-[14px] font-black border-t-2 border-black pt-1 mt-1">
+          <span>{t('pos.grandTotal') || t('checkout.payableAmount') || 'GRAND TOTAL'}:</span>
+          <span>{parseFloat(sale.payable_amount || sale.net_total).toLocaleString()}</span>
         </div>
       </div>
 
       {/* Payment Details */}
-      <div className="mt-6 border-t border-dashed border-black/30 pt-4 space-y-1">
-        <div className="flex justify-between font-bold">
-          <span className="uppercase">{sale.payment_method || "CASH"} PAID:</span>
-          <span>{formatCurrency(parseFloat(sale.paid_amount) || sale.payable_amount)}</span>
-        </div>
-        {(parseFloat(sale.paid_amount) > sale.payable_amount) && (
-          <div className="flex justify-between font-black text-emerald-700">
-            <span>CHANGE DUE:</span>
-            <span>{formatCurrency(parseFloat(sale.paid_amount) - sale.payable_amount)}</span>
+      <div className="mt-4 border-t border-dashed border-black pt-2 space-y-1">
+        {sale.payments && sale.payments.length > 0 ? (
+          sale.payments.map((pmt, i) => (
+            <div key={i} className="flex justify-between text-[11px]">
+              <span className="uppercase">{pmt.payment_method} PAID:</span>
+              <span className="font-bold">{parseFloat(pmt.amount).toLocaleString()}</span>
+            </div>
+          ))
+        ) : (
+          <div className="flex justify-between text-[11px]">
+            <span className="uppercase">{sale.payment_method || "CASH"} PAID:</span>
+            <span className="font-bold">{parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString()}</span>
+          </div>
+        )}
+
+        {parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount) && (
+          <div className="flex justify-between font-bold border-t border-black/10 mt-1 pt-1">
+            <span>{t('pos.change')}:</span>
+            <span>{(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString()}</span>
           </div>
         )}
       </div>
 
       {/* QR Verification */}
-      <div className="mt-8 flex flex-col items-center justify-center gap-2">
-        <div className="bg-white p-2 border border-black/5 rounded-sm">
-          <QRCodeSVG value={qrData} size={90} level="L" />
-        </div>
-        <p className="text-[8px] font-black opacity-40 uppercase tracking-widest">
-          Scan for digital verification
+      <div className="mt-4 flex flex-col items-center justify-center space-y-1">
+        <QRCodeSVG value={qrData} size={80} level="L" />
+        <p className="text-[7px] font-bold opacity-40 uppercase tracking-widest">
+          {t('pos.scanForVerification')}
         </p>
       </div>
 
       {/* Footer */}
-      <div className="mt-10 text-center space-y-4 border-t border-dashed border-black/20 pt-6">
-        <div className="text-[10px] leading-tight font-bold italic opacity-70">
-          "Thank you for your business! Please keep this invoice for any return or exchange."
-        </div>
-        <div className="opacity-40 leading-none">
-          <p className="font-black text-[9px]">A Premium Enterprise Solution by INZEEDO</p>
-          <p className="text-[8px] mt-1">© 2026. All Rights Reserved.</p>
+      <div className="mt-4 text-center space-y-2 border-t border-dashed border-black/20 pt-2">
+        {refundPolicy && (
+          <div className="border-b border-dashed border-black/10 pb-2 mb-2 text-[9px] leading-tight">
+            <span className="font-bold block mb-1 uppercase">{t('pos.policy')}:</span>
+            {refundPolicy}
+          </div>
+        )}
+
+        {footerText && (
+          <div className="whitespace-pre-wrap leading-tight text-[10px] mb-2">{footerText}</div>
+        )}
+        <div className="opacity-40 leading-tight">
+          <p className="font-bold text-[8px] whitespace-nowrap">A next-generation enterprise solution by Inzeedo</p>
+          <p className="text-[7px]">© 2026 Inzeedo. All rights reserved.</p>
         </div>
       </div>
     </div>

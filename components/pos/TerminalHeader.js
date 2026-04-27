@@ -29,7 +29,7 @@ const TerminalHeader = memo(({
             <div>
               <h1 className="text-base font-bold text-text-main">{t('pos.terminal')}</h1>
               {branchName && (
-                <p className="text-[10px] font-bold text-text-secondary opacity-60 mt-0.5 truncate max-w-[120px]">
+                <p className="text-[10px] font-bold text-brand mt-0.5 truncate max-w-[120px]">
                   {branchName}
                 </p>
               )}
@@ -95,7 +95,8 @@ const TerminalHeader = memo(({
   return prev.showSearch === next.showSearch && 
          prev.searchQuery === next.searchQuery && 
          prev.isWholesale === next.isWholesale &&
-         prev.viewMode === next.viewMode;
+         prev.viewMode === next.viewMode &&
+         prev.branchName === next.branchName;
 });
 
 export default TerminalHeader;

@@ -97,6 +97,24 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, onReturnTrigger
                 </div>
               ) : (
                 <div className="p-4 sm:p-6 flex flex-col gap-6">
+                  {((sale.returns?.length > 0) || (sale.sale_returns?.length > 0) || (sale.return_status && sale.return_status !== 'none')) && (
+                    <div className="bg-orange-500/10 border border-orange-500/20 p-4 rounded-3xl flex items-start gap-4">
+                      <div className="h-10 w-10 bg-orange-500/20 rounded-2xl flex items-center justify-center text-orange-600 shrink-0">
+                        <RotateCcw size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-xs font-black text-orange-700 uppercase mb-1">Return Information</h4>
+                        <p className="text-[11px] font-bold text-orange-600/80 leading-relaxed">
+                          This transaction has associated returns. Total refunded: 
+                          <span className="text-orange-700 ml-1">
+                            LKR {Math.round(
+                              (sale.returns || sale.sale_returns || []).reduce((sum, r) => sum + parseFloat(r.refund_amount || 0), 0)
+                            ).toLocaleString()}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <div className="shadow-2xl shadow-black/10 rounded-sm overflow-hidden bg-white">
                      <InvoiceView sale={sale} />
                   </div>

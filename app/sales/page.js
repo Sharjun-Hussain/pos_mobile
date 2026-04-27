@@ -48,6 +48,11 @@ const SaleRow = ({ sale, onClick }) => {
             <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${getStatusColor(sale.payment_status)}`}>
               {sale.payment_status}
             </span>
+            {(sale.return_status === 'partial' || sale.return_status === 'full' || sale.returns?.length > 0) && (
+              <span className="text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider bg-orange-500/10 text-orange-600">
+                Returned
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-text-secondary opacity-60">

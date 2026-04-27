@@ -17,7 +17,8 @@ import {
   Warehouse,
   Store,
   Package,
-  History
+  History,
+  RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -135,6 +136,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
               <MenuGroup title="Operations">
                 <MenuLink href="/" icon={Home} label="Dashboard" onClick={onClose} />
                 <MenuLink href="/sales" icon={History} label="Sales History" onClick={onClose} />
+                <MenuLink href="/returns" icon={RotateCcw} label="Returns History" onClick={onClose} />
                 <MenuLink href="/inventory" icon={Package} label="Quick Inventory" onClick={onClose} />
                 <MenuLink href="/customers" icon={Users} label="Customers" isLast onClick={onClose} />
               </MenuGroup>

@@ -86,13 +86,18 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
             <tr key={idx} className="align-top">
               <td className="py-2 pr-2" style={{ width: '50%', minWidth: '50%' }}>
                 <div className="leading-tight flex flex-col">
-                  <div className="font-bold text-xs">
-                    {Number(item.quantity || 0)} @ {item.product_name || 
+                  <div className="font-bold text-xs flex items-center flex-wrap gap-1.5">
+                    <span>{Number(item.quantity || 0)} @ {item.product_name || 
                      item.product?.name || 
                      item.product_variant?.product?.name || 
                      item.variant?.product?.name || 
                      item.name || 
-                     t("pos.item")}
+                    t("pos.item")}</span>
+                    {(item.returned_quantity > 0 || item.quantity_returned > 0 || item.return_qty > 0) && (
+                      <span className="bg-orange-100 text-orange-600 px-1 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter">
+                        Returned {item.returned_quantity || item.quantity_returned || item.return_qty}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {(item.variant?.name || item.product_variant?.name || item.variant_name || item.product_variant_name) && (

@@ -50,12 +50,23 @@ export const VariantSelector = memo(({ product, isOpen, onClose, onSelect }) => 
                     <span className="font-bold text-text-main text-[13px] leading-snug line-clamp-2 w-full pr-6">
                       {v.variantName || 'Default'}
                     </span>
-                    <span className="text-[12px] font-black text-brand tracking-tight mt-auto pt-1">
-                      LKR {parseFloat(v.retailPrice || 0).toLocaleString()}
-                    </span>
-                    <span className="text-[9px] text-text-secondary font-medium font-mono opacity-50 bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded-full mt-0.5 w-max">
-                      {v.barcode || 'No SKU'}
-                    </span>
+                    <div className="flex flex-col gap-0.5 mt-auto pt-1">
+                      <span className="text-[12px] font-black text-brand tracking-tight">
+                        LKR {parseFloat(v.retailPrice || 0).toLocaleString()}
+                      </span>
+                      <div className={`text-[10px] font-bold ${v.stock <= 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                        Stock: {Number(v.stock)}
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-0.5 mt-2 opacity-50">
+                      {v.sku && (
+                        <span className="text-[8px] font-bold uppercase tracking-widest leading-none">SKU: {v.sku}</span>
+                      )}
+                      {v.barcode && v.barcode !== v.sku && (
+                        <span className="text-[8px] font-bold uppercase tracking-widest leading-none">BAR: {v.barcode}</span>
+                      )}
+                    </div>
                     
                     <div className="absolute top-3 right-3 h-7 w-7 rounded-full bg-brand/10 flex items-center justify-center opacity-40 group-active:opacity-100 transition-all">
                       <Plus className="h-4 w-4 text-brand" strokeWidth={3} />

@@ -149,7 +149,10 @@ export const api = {
       const query = new URLSearchParams(params).toString();
       return api.get(`/products?${query}`);
     },
-    getActiveList: () => api.get('/products/active/list'),
+    getActiveList: (branchId) => {
+      const q = branchId ? `?branch_id=${branchId}` : '';
+      return api.get(`/products/active/list${q}`);
+    },
     getByBarcode: (barcode) => api.get(`/products/barcode/${barcode}`)
   },
 

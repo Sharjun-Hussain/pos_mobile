@@ -20,6 +20,7 @@ import DockedCart from '@/components/pos/DockedCart';
 // Global Stores
 import { useCartStore } from '@/store/useCartStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
 
@@ -27,6 +28,7 @@ export default function SalesPage() {
   const router = useRouter();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
+  const { selectedBranch } = useAuthStore();
   
   // Zustand States
   const { cart, addItem, syncPrices } = useCartStore();
@@ -46,7 +48,7 @@ export default function SalesPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedBranch?.id]);
 
   // Debounce search
   useEffect(() => {
@@ -60,7 +62,7 @@ export default function SalesPage() {
     setLoading(true);
     try {
       const [pRes, cRes] = await Promise.all([
-        api.products.getActiveList(),
+        api.products.getActiveList(selectedBranch?.id),
         api.categories.getActiveList()
       ]);
 
@@ -68,23 +70,36 @@ export default function SalesPage() {
         const rawProducts = pRes.data || [];
         const processed = await Promise.all(rawProducts.map(async (p) => {
           const imageUrl = await api.getImageUrl(p.image);
+          
+          // Calculate total stock for main product (sum of branch stocks)
+          const totalStock = (p.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+
           return {
             id: p.id,
             name: p.name,
             image: imageUrl,
+            sku: p.sku || p.code,
+            barcode: p.barcode,
+            stock: totalStock,
             category: p.main_category?.name || 'General',
             variants: (p.variants || []).map(v => {
               let variantLabel = v.name;
               if (!variantLabel && v.attribute_values?.length > 0) {
                 variantLabel = v.attribute_values.map(av => av.value).join(' / ');
               }
+              
+              // Variant specific stock at this branch
+              const variantStock = (v.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+
               return {
                 id: v.id,
                 productId: p.id,
                 name: p.name,
                 variantName: variantLabel || 'Default',
                 fullName: variantLabel ? `${p.name} - ${variantLabel}` : p.name,
+                sku: v.sku || p.sku || p.code,
                 barcode: v.barcode || p.barcode,
+                stock: variantStock,
                 retailPrice: parseFloat(v.price) || 0,
                 wholesalePrice: parseFloat(v.wholesale_price) || 0,
                 image: imageUrl,

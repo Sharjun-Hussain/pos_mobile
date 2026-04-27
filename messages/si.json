@@ -13,7 +13,8 @@
     "items": "භාණ්ඩ",
     "itemsSelected": "ප්‍රමාණය තෝරා ඇත",
     "reviewCart": "කරත්තය පරීක්ෂා කරන්න",
-    "total": "එකතුව"
+    "total": "එකතුව",
+    "todayRevenue": "අද ආදායම"
   },
   "checkout": {
     "reviewOrder": "පැණවුම පරීක්ෂා කරන්න",

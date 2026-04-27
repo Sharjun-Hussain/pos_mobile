@@ -34,7 +34,7 @@ const DashboardStats = memo(({ stats, loading, formatCurrency, t }) => (
   <section className="animate-in fade-in duration-500">
     <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-4 px-4">
       <StatCard
-        title={t('pos.total')}
+        title={t('pos.todayRevenue')}
         value={stats?.todayRevenue?.value ? formatCurrency(parseFloat(stats.todayRevenue.value)) : formatCurrency(0)}
         trendValue={stats?.todayRevenue?.change}
         icon={DollarSign}

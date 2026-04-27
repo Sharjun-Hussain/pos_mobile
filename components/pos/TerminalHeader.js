@@ -14,7 +14,8 @@ const TerminalHeader = memo(({
   isWholesale,
   viewMode,
   onViewModeChange,
-  onBack 
+  onBack,
+  branchName
 }) => {
   const { t } = useTranslation();
   return (
@@ -27,9 +28,11 @@ const TerminalHeader = memo(({
             </button>
             <div>
               <h1 className="text-base font-bold text-text-main">{t('pos.terminal')}</h1>
-              <p className="text-xs font-bold text-emerald-500 mt-0.5 flex items-center gap-1">
-                <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" /> Live Node
-              </p>
+              {branchName && (
+                <p className="text-[10px] font-bold text-text-secondary opacity-60 mt-0.5 truncate max-w-[120px]">
+                  {branchName}
+                </p>
+              )}
             </div>
           </div>
 

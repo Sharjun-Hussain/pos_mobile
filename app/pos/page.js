@@ -203,6 +203,7 @@ export default function SalesPage() {
           viewMode={posViewMode}
           onViewModeChange={setPosViewMode}
           onBack={() => router.back()}
+          branchName={selectedBranch?.name}
         />
 
         <CategoryBar 

@@ -6,7 +6,12 @@ import {
   Menu,
   RefreshCcw,
   FileText,
-  ShoppingBag
+  ShoppingBag,
+  Filter,
+  ArrowUpDown,
+  Clock,
+  ArrowUpAZ,
+  ArrowDownAZ
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -84,6 +89,8 @@ export default function SalesHistoryPage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isReturnOpen, setIsReturnOpen] = useState(false);
   const [activeSale, setActiveSale] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
 
   const sales = salesData?.data || salesData || [];
   const loading = salesLoading;
@@ -100,10 +107,25 @@ export default function SalesHistoryPage() {
     setIsReturnOpen(true);
   };
 
-  const filteredSales = Array.isArray(sales) ? sales.filter(s =>
-    (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-  ) : [];
+  const filteredSales = Array.isArray(sales) ? sales
+    .filter(s => {
+      const matchesSearch = (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = filterStatus === 'all' || 
+                           (filterStatus === 'returned' && (s.return_status === 'partial' || s.return_status === 'full' || s.returns?.length > 0)) ||
+                           (filterStatus === 'paid' && s.payment_status === 'paid') ||
+                           (filterStatus === 'unpaid' && s.payment_status !== 'paid');
+      
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
+      if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
+      if (sortBy === 'amount_high') return parseFloat(b.payable_amount) - parseFloat(a.payable_amount);
+      if (sortBy === 'amount_low') return parseFloat(a.payable_amount) - parseFloat(b.payable_amount);
+      return 0;
+    }) : [];
 
   return (
     <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
@@ -138,6 +160,46 @@ export default function SalesHistoryPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
           />
+        </div>
+
+        {/* Filter Chips */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          {[
+            { id: 'all', label: 'All Sales' },
+            { id: 'paid', label: 'Paid' },
+            { id: 'unpaid', label: 'Unpaid' },
+            { id: 'returned', label: 'Refunded' }
+          ].map(chip => (
+            <button
+              key={chip.id}
+              onClick={() => { haptics.light(); setFilterStatus(chip.id); }}
+              className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-wider transition-all border ${
+                filterStatus === chip.id 
+                  ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105' 
+                  : 'bg-surface-muted text-text-secondary/60 border-glass-border/20 opacity-70'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
+          
+          <div className="w-[1px] h-6 bg-glass-border/20 mx-1 flex-shrink-0" />
+          
+          <button
+            onClick={() => {
+              haptics.medium();
+              const modes = ['newest', 'oldest', 'amount_high', 'amount_low'];
+              const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
+              setSortBy(next);
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-muted border border-glass-border/20 text-[11px] font-black uppercase tracking-wider text-text-main whitespace-nowrap active:scale-95 transition-transform"
+          >
+            {sortBy === 'newest' && <Clock size={12} className="text-brand" />}
+            {sortBy === 'oldest' && <Clock size={12} className="opacity-30 rotate-180" />}
+            {sortBy === 'amount_high' && <ArrowUpAZ size={12} className="text-emerald-500" />}
+            {sortBy === 'amount_low' && <ArrowDownAZ size={12} className="text-rose-500" />}
+            {sortBy.replace('_', ' ')}
+          </button>
         </div>
       </section>
 

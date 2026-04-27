@@ -190,7 +190,7 @@ export const receiptService = {
                   ` : ''}
                 </td>
                 <td class="right" style="width: 25%;">${parseFloat(item.unit_price || item.price || 0).toLocaleString()}</td>
-                <td class="right bold" style="width: 25%;">${parseFloat(item.total_amount || 0).toLocaleString()}</td>
+                <td class="right bold" style="width: 25%;">${parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString()}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -198,30 +198,30 @@ export const receiptService = {
 
         <div style="margin-top: 4px;">
           <div class="row">
-            <span>SUB TOTAL:</span>
+            <span>${t('checkout.subtotal')}:</span>
             <span>${parseFloat(sale.total_amount).toLocaleString()}</span>
           </div>
           ${parseFloat(sale.discount_amount) > 0 ? `
             <div class="row" style="color: #15803d; font-size: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 2px; margin-bottom: 2px;">
-              <span>TOTAL DISCOUNT:</span>
-              <span>${parseFloat(sale.discount_amount).toLocaleString()}</span>
+              <span>${t('checkout.discount')}:</span>
+              <span>- ${parseFloat(sale.discount_amount).toLocaleString()}</span>
             </div>
           ` : ''}
           ${parseFloat(sale.tax_amount) > 0 ? `
             <div class="row">
-              <span>TAX:</span>
+              <span>${t('checkout.vat')}:</span>
               <span>${parseFloat(sale.tax_amount).toLocaleString()}</span>
             </div>
           ` : ''}
           ${parseFloat(sale.adjustment || 0) !== 0 ? `
             <div class="row">
-              <span>ADJUSTMENT:</span>
+              <span>${t('checkout.adjustment')}:</span>
               <span>${parseFloat(sale.adjustment).toLocaleString()}</span>
             </div>
           ` : ''}
           
           <div class="row grand-total">
-            <span>GRAND TOTAL:</span>
+            <span>${t('pos.total')}:</span>
             <span>${parseFloat(sale.payable_amount).toLocaleString()}</span>
           </div>
         </div>

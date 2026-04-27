@@ -106,7 +106,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
                 {parseFloat(item.unit_price || item.price || 0).toLocaleString()}
               </td>
               <td className="text-right py-2 font-bold whitespace-nowrap" style={{ width: '25%' }}>
-                {parseFloat(item.total_amount || 0).toLocaleString()}
+                {parseFloat((item.unit_price || item.price || 0) * (item.quantity || 0)).toLocaleString()}
               </td>
             </tr>
           ))}
@@ -116,34 +116,34 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
       {/* Totals Section */}
       <div className="border-t border-black pt-2 space-y-1">
         <div className="flex justify-between">
-          <span>{t('pos.subtotal') || 'SUB TOTAL'}:</span>
+          <span>{t('checkout.subtotal')}:</span>
           <span>{parseFloat(sale.total_amount).toLocaleString()}</span>
         </div>
 
         {sale.discount_amount > 0 && (
           <div className="flex justify-between text-[10px] text-green-700 border-b border-dashed border-black/20 pb-1 mb-1 italic">
-            <span>{t('checkout.totalDiscount') || 'TOTAL DISCOUNT'}:</span>
+            <span>{t('checkout.discount')}:</span>
             <span>- {parseFloat(sale.discount_amount).toLocaleString()}</span>
           </div>
         )}
 
         {parseFloat(sale.tax_amount || 0) > 0 && (
           <div className="flex justify-between">
-            <span>{t('checkout.tax') || 'TAX'}:</span>
+            <span>{t('checkout.vat') || 'TAX'}:</span>
             <span>{parseFloat(sale.tax_amount).toLocaleString()}</span>
           </div>
         )}
 
         {parseFloat(sale.adjustment || 0) !== 0 && (
           <div className="flex justify-between">
-            <span>{t('checkout.adjustment') || 'ADJUSTMENT'}:</span>
+            <span>{t('checkout.adjustment')}:</span>
             <span>{parseFloat(sale.adjustment).toLocaleString()}</span>
           </div>
         )}
 
-        <div className="flex justify-between text-[14px] font-black border-t-2 border-black pt-1 mt-1">
-          <span>{t('pos.grandTotal') || t('checkout.payableAmount') || 'GRAND TOTAL'}:</span>
-          <span>{parseFloat(sale.payable_amount || sale.net_total).toLocaleString()}</span>
+        <div className="flex justify-between text-[14px] font-black border-t-2 border-black pt-1 mt-1 uppercase">
+          <span>{t('pos.total')}:</span>
+          <span>{parseFloat(sale.payable_amount).toLocaleString()}</span>
         </div>
       </div>
 

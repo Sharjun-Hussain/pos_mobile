@@ -162,7 +162,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                   </div>
                   <div className="flex-1 overflow-hidden">
                     <p className="text-sm font-bold text-text-main truncate leading-tight">{user?.name || 'Store Manager'}</p>
-                    <p className="text-xs font-medium text-text-secondary opacity-60 truncate mt-0.5">{user?.email || 'admin@inzeedo.com'}</p>
+                    <p className="text-xs font-medium text-text-secondary opacity-60 truncate mt-0.5">{user?.email || 'admin@inzeedo.lk'}</p>
                   </div>
                 </div>
 

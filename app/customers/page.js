@@ -260,7 +260,7 @@ export default function CustomersPage() {
                   <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Email Address</label>
                   <input
                     type="email"
-                    placeholder="customer@inzeedo.com"
+                    placeholder="customer@inzeedo.lk"
                     value={newCustomer.email}
                     onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
                     className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl px-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40"

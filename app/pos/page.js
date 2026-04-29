@@ -7,6 +7,7 @@ import { scanner } from '@/services/scanner';
 import { ProductSkeleton } from '@/components/ProductSkeleton';
 import { VariantSelector } from '@/components/VariantSelector';
 import { CheckoutSheet } from '@/components/CheckoutSheet';
+import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
 import { useRouter } from 'next/navigation';
 import { Toast } from '@capacitor/toast';
 import { receiptService } from '@/services/receipt';
@@ -45,6 +46,8 @@ export default function SalesPage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isVariantOpen, setIsVariantOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [lastSaleData, setLastSaleData] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -172,15 +175,17 @@ export default function SalesPage() {
   const handleFinishSale = useCallback(async (saleData) => {
     setIsCheckoutOpen(false);
     
-    // Auto-print receipt
+    // Auto-print receipt handled by the success sheet or triggered here
+    // But showing the sheet first is better for closability
     if (saleData) {
-      receiptService.print(saleData, t);
+      setLastSaleData(saleData);
+      setIsSuccessOpen(true);
     }
     
     // Show native toast
     await Toast.show({
       text: t('common.success') || 'Sale Completed Successfully',
-      duration: 'long'
+      duration: 'short'
     });
   }, [t]);
 
@@ -259,6 +264,12 @@ export default function SalesPage() {
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         onFinish={handleFinishSale}
+      />
+
+      <SaleDetailsSheet
+        isOpen={isSuccessOpen}
+        onClose={() => setIsSuccessOpen(false)}
+        initialSaleData={lastSaleData}
       />
     </div>
   );

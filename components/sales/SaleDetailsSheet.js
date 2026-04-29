@@ -15,22 +15,27 @@ import { InvoiceView } from './InvoiceView';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, onReturnTrigger }) => {
+export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData, onReturnTrigger }) => {
   useHardwareBack(isOpen, onClose);
-  const [sale, setSale] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [sale, setSale] = useState(initialSaleData || null);
+  const [loading, setLoading] = useState(!initialSaleData);
   const [error, setError] = useState(null);
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (isOpen && saleId) {
-      fetchSaleDetails();
-    } else if (!isOpen) {
+    if (isOpen) {
+      if (initialSaleData) {
+        setSale(initialSaleData);
+        setLoading(false);
+      } else if (saleId) {
+        fetchSaleDetails();
+      }
+    } else {
         // Reset state when closed to ensure a clean slate for next time
         setSale(null);
         setLoading(true);
     }
-  }, [isOpen, saleId]);
+  }, [isOpen, saleId, initialSaleData]);
 
   const fetchSaleDetails = useCallback(async () => {
     setLoading(true);
@@ -132,13 +137,22 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, onReturnTrigger
                 <Printer size={18} />
                 <span className="text-sm font-bold">Reprint</span>
               </button>
-              <button 
-                onClick={() => { haptics.medium(); onReturnTrigger(sale); }}
-                className="flex-1 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 active:scale-95 transition-all"
-              >
-                <RotateCcw size={18} />
-                <span className="text-sm font-bold">Return</span>
-              </button>
+              {onReturnTrigger ? (
+                <button 
+                  onClick={() => { haptics.medium(); onReturnTrigger(sale); }}
+                  className="flex-1 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 active:scale-95 transition-all"
+                >
+                  <RotateCcw size={18} />
+                  <span className="text-sm font-bold">Return</span>
+                </button>
+              ) : (
+                <button 
+                  onClick={onClose}
+                  className="flex-1 h-14 bg-surface-muted text-text-main rounded-2xl flex items-center justify-center gap-2 border border-glass-border shadow-sm active:scale-95 transition-all"
+                >
+                  <span className="text-sm font-bold">Done</span>
+                </button>
+              )}
             </div>
             )}
           </div>

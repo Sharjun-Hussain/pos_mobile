@@ -48,6 +48,11 @@ const ProductCard = memo(({ product, onAdd, viewMode }) => {
           <span className="text-sm font-black text-brand">
             LKR {parseFloat(price || 0).toLocaleString()}
           </span>
+          {firstVariant?.unit && (
+            <span className="text-[10px] font-bold text-text-secondary opacity-40">
+              per {firstVariant.unit}
+            </span>
+          )}
           {product.variants?.length === 1 && firstVariant?.sku && (
             <span className="text-[9px] font-bold opacity-30 uppercase tracking-widest mt-0.5">
               {firstVariant.sku}
@@ -101,7 +106,7 @@ const ProductCard = memo(({ product, onAdd, viewMode }) => {
           </span>
         )}
         <span className="text-[10px] font-bold text-brand">
-          LKR {parseFloat(price || 0).toLocaleString()}
+          LKR {parseFloat(price || 0).toLocaleString()} {firstVariant?.unit && <span className="opacity-40 text-[8px]">/ {firstVariant.unit}</span>}
         </span>
       </div>
     </button>
@@ -109,6 +114,7 @@ const ProductCard = memo(({ product, onAdd, viewMode }) => {
 }, (prev, next) => {
   return prev.product.id === next.product.id &&
     prev.viewMode === next.viewMode &&
+    prev.product.variants[0]?.unit === next.product.variants[0]?.unit &&
     prev.product.variants[0]?.retailPrice === next.product.variants[0]?.retailPrice;
 });
 

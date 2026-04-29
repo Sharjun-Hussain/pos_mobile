@@ -12,13 +12,13 @@ export const useCartStore = create(
       adjustment: 0,
       
       // Actions
-      addItem: (product, isWholesale) => {
+      addItem: (product, isWholesale, weight = null) => {
         const { cart } = get();
         const price = isWholesale ? (product.wholesalePrice || 0) : (product.retailPrice || 0);
         
         const existingIndex = cart.findIndex(i => i.variantId === product.id);
         
-        if (existingIndex > -1) {
+        if (existingIndex > -1 && weight === null) {
           const updated = [...cart];
           updated[existingIndex] = { 
             ...updated[existingIndex], 
@@ -34,11 +34,12 @@ export const useCartStore = create(
                 variantId: product.id,
                 productId: product.productId,
                 barcode: product.barcode,
-                name: product.fullName, // Keep fullName for UI consistency where needed
-                productName: product.name, // Short name
-                variantName: product.variantName, // Attributes (Color, Size etc)
+                name: product.fullName,
+                productName: product.name,
+                variantName: product.variantName,
                 size: product.variantName,
-                quantity: 1,
+                unit: product.unit || 'pc',
+                quantity: weight !== null ? weight : 1,
                 price,
                 discount: 0,
               },
@@ -55,15 +56,13 @@ export const useCartStore = create(
 
       updateQty: (id, delta) => {
         set((state) => ({
-          cart: state.cart
-            .map((i) => {
-              if (i.id === id) {
-                const newQty = Math.max(0, i.quantity + delta);
-                return { ...i, quantity: newQty };
-              }
-              return i;
-            })
-            .filter((i) => i.quantity > 0),
+          cart: state.cart.map((i) => {
+            if (i.id === id) {
+              const newQty = Math.max(0, i.quantity + delta);
+              return { ...i, quantity: newQty };
+            }
+            return i;
+          }),
         }));
       },
 

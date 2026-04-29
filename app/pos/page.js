@@ -102,6 +102,7 @@ export default function SalesPage() {
                 fullName: variantLabel ? `${p.name} - ${variantLabel}` : p.name,
                 sku: v.sku || p.sku || p.code,
                 barcode: v.barcode || p.barcode,
+                unit: v.unit || p.unit || 'pc',
                 stock: variantStock,
                 retailPrice: parseFloat(v.price) || 0,
                 wholesalePrice: parseFloat(v.wholesale_price) || 0,
@@ -123,11 +124,30 @@ export default function SalesPage() {
     }
   };
 
+  // Handle Weighted Barcode (Manual Entry)
+  useEffect(() => {
+    const query = debouncedQuery.toLowerCase();
+    if (query.startsWith("20") && (query.length === 12 || query.length === 13)) {
+      const allVariants = products.flatMap(p => p.variants);
+      const productId = query.substring(2, 7);
+      const weightString = query.substring(7, 12);
+      const weight = parseFloat(weightString) / 1000;
+
+      const match = allVariants.find(v => v.barcode === productId || v.barcode?.endsWith(productId));
+      if (match) {
+        haptics.medium();
+        addItem(match, isWholesale, weight);
+        setSearchQuery(""); // Clear immediately
+      }
+    }
+  }, [debouncedQuery, products, isWholesale, addItem]);
+
   const filteredProducts = useMemo(() => {
     const query = debouncedQuery.toLowerCase();
+
     return products.filter(p => {
       const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-      const matchesSearch = !query || p.name.toLowerCase().includes(query);
+      const matchesSearch = !query || p.name.toLowerCase().includes(query) || p.barcode === query;
       return matchesCategory && matchesSearch;
     });
   }, [products, activeCategory, debouncedQuery]);
@@ -148,6 +168,21 @@ export default function SalesPage() {
     const result = await scanner.startScan();
     if (result) {
       const allVariants = products.flatMap(p => p.variants);
+      
+      // Handle Weighted Barcode (Prefix 20)
+      if (result.startsWith("20") && (result.length === 12 || result.length === 13)) {
+        const productId = result.substring(2, 7);
+        const weightString = result.substring(7, 12);
+        const weight = parseFloat(weightString) / 1000;
+
+        const match = allVariants.find(v => v.barcode === productId || v.barcode?.endsWith(productId));
+        if (match) {
+          addItem(match, isWholesale, weight);
+          haptics.heavy();
+          return;
+        }
+      }
+
       const match = allVariants.find(v => v.barcode === result);
       
       if (match) {

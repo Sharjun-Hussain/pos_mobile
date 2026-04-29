@@ -276,6 +276,18 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     }
   };
 
+  const formatWeight = (qty, unit) => {
+    if (!qty || !unit) return qty;
+    const u = unit.toLowerCase();
+    if (u === 'kg') {
+      if (qty < 1) return `${(qty * 1000).toFixed(0)} g`;
+      return `${qty} Kg`;
+    }
+    return `${qty} ${unit}`;
+  };
+
+  const isWeighted = (unit) => ['kg', 'g', 'l', 'm'].includes(unit?.toLowerCase());
+
   const handleClose = () => {
     setStepState([1, 0]); 
     onClose();
@@ -365,21 +377,39 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             }`}
                           >
                             <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                              <span className="font-bold text-text-main text-[14px] leading-snug line-clamp-2">
-                                {item.name}
-                              </span>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span className="font-bold text-text-main text-[14px] leading-snug line-clamp-1">
+                                  {item.name}
+                                </span>
+                                {isWeighted(item.unit) && (
+                                  <span className="px-1.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-600 text-[8px] font-black uppercase tracking-tighter border border-emerald-500/20">
+                                    {formatWeight(item.quantity, item.unit)}
+                                  </span>
+                                )}
+                              </div>
                               <span className="text-[11px] text-text-secondary font-medium">
-                                {formatCurrency(parseFloat(item.price))}
+                                {formatCurrency(parseFloat(item.price))} {isWeighted(item.unit) && `per ${item.unit}`}
                               </span>
                             </div>
                             
-                            <div className="flex items-center gap-0.5 flex-shrink-0 bg-surface-muted/40 rounded-xl p-0.5 px-0.5 border border-glass-border/40 scale-[0.85] origin-right">
-                              <button onClick={() => updateQty(item.id, -1)} className="h-8 w-8 rounded-lg flex items-center justify-center text-text-secondary active:text-brand transition-colors">
-                                <Minus size={13} strokeWidth={2.5} />
-                              </button>
-                              <span className="font-bold text-text-main text-xs min-w-[20px] text-center">{item.quantity}</span>
-                              <button onClick={() => updateQty(item.id, 1)} className="h-8 w-8 rounded-lg flex items-center justify-center text-brand active:scale-110 active:text-brand transition-all">
-                                <Plus size={13} strokeWidth={3} />
+                            <div className="flex items-center gap-3 flex-shrink-0 origin-right">
+                              <div className="flex items-center gap-0.5 bg-surface-muted/40 rounded-xl p-0.5 px-0.5 border border-glass-border/40 scale-[0.85]">
+                                <button onClick={() => updateQty(item.id, -1)} className="h-8 w-8 rounded-lg flex items-center justify-center text-text-secondary active:text-brand transition-colors">
+                                  <Minus size={13} strokeWidth={2.5} />
+                                </button>
+                                <span className="font-bold text-text-main text-xs min-w-[30px] text-center">
+                                  {isWeighted(item.unit) ? formatWeight(item.quantity, item.unit) : item.quantity}
+                                </span>
+                                <button onClick={() => updateQty(item.id, 1)} className="h-8 w-8 rounded-lg flex items-center justify-center text-brand active:scale-110 active:text-brand transition-all">
+                                  <Plus size={13} strokeWidth={3} />
+                                </button>
+                              </div>
+                              
+                              <button 
+                                onClick={() => { haptics.medium(); useCartStore.getState().removeItem(item.id); }}
+                                className="h-9 w-9 rounded-xl flex items-center justify-center text-rose-500 bg-rose-500/5 border border-rose-500/10 active:bg-rose-500/20 transition-all"
+                              >
+                                <Trash2 size={16} />
                               </button>
                             </div>
                           </div>

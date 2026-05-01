@@ -78,6 +78,7 @@ export const PosTaxesSheet = memo(({ isOpen, onClose }) => {
                     <p className="text-[11px] font-medium text-text-secondary opacity-70">Apply taxes to all sales</p>
                   </div>
                   <button 
+                    aria-label="Enable POS Taxes"
                     onClick={() => setField('enableTax', !form.enableTax)}
                     className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${form.enableTax ? 'bg-brand' : 'bg-surface-muted/80 border border-glass-border'}`}
                   >

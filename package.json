@@ -10,7 +10,8 @@
     "format": "biome format --write",
     "cap:sync": "next build && npx cap sync",
     "cap:open": "npx cap open android",
-    "cap:add": "npx cap add android"
+    "cap:add": "npx cap add android",
+    "test": "jest"
   },
   "dependencies": {
     "@capacitor-mlkit/barcode-scanning": "^8.0.1",
@@ -39,7 +40,11 @@
     "@biomejs/biome": "2.2.0",
     "@capacitor/assets": "^3.0.5",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "babel-plugin-react-compiler": "1.0.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "tailwindcss": "^4"
   }
 }

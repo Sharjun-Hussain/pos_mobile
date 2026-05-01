@@ -9,17 +9,17 @@ import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 export const PosTaxesSheet = memo(({ isOpen, onClose }) => {
   useHardwareBack(isOpen, onClose);
-  const { vatRate, ssclRate, taxId, updateTaxSettings } = useSettingsStore();
+  const { vatRate, ssclRate, taxId, enableTax, updateTaxSettings } = useSettingsStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [form, setForm] = useState({ vatRate: 18, ssclRate: 2.5, taxId: '' });
+  const [form, setForm] = useState({ vatRate: 18, ssclRate: 2.5, taxId: '', enableTax: true });
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ vatRate, ssclRate, taxId });
+      setForm({ vatRate, ssclRate, taxId, enableTax });
       setSuccess(false);
     }
-  }, [isOpen, vatRate, ssclRate, taxId]);
+  }, [isOpen, vatRate, ssclRate, taxId, enableTax]);
 
   const setField = useCallback((key, val) => setForm(f => ({ ...f, [key]: val })), []);
 
@@ -29,7 +29,8 @@ export const PosTaxesSheet = memo(({ isOpen, onClose }) => {
     const res = await updateTaxSettings({
       vatRate: parseFloat(form.vatRate),
       ssclRate: parseFloat(form.ssclRate),
-      taxId: form.taxId
+      taxId: form.taxId,
+      enableTax: form.enableTax
     });
     if (res.success) {
       haptics.heavy();
@@ -70,6 +71,20 @@ export const PosTaxesSheet = memo(({ isOpen, onClose }) => {
                     <input type="text" placeholder="e.g. 123456789-0000" value={form.taxId} onChange={(e) => setField('taxId', e.target.value)} className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl pl-12 pr-4 text-[14px] font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all" />
                   </div>
                 </div>
+
+                <div className="flex items-center justify-between bg-surface-muted p-4 rounded-2xl border border-glass-border/30">
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-[14px] font-bold text-text-main">Enable POS Taxes</p>
+                    <p className="text-[11px] font-medium text-text-secondary opacity-70">Apply taxes to all sales</p>
+                  </div>
+                  <button 
+                    onClick={() => setField('enableTax', !form.enableTax)}
+                    className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${form.enableTax ? 'bg-brand' : 'bg-surface-muted/80 border border-glass-border'}`}
+                  >
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-300 shadow-sm ${form.enableTax ? 'translate-x-6' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   {[{ key: 'vatRate', label: 'VAT Rate (%)' }, { key: 'ssclRate', label: 'SSCL Rate (%)' }].map(({ key, label }) => (
                     <div key={key} className="flex flex-col gap-1.5">
@@ -85,7 +100,7 @@ export const PosTaxesSheet = memo(({ isOpen, onClose }) => {
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[14px] font-bold text-text-main">Effective Tax Rate</p>
                     <p className="text-xl font-black text-brand">
-                      {(parseFloat(form.ssclRate || 0) + (1 + parseFloat(form.ssclRate || 0) / 100) * parseFloat(form.vatRate || 0)).toFixed(2)}%
+                      {form.enableTax ? (parseFloat(form.ssclRate || 0) + (1 + parseFloat(form.ssclRate || 0) / 100) * parseFloat(form.vatRate || 0)).toFixed(2) : '0.00'}%
                     </p>
                   </div>
                   <p className="text-[11px] font-medium text-text-secondary opacity-50 leading-relaxed">

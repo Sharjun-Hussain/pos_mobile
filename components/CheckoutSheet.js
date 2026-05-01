@@ -48,7 +48,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     getSSCLAmount 
   } = useCartStore();
   const { selectedBranch } = useAuthStore();
-  const { isWholesale, activePaymentMethods, currency: currentCurrency, checkoutPreview, vatRate, ssclRate, requireShift } = useSettingsStore();
+  const { isWholesale, activePaymentMethods, currency: currentCurrency, checkoutPreview, vatRate, ssclRate, enableTax, requireShift } = useSettingsStore();
   const { activeShift } = useShiftStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
@@ -191,7 +191,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     haptics.heavy();
 
     try {
-      const { vatRate, ssclRate } = useSettingsStore.getState();
+      const { vatRate, ssclRate, enableTax } = useSettingsStore.getState();
       
       const payload = {
         customer_id: selectedCustomer?.id || null,
@@ -201,8 +201,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
           const taxableAmount = itemSubtotal - itemDiscount;
           
           // Cascading Tax Calculation (Matching getVATAmount logic in Store)
-          const ssclAmount = taxableAmount * (ssclRate / 100);
-          const vatAmount = (taxableAmount + ssclAmount) * (vatRate / 100);
+          const ssclAmount = enableTax ? (taxableAmount * (ssclRate / 100)) : 0;
+          const vatAmount = enableTax ? ((taxableAmount + ssclAmount) * (vatRate / 100)) : 0;
           
           return {
             product_id: item.productId,
@@ -645,13 +645,13 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} {formatCurrency(Math.abs(adjustment))}</span>
                           </div>
                         )}
-                        {ssclRate > 0 && (
+                        {enableTax && ssclRate > 0 && (
                           <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
                             <span className="text-text-secondary font-bold">SSCL ({ssclRate}%)</span>
                             <span className="text-text-main font-black">{formatCurrency(getSSCLAmount())}</span>
                           </div>
                         )}
-                        {vatRate > 0 && (
+                        {enableTax && vatRate > 0 && (
                           <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
                             <span className="text-text-secondary font-bold">VAT ({vatRate}%)</span>
                             <span className="text-text-main font-black">{formatCurrency(getVATAmount())}</span>

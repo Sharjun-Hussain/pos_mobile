@@ -79,14 +79,17 @@ export const useCartStore = create(
 
       getTotal: () => {
         const { cart, discount, adjustment } = get();
-        const { vatRate, ssclRate } = require('./useSettingsStore').useSettingsStore.getState();
+        const { vatRate, ssclRate, enableTax } = require('./useSettingsStore').useSettingsStore.getState();
         
         const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const discountAmount = subtotal * (discount / 100);
         const taxableAmount = subtotal - discountAmount;
         
-        const ssclAmount = taxableAmount * (ssclRate / 100);
-        const vatAmount = (taxableAmount + ssclAmount) * (vatRate / 100);
+        const effectiveSsclRate = enableTax ? ssclRate : 0;
+        const effectiveVatRate = enableTax ? vatRate : 0;
+        
+        const ssclAmount = taxableAmount * (effectiveSsclRate / 100);
+        const vatAmount = (taxableAmount + ssclAmount) * (effectiveVatRate / 100);
         
         return Math.max(0, taxableAmount + ssclAmount + vatAmount + adjustment);
       },
@@ -97,7 +100,8 @@ export const useCartStore = create(
 
       getSSCLAmount: () => {
         const { cart, discount } = get();
-        const { ssclRate } = require('./useSettingsStore').useSettingsStore.getState();
+        const { ssclRate, enableTax } = require('./useSettingsStore').useSettingsStore.getState();
+        if (!enableTax) return 0;
         const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const taxableAmount = subtotal - (subtotal * (discount / 100));
         return taxableAmount * (ssclRate / 100);
@@ -105,7 +109,8 @@ export const useCartStore = create(
 
       getVATAmount: () => {
         const { cart, discount } = get();
-        const { vatRate, ssclRate } = require('./useSettingsStore').useSettingsStore.getState();
+        const { vatRate, ssclRate, enableTax } = require('./useSettingsStore').useSettingsStore.getState();
+        if (!enableTax) return 0;
         const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const taxableAmount = subtotal - (subtotal * (discount / 100));
         const ssclAmount = taxableAmount * (ssclRate / 100);

@@ -33,6 +33,7 @@ export const useSettingsStore = create(
       taxRate: 0,
       vatRate: 18,
       ssclRate: 2.5,
+      enableTax: true,
       businessLogo: '',
       activePaymentMethods: ['cash', 'card'],
       businessPhone: '',
@@ -82,6 +83,7 @@ export const useSettingsStore = create(
           if (genRes.status === 'success' && genRes.data) {
             const finance = genRes.data?.finance || {};
             set({
+              enableTax: finance.enableTax !== false && finance.enableTax !== 'false',
               taxRate: (finance.taxRate !== undefined && finance.taxRate !== null && finance.taxRate !== '') ? parseFloat(finance.taxRate) : 0,
               vatRate: (finance.vatRate !== undefined && finance.vatRate !== null && finance.vatRate !== '') ? parseFloat(finance.vatRate) : 18,
               ssclRate: (finance.ssclRate !== undefined && finance.ssclRate !== null && finance.ssclRate !== '') ? parseFloat(finance.ssclRate) : 2.5,
@@ -135,12 +137,13 @@ export const useSettingsStore = create(
         }
       },
 
-      updateTaxSettings: async ({ vatRate, ssclRate, taxId }) => {
+      updateTaxSettings: async ({ vatRate, ssclRate, taxId, enableTax }) => {
         try {
           // 1. Update General (Rates)
           // Note: We also update taxRate for backward compatibility
           await api.settings.updateModule('general', {
             finance: {
+              enableTax,
               vatRate,
               ssclRate,
               taxRate: vatRate 
@@ -150,7 +153,7 @@ export const useSettingsStore = create(
           // 2. Update Business (TIN)
           await api.settings.updateBusiness({ tax_id: taxId });
           
-          set({ vatRate, ssclRate, taxId, taxRate: vatRate });
+          set({ enableTax, vatRate, ssclRate, taxId, taxRate: vatRate });
           return { success: true };
         } catch (err) {
           console.error('Update Tax Settings Failed:', err);

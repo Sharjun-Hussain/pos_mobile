@@ -14,7 +14,10 @@ import { useFetch } from '@/hooks/useFetch';
 import { ProductDetailSheet } from '@/components/dashboard/ProductDetailSheet';
 
 const InventoryItemRow = ({ product, onClick }) => {
-  const stock = product.variants?.reduce((sum, v) => sum + (parseFloat(v.stock_quantity) || 0), 0) || 0;
+  const stock = product.variants?.reduce((sum, v) => {
+    const variantStock = (v.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+    return sum + variantStock;
+  }, 0) || 0;
   const isLow = stock < 10;
   
   return (

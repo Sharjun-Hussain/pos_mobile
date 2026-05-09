@@ -70,7 +70,10 @@ export const ProductDetailSheet = ({ isOpen, onClose, product }) => {
               <div className="glass-panel p-4 rounded-2xl border-glass-border/30 flex flex-col gap-1">
                 <span className="text-[10px] font-black text-text-secondary opacity-40 uppercase tracking-widest">Total Stock</span>
                 <span className="text-xl font-black text-brand">
-                  {product.variants?.reduce((sum, v) => sum + (parseFloat(v.stock_quantity) || 0), 0) || 0}
+                  {product.variants?.reduce((sum, v) => {
+                    const variantStock = (v.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+                    return sum + variantStock;
+                  }, 0) || 0}
                 </span>
               </div>
             </div>
@@ -98,7 +101,7 @@ export const ProductDetailSheet = ({ isOpen, onClose, product }) => {
                     <div className="text-right">
                       <p className="text-sm font-black text-brand">LKR {parseFloat(v.price || 0).toLocaleString()}</p>
                       <p className="text-[10px] font-extrabold text-text-secondary opacity-40 mt-1">
-                        {v.stock_quantity || 0} units
+                        {(v.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0)} units
                       </p>
                     </div>
                   </div>

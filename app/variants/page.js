@@ -95,8 +95,12 @@ export default function VariantsPage() {
     rawData.forEach(product => {
       if (product.variants && Array.isArray(product.variants)) {
         product.variants.forEach(variant => {
+          // Calculate actual real-time stock from the branches
+          const realStock = (variant.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+          
           allVariants.push({
             ...variant,
+            stock_quantity: realStock, // Override static property with real live stock
             parentName: product.name
           });
         });

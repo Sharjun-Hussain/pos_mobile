@@ -95,8 +95,11 @@ export default function VariantsPage() {
     rawData.forEach(product => {
       if (product.variants && Array.isArray(product.variants)) {
         product.variants.forEach(variant => {
-          // Calculate actual real-time stock from the branches
-          const realStock = (variant.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+          // Calculate actual real-time stock from the branches (or fallback to static quantity)
+          let realStock = parseFloat(variant.stock_quantity) || 0;
+          if (variant.stocks && variant.stocks.length > 0) {
+            realStock = variant.stocks.reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+          }
           
           allVariants.push({
             ...variant,
@@ -138,7 +141,10 @@ export default function VariantsPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Variant Registry</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-black text-text-main leading-none mb-1">Variant Registry</h1>
+              <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand text-[10px] font-black">{filteredAndSortedVariants.length}</span>
+            </div>
             <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Unified Variant Catalog</p>
           </div>
         </div>

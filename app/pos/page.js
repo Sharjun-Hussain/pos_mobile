@@ -75,7 +75,12 @@ export default function SalesPage() {
           const imageUrl = await api.getImageUrl(p.image);
           
           // Calculate total stock for main product (sum of branch stocks)
-          const totalStock = (p.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+          let totalStock = 0;
+          if (p.stocks && p.stocks.length > 0) {
+            totalStock = p.stocks.reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+          } else if (p.variants && p.variants.length > 0) {
+            totalStock = p.variants.reduce((acc, v) => acc + (parseFloat(v.stock_quantity) || 0), 0);
+          }
 
           return {
             id: p.id,
@@ -92,7 +97,10 @@ export default function SalesPage() {
               }
               
               // Variant specific stock at this branch
-              const variantStock = (v.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+              let variantStock = parseFloat(v.stock_quantity) || 0;
+              if (v.stocks && v.stocks.length > 0) {
+                variantStock = v.stocks.reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+              }
 
               return {
                 id: v.id,
@@ -244,6 +252,7 @@ export default function SalesPage() {
           onViewModeChange={setPosViewMode}
           onBack={() => router.back()}
           branchName={selectedBranch?.name}
+          productCount={filteredProducts.length}
         />
 
         <CategoryBar 

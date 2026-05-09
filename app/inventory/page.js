@@ -15,8 +15,11 @@ import { ProductDetailSheet } from '@/components/dashboard/ProductDetailSheet';
 
 const InventoryItemRow = ({ product, onClick }) => {
   const stock = product.variants?.reduce((sum, v) => {
-    const variantStock = (v.stocks || []).reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
-    return sum + variantStock;
+    if (v.stocks && v.stocks.length > 0) {
+      const variantStock = v.stocks.reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
+      return sum + variantStock;
+    }
+    return sum + (parseFloat(v.stock_quantity) || 0);
   }, 0) || 0;
   const isLow = stock < 10;
   
@@ -58,7 +61,7 @@ const InventoryItemRow = ({ product, onClick }) => {
 
 export default function InventoryPage() {
   const { openDrawer } = useUIStore();
-  const { data: productsData, isLoading, error, mutate } = useFetch('/products?size=100');
+  const { data: productsData, isLoading, error, mutate } = useFetch('/products/active/list');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -69,6 +72,8 @@ export default function InventoryPage() {
     (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (p.sku || '').toLowerCase().includes(searchTerm.toLowerCase())
   ) : [];
+
+  const totalBackendCount = productsData?.meta?.total || productsData?.total || products.length;
 
   return (
     <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
@@ -109,7 +114,7 @@ export default function InventoryPage() {
       <section className="flex flex-col mt-2">
         <div className="flex items-center justify-between mb-3 px-1 border-b border-glass-border/10 pb-2">
           <h2 className="text-xs font-black text-text-secondary opacity-30 uppercase tracking-widest">
-            {isLoading ? 'Checking Stock...' : `${filteredProducts.length} Items Found`}
+            {isLoading ? 'Checking Stock...' : (searchTerm ? `${filteredProducts.length} / ${totalBackendCount} Items Found` : `${totalBackendCount} Items`)}
           </h2>
         </div>
 

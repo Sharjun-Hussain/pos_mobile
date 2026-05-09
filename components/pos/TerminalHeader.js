@@ -15,7 +15,8 @@ const TerminalHeader = memo(({
   viewMode,
   onViewModeChange,
   onBack,
-  branchName
+  branchName,
+  productCount
 }) => {
   const { t } = useTranslation();
   return (
@@ -27,7 +28,12 @@ const TerminalHeader = memo(({
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h1 className="text-base font-bold text-text-main">{t('pos.terminal')}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-bold text-text-main">{t('pos.terminal')}</h1>
+                {productCount !== undefined && (
+                  <span className="px-1.5 py-0.5 rounded bg-brand/10 text-brand text-[9px] font-black">{productCount}</span>
+                )}
+              </div>
               {branchName && (
                 <p className="text-[10px] font-bold text-brand mt-0.5 truncate max-w-[120px]">
                   {branchName}
@@ -96,7 +102,8 @@ const TerminalHeader = memo(({
          prev.searchQuery === next.searchQuery && 
          prev.isWholesale === next.isWholesale &&
          prev.viewMode === next.viewMode &&
-         prev.branchName === next.branchName;
+         prev.branchName === next.branchName &&
+         prev.productCount === next.productCount;
 });
 
 export default TerminalHeader;

@@ -87,7 +87,7 @@ const ProductGridItem = ({ product, getImageUrl, onClick }) => {
 
 export default function ProductsPage() {
   const { openDrawer } = useUIStore();
-  const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateProducts } = useFetch('/products?size=100');
+  const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateProducts } = useFetch('/products?size=5000');
   const { data: categoriesData, isLoading: categoriesLoading } = useFetch('/main-categories/active/list');
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -116,6 +116,8 @@ export default function ProductsPage() {
       return 0;
     }) : [];
 
+  const totalBackendCount = productsData?.meta?.total || productsData?.total || products.length;
+
   return (
     <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
       <header className="flex items-center justify-between">
@@ -127,7 +129,12 @@ export default function ProductsPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Products Hub</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-black text-text-main leading-none mb-1">Products Hub</h1>
+              <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand text-[10px] font-black">
+                {searchTerm || selectedCategory ? `${filteredAndSortedProducts.length} / ${totalBackendCount}` : totalBackendCount}
+              </span>
+            </div>
             <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Catalog Management</p>
           </div>
         </div>

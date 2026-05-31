@@ -263,7 +263,7 @@ export default function SalesPage() {
       </header>
 
       {/* Main Grid */}
-      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-[calc(var(--sat)+102px)] overscroll-contain no-scrollbar" style={{ willChange: 'scroll-position' }}>
+      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-[calc(var(--sat)+102px)] overscroll-contain no-scrollbar" style={{ WebkitOverflowScrolling: 'touch' }}>
         {loading ? (
           <ProductSkeleton viewMode={posViewMode} />
         ) : error ? (

@@ -18,7 +18,12 @@ import {
   Store,
   Package,
   History,
-  RotateCcw
+  RotateCcw,
+  Origami,
+  FileText,
+  ClipboardList,
+  Trash2,
+  Network
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -76,6 +81,8 @@ export const SideDrawer = ({ isOpen, onClose }) => {
   const selectedBranch = useAuthStore(state => state.selectedBranch);
   const logout = useAuthStore(state => state.logout);
   const pathname = usePathname();
+
+  const isManufacturing = user?.organization?.business_type === 'Manufacturing' || user?.organization?.business_type === 'manufacturer';
 
   const handleLogout = () => {
     haptics.heavy();
@@ -146,6 +153,16 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                 <MenuLink href="/variants" icon={Target} label="Variant Registry" onClick={onClose} />
                 <MenuLink href="/inventory/stock" icon={Warehouse} label="Stock Control" isLast onClick={onClose} />
               </MenuGroup>
+
+              {isManufacturing && (
+                <MenuGroup title="Production">
+                  <MenuLink href="/production/recipes" icon={FileText} label="Recipes (BOM)" onClick={onClose} />
+                  <MenuLink href="/production/orders" icon={ClipboardList} label="Production Orders" onClick={onClose} />
+                  <MenuLink href="/production/raw-materials" icon={Box} label="Raw Materials" onClick={onClose} />
+                  <MenuLink href="/distributors" icon={Network} label="Distributors" onClick={onClose} />
+                  <MenuLink href="/production/wastage" icon={Trash2} label="Wastage Log" isLast onClick={onClose} />
+                </MenuGroup>
+              )}
 
               <MenuGroup title="System">
                 <MenuLink href="/settings" icon={Settings} label="Global Settings" isLast onClick={onClose} />

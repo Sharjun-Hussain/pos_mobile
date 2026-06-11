@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<div align="center">
+  <h1>Inzeedo ERP - Mobile Client</h1>
+  <p>Native mobile companion app for on-the-go management and reporting.</p>
+</div>
 
-## Getting Started
+---
 
-First, run the development server:
+## 📖 Overview
 
+The **Mobile Client** is the portable extension of the Inzeedo ERP suite, designed for managers, owners, and floor staff who need to access critical business functions on the move. Built using Next.js and packaged natively with Capacitor, it delivers a smooth, app-like experience on both iOS and Android devices.
+
+## ⚡ Key Features
+
+- **Mobile Dashboards**: Access vital analytics and daily summaries from anywhere.
+- **Inventory Scanning**: Utilize device cameras for quick barcode scanning and stock checks.
+- **Dynamic Reporting**: View mobile-optimized reports for manufacturing, retail, and restaurant modules.
+- **Native Experience**: Packaged via Capacitor to leverage native device capabilities like haptic feedback, camera, and secure storage.
+- **Responsive UI**: Tailored touch-friendly interfaces using Tailwind CSS and mobile-specific components.
+
+## 🛠 Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) (Static Export)
+- **Native Wrapper**: [Capacitor](https://capacitorjs.com/) by Ionic
+- **Styling**: Tailwind CSS & mobile-optimized UI components
+- **State Management**: Zustand
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js >= 18.x
+- [Android Studio](https://developer.android.com/studio) (for Android development)
+- [Xcode](https://developer.apple.com/xcode/) (for iOS development, macOS only)
+
+### Installation
+
+1. Clone the repository and navigate to the `mobile-app` directory:
+   ```bash
+   cd pos/important/mobile-app
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+### Running Locally (Web View)
+To run the Next.js application in a standard mobile browser view for rapid UI development:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Running on Device/Simulator
+To build the app and sync it with Capacitor for native deployment:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. Build the Next.js static export:
+   ```bash
+   npm run build
+   ```
+2. Sync the web assets to the native Android/iOS projects:
+   ```bash
+   npx cap sync
+   ```
+3. Open the native IDE to run the app:
+   ```bash
+   npx cap open android
+   # or
+   npx cap open ios
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📦 Deployment
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Production builds are handled through the standard App Store Connect (iOS) and Google Play Console (Android) release pipelines using the compiled native projects.

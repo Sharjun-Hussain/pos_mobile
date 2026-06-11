@@ -47,11 +47,13 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     getVATAmount,
     getSSCLAmount 
   } = useCartStore();
-  const { selectedBranch } = useAuthStore();
+  const { selectedBranch, user } = useAuthStore();
   const { isWholesale, activePaymentMethods, currency: currentCurrency, checkoutPreview, vatRate, ssclRate, enableTax, requireShift } = useSettingsStore();
   const { activeShift } = useShiftStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
+
+  const isManufacturer = user?.organization?.business_type === 'Manufacturing' || user?.organization?.business_type === 'manufacturer';
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
   const [customers, setCustomers] = useState([]);
@@ -131,12 +133,14 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const res = await api.customers.getActiveList();
+      const res = isManufacturer 
+        ? await api.distributors.getActiveList()
+        : await api.customers.getActiveList();
       if (res.status === 'success') {
         setCustomers(res.data || []);
       }
     } catch (e) {
-      console.error('Failed to fetch customers');
+      console.error(isManufacturer ? 'Failed to fetch distributors' : 'Failed to fetch customers');
     } finally {
       setLoading(false);
     }
@@ -162,7 +166,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     setLoading(true);
     haptics.medium();
     try {
-      const res = await api.customers.create(newCustomer);
+      const res = isManufacturer
+        ? await api.distributors.create(newCustomer)
+        : await api.customers.create(newCustomer);
       if (res.status === 'success') {
         const createdCustomer = res.data;
         haptics.heavy();
@@ -172,7 +178,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
         setNewCustomer({ name: '', phone: '', email: '' });
       }
     } catch (e) {
-      console.error('Failed to create customer');
+      console.error(isManufacturer ? 'Failed to create distributor' : 'Failed to create customer');
     } finally {
       setLoading(false);
     }
@@ -194,7 +200,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       const { vatRate, ssclRate, enableTax } = useSettingsStore.getState();
       
       const payload = {
-        customer_id: selectedCustomer?.id || null,
+        customer_id: !isManufacturer && selectedCustomer ? selectedCustomer.id : null,
+        distributor_id: isManufacturer && selectedCustomer ? selectedCustomer.id : null,
         items: cart.map(item => {
           const itemSubtotal = item.price * item.quantity;
           const itemDiscount = itemSubtotal * (discount / 100);
@@ -311,7 +318,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                 )}
                 <div>
                   <h2 className="text-xl font-bold text-text-main leading-none">
-                    {step === 1 ? 'Review Order' : step === 2 ? 'Select Customer' : 'Finalize Sale'}
+                    {step === 1 ? 'Review Order' : step === 2 ? (isManufacturer ? 'Select Distributor' : 'Select Customer') : 'Finalize Sale'}
                   </h2>
                   <div className="flex gap-1.5 mt-2">
                     {[1, 2, 3].map(i => (
@@ -432,7 +439,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
                             <input 
                               type="text" 
-                              placeholder={t('common.search')}
+                              placeholder={isManufacturer ? 'Search distributors...' : t('common.search')}
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
                               className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
@@ -449,8 +456,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                     <User size={20} />
                                   </div>
                                   <div className="text-left overflow-hidden">
-                                    <p className="text-sm font-bold text-text-main truncate">{t('checkout.walkIn')}</p>
-                                    <p className="text-[10px] font-medium text-text-secondary">Standard Retail Pricing</p>
+                                    <p className="text-sm font-bold text-text-main truncate">{isManufacturer ? 'Cash Purchase' : t('checkout.walkIn')}</p>
+                                    <p className="text-[10px] font-medium text-text-secondary">{isManufacturer ? 'No wholesale tracking' : 'Standard Retail Pricing'}</p>
                                   </div>
                                 </div>
                                 {!selectedCustomer && <CheckCircle2 className="text-brand shrink-0" size={18} />}
@@ -490,14 +497,14 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               onClick={() => { haptics.medium(); setIsAddingCustomer(true); }}
                               className="w-full h-14 border-2 border-dashed border-glass-border rounded-3xl flex items-center justify-center gap-2 text-text-secondary text-xs font-bold hover:border-brand/40 hover:text-brand transition-all"
                             >
-                              <UserPlus size={16} /> {t('checkout.newCustomer')}
+                              <UserPlus size={16} /> {isManufacturer ? 'New Distributor' : t('checkout.newCustomer')}
                             </button>
                           </div>
                         </>
                       ) : (
                         <div className="px-6 py-2 flex flex-col gap-5 overflow-y-auto no-scrollbar">
                           <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-bold text-text-main">Quick Registration</h3>
+                            <h3 className="text-sm font-bold text-text-main">{isManufacturer ? 'New Distributor' : 'Quick Registration'}</h3>
                             <button onClick={() => setIsAddingCustomer(false)} className="text-[10px] font-bold text-rose-500">Cancel</button>
                           </div>
                           
@@ -506,7 +513,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               <label className="text-[10px] font-bold text-text-secondary pl-1">Full Name *</label>
                               <input 
                                 type="text"
-                                placeholder="Enter customer name"
+                                placeholder={isManufacturer ? "Enter distributor name" : "Enter customer name"}
                                 value={newCustomer.name}
                                 onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
                                 className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
@@ -539,7 +546,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             disabled={!newCustomer.name || loading}
                             className="btn-primary w-full h-14 text-sm mt-2 disabled:opacity-50"
                           >
-                            {loading ? 'Registering...' : 'Save & Select Customer'}
+                            {loading ? 'Registering...' : (isManufacturer ? 'Save & Select Distributor' : 'Save & Select Customer')}
                           </button>
                         </div>
                       )}
@@ -714,7 +721,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       disabled={cart.length === 0}
                       className="bg-brand text-white px-5 h-14 rounded-2xl shadow-xl shadow-brand/20 border border-brand/50 flex items-center justify-center gap-2 group transition-all active:scale-95 disabled:opacity-50"
                     >
-                      <span className="text-sm font-black">{step === 1 ? 'Customer' : 'Payment'}</span>
+                      <span className="text-sm font-black">{step === 1 ? (isManufacturer ? 'Distributor' : 'Customer') : 'Payment'}</span>
                       <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                   ) : (

@@ -91,8 +91,10 @@ const apiRequest = async (endpoint, options = {}, isRetry = false) => {
       }
 
       // If we get here, refresh failed or was not possible
-      useAuthStore.getState().logout();
-      if (typeof window !== 'undefined') window.location.href = '/login';
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        await authStore.logout();
+      }
     }
 
     const data = await response.json();

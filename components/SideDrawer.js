@@ -23,7 +23,8 @@ import {
   FileText,
   ClipboardList,
   Trash2,
-  Network
+  Network,
+  BarChart3
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -145,7 +146,8 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                 <MenuLink href="/sales" icon={History} label="Sales History" onClick={onClose} />
                 <MenuLink href="/returns" icon={RotateCcw} label="Returns History" onClick={onClose} />
                 <MenuLink href="/inventory" icon={Package} label="Quick Inventory" onClick={onClose} />
-                <MenuLink href="/customers" icon={Users} label="Customers" isLast onClick={onClose} />
+                <MenuLink href="/customers" icon={Users} label="Customers" onClick={onClose} />
+                <MenuLink href="/reports" icon={BarChart3} label="Reports & Analytics" isLast onClick={onClose} />
               </MenuGroup>
 
               <MenuGroup title="Catalog & Stock">

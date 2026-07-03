@@ -37,6 +37,7 @@ export function generateStaticParams() {
   ];
 }
 
-export default function Page({ params }) {
-  return <ClientPage params={params} />;
+export default async function Page({ params }) {
+  const resolvedParams = await params;
+  return <ClientPage params={resolvedParams} />;
 }

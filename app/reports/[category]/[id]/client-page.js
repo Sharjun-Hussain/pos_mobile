@@ -33,7 +33,7 @@ const formatValue = (val) => {
 
 export default function DynamicReportViewer({ params }) {
   const router = useRouter();
-  const { category, id } = params;
+  const { category, id } = React.use(params);
   
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);

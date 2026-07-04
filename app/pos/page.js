@@ -29,7 +29,8 @@ export default function SalesPage() {
   const router = useRouter();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
-  const { selectedBranch } = useAuthStore();
+  const { selectedBranch, user } = useAuthStore();
+  const isManufacturing = user?.organization?.business_type === 'Manufacturing' || user?.organization?.business_type === 'manufacturer';
   
   // Zustand States
   const { cart, addItem, syncPrices } = useCartStore();
@@ -253,17 +254,23 @@ export default function SalesPage() {
           onBack={() => router.back()}
           branchName={selectedBranch?.name}
           productCount={filteredProducts.length}
+          title={isManufacturing ? 'New Dispatch' : undefined}
         />
 
-        <CategoryBar 
-          categories={categories}
-          activeCategory={activeCategory}
-          onSelect={setActiveCategory}
-        />
+        {!isManufacturing && (
+          <CategoryBar 
+            categories={categories}
+            activeCategory={activeCategory}
+            onSelect={setActiveCategory}
+          />
+        )}
       </header>
 
       {/* Main Grid */}
-      <div className="flex-1 overflow-y-auto px-4 pb-48 pt-[calc(var(--sat)+102px)] overscroll-contain no-scrollbar" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div 
+        className={`flex-1 overflow-y-auto px-4 pb-48 overscroll-contain no-scrollbar ${isManufacturing ? 'pt-[calc(var(--sat)+70px)]' : 'pt-[calc(var(--sat)+102px)]'}`} 
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         {loading ? (
           <ProductSkeleton viewMode={posViewMode} />
         ) : error ? (

@@ -176,6 +176,11 @@ export const api = {
   },
 
   distributors: {
+    getAll: (params = {}) => {
+      const query = new URLSearchParams(params).toString();
+      return api.get(`/distributors?${query}`);
+    },
+    getActiveList: () => api.get('/distributors/active/list'),
     create: (data) => api.post('/distributors', data),
     update: (id, data) => api.put(`/distributors/${id}`, data),
     delete: (id) => api.delete(`/distributors/${id}`)

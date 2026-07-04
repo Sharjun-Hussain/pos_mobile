@@ -16,9 +16,11 @@ const TerminalHeader = memo(({
   onViewModeChange,
   onBack,
   branchName,
-  productCount
+  productCount,
+  title
 }) => {
   const { t } = useTranslation();
+  const displayTitle = title || t('pos.terminal');
   return (
     <div className="flex items-center justify-between">
       {!showSearch ? (
@@ -29,7 +31,7 @@ const TerminalHeader = memo(({
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-text-main">{t('pos.terminal')}</h1>
+                <h1 className="text-base font-bold text-text-main">{displayTitle}</h1>
                 {productCount !== undefined && (
                   <span className="px-1.5 py-0.5 rounded bg-brand/10 text-brand text-[9px] font-black">{productCount}</span>
                 )}

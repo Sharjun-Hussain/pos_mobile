@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useAuthStore } from '@/store/useAuthStore';
 import { format } from 'date-fns';
 
 export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
@@ -19,6 +20,140 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
     date: sale.created_at ? format(new Date(sale.created_at), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
     total: (sale.payable_amount || sale.net_total || 0).toString()
   });
+
+  const { user } = useAuthStore();
+  const isManufacturing = user?.organization?.business_type === 'Manufacturing' || user?.organization?.business_type === 'manufacturer';
+
+  if (isManufacturing) {
+    return (
+      <div className="bg-white text-slate-800 p-6 md:p-8 font-sans text-xs leading-relaxed min-h-[500px] w-full max-w-[800px] mx-auto overflow-x-auto">
+        {/* A4 Header */}
+        <div className="flex justify-between items-start mb-8 border-b-2 border-slate-100 pb-6">
+          <div className="text-left">
+            {showLogo && businessLogo && (
+              <img src={businessLogo} alt="Logo" className="h-12 object-contain mb-4" />
+            )}
+            <h1 className="text-xl font-black text-slate-900 m-0">{businessName || 'Inzeedo Manufacturing'}</h1>
+            <p className="mt-2 m-0 text-slate-600">{sale.branch?.address || ''}</p>
+            <p className="m-0 text-slate-600">TEL: {sale.branch?.phone || businessPhone || '+94 112 345 678'}</p>
+            {taxId && <p className="m-0 text-slate-600">VAT/TIN: {taxId}</p>}
+          </div>
+          <div className="text-right">
+            <h2 className="text-2xl font-black text-indigo-600 uppercase tracking-tight m-0">Tax Invoice</h2>
+            <p className="mt-4 m-0 text-slate-900"><strong>INV NO:</strong> {sale.invoice_number || 'DRAFT'}</p>
+            <p className="m-0 text-slate-600"><strong>DATE:</strong> {sale.created_at ? format(new Date(sale.created_at), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd")}</p>
+          </div>
+        </div>
+
+        {/* Distributor details */}
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Billed To Distributor:</h3>
+          {sale.customer ? (
+            <>
+              <p className="text-base font-black text-slate-900 m-0">{sale.customer.name}</p>
+              {sale.customer.phone && <p className="mt-2 m-0 text-slate-600">📞 {sale.customer.phone}</p>}
+              {sale.customer.email && <p className="m-0 text-slate-600">✉️ {sale.customer.email}</p>}
+              {sale.customer.address && <p className="m-0 text-slate-600">📍 {sale.customer.address}</p>}
+            </>
+          ) : (
+            <p className="m-0 font-bold text-slate-500">Walk-in / No Distributor Selected</p>
+          )}
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto mb-8 border border-slate-100 rounded-xl">
+          <table className="w-full min-w-[500px] border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200 text-left">
+                <th className="p-3 text-slate-500 font-bold uppercase text-[10px]">#</th>
+                <th className="p-3 text-slate-500 font-bold uppercase text-[10px] w-1/2">Item Description</th>
+                <th className="p-3 text-slate-500 font-bold uppercase text-[10px] text-center">Qty</th>
+                <th className="p-3 text-slate-500 font-bold uppercase text-[10px] text-right">Unit Price</th>
+                <th className="p-3 text-slate-500 font-bold uppercase text-[10px] text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {(sale.items || sale.sale_items || []).map((item, idx) => (
+                <tr key={idx}>
+                  <td className="p-3 text-slate-500 font-bold">{idx + 1}</td>
+                  <td className="p-3">
+                    <strong className="text-slate-900 text-sm">
+                      {item.product_name || item.product?.name || item.name || 'Item'}
+                    </strong>
+                    {(item.variant?.name || item.product_variant?.name || item.variant_name) && (
+                      <div className="text-slate-500 mt-1 text-[10px]">Variant: {item.variant?.name || item.product_variant?.name || item.variant_name}</div>
+                    )}
+                  </td>
+                  <td className="p-3 text-center font-bold text-slate-900">{Number(item.quantity)}</td>
+                  <td className="p-3 text-right text-slate-600">{parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                  <td className="p-3 text-right font-black text-slate-900">{parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer/Totals */}
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-8">
+          <div className="w-full sm:w-1/3 text-center sm:text-left">
+            <div className="inline-block p-2 border border-slate-200 rounded-xl bg-white mb-2">
+              <QRCodeSVG value={qrData} size={100} level="L" />
+            </div>
+            <p className="text-[9px] text-slate-400 font-medium max-w-[150px] sm:mx-0 mx-auto text-center">Scan to verify digital invoice authenticity</p>
+          </div>
+
+          <div className="w-full sm:w-2/3 max-w-sm bg-white border border-slate-200 rounded-xl p-5 shadow-sm ml-auto">
+            <div className="flex justify-between mb-3 text-slate-600">
+              <span>Subtotal</span>
+              <span className="font-bold text-slate-900">{parseFloat(sale.total_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            </div>
+            {sale.discount_amount > 0 && (
+              <div className="flex justify-between mb-3 text-emerald-600">
+                <span>Discount</span>
+                <span className="font-bold">- {parseFloat(sale.discount_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              </div>
+            )}
+            {parseFloat(sale.tax_amount || 0) > 0 && (
+              <div className="flex justify-between mb-3 text-slate-600">
+                <span>VAT / Tax</span>
+                <span className="font-bold text-slate-900">{parseFloat(sale.tax_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              </div>
+            )}
+            {parseFloat(sale.adjustment || 0) !== 0 && (
+              <div className="flex justify-between mb-3 text-indigo-600">
+                <span>Adjustment</span>
+                <span className="font-bold">{parseFloat(sale.adjustment).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center text-lg font-black text-slate-900 border-t-2 border-dashed border-slate-300 pt-4 mt-3">
+              <span>Total Payable</span>
+              <span>{parseFloat(sale.payable_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            </div>
+
+            <div className="mt-6 bg-slate-50 p-4 rounded-lg">
+              <div className="flex justify-between text-xs font-bold text-slate-600 mb-1">
+                <span>Amount Paid ({sale.payments?.[0]?.payment_method?.toUpperCase() || sale.payment_method || 'CASH'})</span>
+                <span className="text-slate-900">{parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              </div>
+              {parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount) && (
+                <div className="flex justify-between text-xs font-black text-emerald-600">
+                  <span>Change Due</span>
+                  <span>{(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 pt-6 border-t border-slate-200 text-center text-slate-500">
+          {refundPolicy && <p className="mb-3"><strong>Terms & Conditions:</strong><br/>{refundPolicy}</p>}
+          {footerText ? <p className="mb-3">{footerText}</p> : <p className="mb-3 font-bold text-slate-600">Thank you for your business!</p>}
+          <p className="font-bold text-slate-400">Generated by Inzeedo Manufacturing ERP</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white text-black p-6 font-mono text-[11px] leading-tight shadow-inner min-h-[500px] w-full max-w-[400px] mx-auto">

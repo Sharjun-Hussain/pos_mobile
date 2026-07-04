@@ -467,7 +467,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                 <div className="p-6 space-y-4">
                                   {[1, 2, 3].map(i => <div key={i} className="h-10 w-full bg-surface-muted/50 rounded-xl animate-pulse" />)}
                                 </div>
-                              ) : (
+                              ) : filteredCustomers.length > 0 ? (
                                 filteredCustomers.map((c, idx) => (
                                   <button 
                                     key={c.id}
@@ -488,6 +488,37 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                     {selectedCustomer?.id === c.id && <CheckCircle2 className="text-brand shrink-0" size={18} />}
                                   </button>
                                 ))
+                              ) : (
+                                <div className="py-10 px-6 flex flex-col items-center justify-center text-center">
+                                  <div className="h-16 w-16 rounded-full bg-surface-muted flex items-center justify-center text-text-secondary mb-4 opacity-50 border border-glass-border/30">
+                                    <UserPlus size={28} strokeWidth={1.5} />
+                                  </div>
+                                  <p className="text-sm font-black text-text-main mb-1">
+                                    {isManufacturer ? 'Distributor not found' : 'Customer not found'}
+                                  </p>
+                                  {search ? (
+                                    <>
+                                      <p className="text-[10px] font-bold text-text-secondary opacity-50 mb-6 max-w-[200px]">
+                                        We couldn't find any match for "{search}".
+                                      </p>
+                                      <button 
+                                        onClick={() => {
+                                          haptics.medium();
+                                          setNewCustomer({ ...newCustomer, name: search });
+                                          setIsAddingCustomer(true);
+                                        }}
+                                        className="h-12 px-6 bg-brand text-white rounded-2xl flex items-center justify-center gap-2 text-xs font-black shadow-lg shadow-brand/20 active:scale-95 transition-transform w-full max-w-[200px]"
+                                      >
+                                        <Plus size={16} strokeWidth={3} />
+                                        Create New
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <p className="text-[10px] font-bold text-text-secondary opacity-50 mb-6 max-w-[200px]">
+                                      Try searching for a name or phone number.
+                                    </p>
+                                  )}
+                                </div>
                               )}
                             </div>
 

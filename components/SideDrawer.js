@@ -145,8 +145,8 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                 <MenuLink href="/" icon={Home} label="Dashboard" onClick={onClose} />
                 <MenuLink href="/sales" icon={History} label="Sales History" onClick={onClose} />
                 <MenuLink href="/returns" icon={RotateCcw} label="Returns History" onClick={onClose} />
-                <MenuLink href="/inventory" icon={Package} label="Quick Inventory" onClick={onClose} />
-                <MenuLink href="/customers" icon={Users} label="Customers" onClick={onClose} />
+                {!isManufacturing && <MenuLink href="/customers" icon={Users} label="Customers" onClick={onClose} />}
+                {isManufacturing && <MenuLink href="/distributors" icon={Network} label="Distributors" onClick={onClose} />}
                 <MenuLink href="/reports" icon={BarChart3} label="Reports & Analytics" isLast onClick={onClose} />
               </MenuGroup>
 
@@ -161,7 +161,6 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                   <MenuLink href="/production/recipes" icon={FileText} label="Recipes (BOM)" onClick={onClose} />
                   <MenuLink href="/production/orders" icon={ClipboardList} label="Production Orders" onClick={onClose} />
                   <MenuLink href="/production/raw-materials" icon={Box} label="Raw Materials" onClick={onClose} />
-                  <MenuLink href="/distributors" icon={Network} label="Distributors" onClick={onClose} />
                   <MenuLink href="/production/wastage" icon={Trash2} label="Wastage Log" isLast onClick={onClose} />
                 </MenuGroup>
               )}

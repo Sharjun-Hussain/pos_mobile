@@ -79,12 +79,7 @@ export default function RecipesPage() {
           >
             <RefreshCcw size={16} className={isLoading ? 'animate-spin' : ''} />
           </button>
-          <button
-            onClick={() => { haptics.medium(); /* TODO: Open Create Form */ }}
-            className="h-10 w-10 bg-brand text-white rounded-xl flex items-center justify-center active:scale-95 transition-transform shadow-sm shadow-brand/30"
-          >
-            <Plus size={18} strokeWidth={3} />
-          </button>
+
         </div>
       </header>
 

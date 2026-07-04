@@ -175,6 +175,12 @@ export const api = {
     create: (data) => api.post('/customers', data)
   },
 
+  distributors: {
+    create: (data) => api.post('/distributors', data),
+    update: (id, data) => api.put(`/distributors/${id}`, data),
+    delete: (id) => api.delete(`/distributors/${id}`)
+  },
+
   sales: {
     getAll: (params = {}) => {
       const query = new URLSearchParams(params).toString();

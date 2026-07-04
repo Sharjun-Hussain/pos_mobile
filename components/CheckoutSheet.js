@@ -591,8 +591,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         {/* Decorative Blur */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[40px] -mr-16 -mt-16" />
                         
-                        <p className="text-[10px] font-bold text-white/70">Payable Amount</p>
-                        <h3 className="text-4xl font-black text-white">{formatCurrency(total)}</h3>
+                        <p className="text-base font-black text-white/90 tracking-wide uppercase">Payable Amount</p>
+                        <h3 className="text-5xl leading-none font-black text-white mt-2">{formatCurrency(total)}</h3>
                         
                         {selectedCustomer && (
                           <div className="flex items-center gap-2 mt-2 bg-white/20 px-3.5 py-1.5 rounded-full backdrop-blur-md border border-white/10">
@@ -605,8 +605,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       {/* Split Payment Manager */}
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between px-1">
-                          <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t('pos.payments') || 'Payments'}</label>
-                          <div className={`px-2 py-1 rounded-lg text-[10px] font-black ${totalPaid >= total ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'}`}>
+                          <label className="text-sm font-black text-text-secondary uppercase tracking-widest">{t('pos.payments') || 'Payments'}</label>
+                          <div className={`px-3 py-1.5 rounded-lg text-xs font-black ${totalPaid >= total ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'}`}>
                             {totalPaid >= total ? (totalPaid > total ? `Change: ${formatCurrency(totalPaid - total)}` : 'Paid in Full') : `Remaining: ${formatCurrency(total - totalPaid)}`}
                           </div>
                         </div>
@@ -617,7 +617,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               <select 
                                 value={pmt.method}
                                 onChange={(e) => updatePayment(pmt.id, 'method', e.target.value)}
-                                className="w-24 h-10 px-2 text-[10px] font-bold rounded-xl bg-surface border border-glass-border/50 outline-none text-text-main"
+                                className="w-28 h-14 px-3 text-sm font-black rounded-xl bg-surface border border-glass-border/50 outline-none text-text-main"
                               >
                                 {[
                                   { id: 'cash', label: 'Cash' },
@@ -636,7 +636,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                   placeholder="0.00"
                                   value={pmt.amount || ''}
                                   onChange={(e) => updatePayment(pmt.id, 'amount', e.target.value)}
-                                  className="w-full h-10 bg-transparent px-3 text-sm font-black text-text-main outline-none"
+                                  className="w-full h-14 bg-transparent px-4 text-lg font-black text-text-main outline-none"
                                 />
                                 {index === 0 && (
                                   <button 
@@ -659,39 +659,39 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
                         <button 
                           onClick={addPayment}
-                          className="flex items-center justify-center gap-2 py-3 border-2 border-dashed border-glass-border/40 rounded-2xl text-[10px] font-bold text-text-secondary active:scale-95 transition-all"
+                          className="flex items-center justify-center gap-2 py-4 border-2 border-dashed border-glass-border/40 rounded-2xl text-sm font-bold text-text-secondary active:scale-95 transition-all"
                         >
-                          <Plus size={14} /> Add Payment Method
+                          <Plus size={18} /> Add Payment Method
                         </button>
                       </div>
 
                       {/* Small Breakdown - High Density */}
-                      <div className="space-y-1.5 border-t border-glass-border/30 pt-3 px-1">
-                        <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-text-secondary font-bold">{t('checkout.subtotal')}</span>
+                      <div className="space-y-3 border-t border-glass-border/30 pt-5 px-2">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-text-secondary font-black">{t('checkout.subtotal')}</span>
                           <span className="text-text-main font-black">{formatCurrency(subtotal)}</span>
                         </div>
                         {discount > 0 && (
-                          <div className="flex justify-between items-center text-[11px]">
-                            <span className="text-rose-500 font-bold">Discount ({discount}%)</span>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-rose-500 font-black">Discount ({discount}%)</span>
                             <span className="text-rose-500 font-black">- {formatCurrency(getDiscountAmount())}</span>
                           </div>
                         )}
                         {adjustment !== 0 && (
-                          <div className="flex justify-between items-center text-[11px]">
-                            <span className="text-brand font-bold">Adjustment</span>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-brand font-black">Adjustment</span>
                             <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} {formatCurrency(Math.abs(adjustment))}</span>
                           </div>
                         )}
                         {enableTax && ssclRate > 0 && (
-                          <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
-                            <span className="text-text-secondary font-bold">SSCL ({ssclRate}%)</span>
+                          <div className="flex justify-between items-center text-sm border-t border-glass-border/10 pt-3">
+                            <span className="text-text-secondary font-black">SSCL ({ssclRate}%)</span>
                             <span className="text-text-main font-black">{formatCurrency(getSSCLAmount())}</span>
                           </div>
                         )}
                         {enableTax && vatRate > 0 && (
-                          <div className="flex justify-between items-center text-[11px] border-t border-glass-border/10 pt-1.5">
-                            <span className="text-text-secondary font-bold">VAT ({vatRate}%)</span>
+                          <div className="flex justify-between items-center text-sm border-t border-glass-border/10 pt-3">
+                            <span className="text-text-secondary font-black">VAT ({vatRate}%)</span>
                             <span className="text-text-main font-black">{formatCurrency(getVATAmount())}</span>
                           </div>
                         )}

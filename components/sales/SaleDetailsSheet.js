@@ -1,19 +1,22 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { 
-  X, 
-  Printer, 
-  RotateCcw, 
+import {
+  X,
+  Printer,
+  RotateCcw,
   AlertTriangle,
 } from 'lucide-react';
 import { Drawer } from 'vaul';
-import { haptics } from '@/services/haptics';
-import { api } from '@/services/api';
+import { haptics } from "@/services/haptics";
+import { api } from "@/services/api";
 import { receiptService } from '@/services/receipt';
 import { InvoiceView } from './InvoiceView';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuthStore } from '@/store/useAuthStore';
+
+
 
 export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData, onReturnTrigger }) => {
   useHardwareBack(isOpen, onClose);
@@ -21,6 +24,8 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
   const [loading, setLoading] = useState(!initialSaleData);
   const [error, setError] = useState(null);
   const { t } = useTranslation();
+  const { user } = useAuthStore();
+  const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
 
   useEffect(() => {
     if (isOpen) {
@@ -31,9 +36,9 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
         fetchSaleDetails();
       }
     } else {
-        // Reset state when closed to ensure a clean slate for next time
-        setSale(null);
-        setLoading(true);
+      // Reset state when closed to ensure a clean slate for next time
+      setSale(null);
+      setLoading(true);
     }
   }, [isOpen, saleId, initialSaleData]);
 
@@ -57,10 +62,10 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
   }, [sale, t]);
 
   return (
-    <Drawer.Root 
-        open={isOpen} 
-        onOpenChange={(c) => !c && onClose()}
-        shouldScaleBackground={false} // Disable scaling for performance if requested
+    <Drawer.Root
+      open={isOpen}
+      onOpenChange={(c) => !c && onClose()}
+      shouldScaleBackground={false} // Disable scaling for performance if requested
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[500]" />
@@ -80,7 +85,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                   <p className="text-[10px] font-bold text-text-secondary opacity-50">{sale?.invoice_number || 'Loading...'}</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={onClose}
                 className="h-10 w-10 bg-surface-muted rounded-xl flex items-center justify-center text-text-secondary active:scale-90 transition-transform"
               >
@@ -110,7 +115,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                       <div className="flex-1">
                         <h4 className="text-xs font-black text-orange-700 uppercase mb-1">Return Information</h4>
                         <p className="text-[11px] font-bold text-orange-600/80 leading-relaxed">
-                          This transaction has associated returns. Total refunded: 
+                          This transaction has associated returns. Total refunded:
                           <span className="text-orange-700 ml-1">
                             LKR {Math.round(
                               (sale.returns || sale.sale_returns || []).reduce((sum, r) => sum + parseFloat(r.refund_amount || 0), 0)
@@ -120,9 +125,22 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                       </div>
                     </div>
                   )}
-                  <div className="shadow-2xl shadow-black/10 rounded-sm overflow-hidden bg-white">
-                     <InvoiceView sale={sale} />
-                  </div>
+
+                  {isManufacturing ? (
+                    <div className="bg-white border border-glass-border/30 rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-sm h-[300px]">
+                      <div className="h-20 w-20 rounded-full bg-brand/10 text-brand flex items-center justify-center mb-6">
+                        <Printer size={32} strokeWidth={2.5} />
+                      </div>
+                      <h3 className="text-xl font-black text-text-main mb-2">Order Confirmed</h3>
+                      <p className="text-sm font-bold text-text-secondary max-w-[250px]">
+                        The dispatch order has been successfully recorded. Tap below to download or share the A4 PDF invoice.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="shadow-2xl shadow-black/10 rounded-sm overflow-hidden bg-white">
+                      <InvoiceView sale={sale} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -130,30 +148,30 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
             {/* Action Bar */}
             {!loading && !error && sale && (
               <div className="p-6 bg-surface border-t border-glass-border/30 flex gap-3 pb-[calc(var(--sab)+1.5rem)]">
-              <button 
-                onClick={handlePrint}
-                className="btn-primary flex-1 h-14 bg-brand text-white border-0 shadow-lg shadow-brand/20 active:scale-95 transition-all"
-              >
-                <Printer size={18} />
-                <span className="text-sm font-bold">Reprint</span>
-              </button>
-              {onReturnTrigger ? (
-                <button 
-                  onClick={() => { haptics.medium(); onReturnTrigger(sale); }}
-                  className="flex-1 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 active:scale-95 transition-all"
+                <button
+                  onClick={handlePrint}
+                  className="btn-primary flex-1 h-14 bg-brand text-white border-0 shadow-lg shadow-brand/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <RotateCcw size={18} />
-                  <span className="text-sm font-bold">Return</span>
+                  <Printer size={18} />
+                  <span className="text-sm font-bold">{isManufacturing ? 'Download / Share PDF' : 'Reprint'}</span>
                 </button>
-              ) : (
-                <button 
-                  onClick={onClose}
-                  className="flex-1 h-14 bg-surface-muted text-text-main rounded-2xl flex items-center justify-center gap-2 border border-glass-border shadow-sm active:scale-95 transition-all"
-                >
-                  <span className="text-sm font-bold">Done</span>
-                </button>
-              )}
-            </div>
+                {onReturnTrigger ? (
+                  <button
+                    onClick={() => { haptics.medium(); onReturnTrigger(sale); }}
+                    className="flex-1 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 active:scale-95 transition-all"
+                  >
+                    <RotateCcw size={18} />
+                    <span className="text-sm font-bold">Return</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={onClose}
+                    className="flex-1 h-14 bg-surface-muted text-text-main rounded-2xl flex items-center justify-center gap-2 border border-glass-border shadow-sm active:scale-95 transition-all"
+                  >
+                    <span className="text-sm font-bold">Done</span>
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </Drawer.Content>

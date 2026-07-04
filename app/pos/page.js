@@ -30,7 +30,7 @@ export default function SalesPage() {
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
   const { selectedBranch, user } = useAuthStore();
-  const isManufacturing = user?.organization?.business_type === 'Manufacturing' || user?.organization?.business_type === 'manufacturer';
+  const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
   
   // Zustand States
   const { cart, addItem, syncPrices } = useCartStore();

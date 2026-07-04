@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { format } from 'date-fns';
 
 export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
-  const { showLogo, businessLogo, businessName, taxId, headerText, footerText, refundPolicy, businessPhone } = useSettingsStore();
+  const { showLogo, businessLogo, businessName, businessAddress, businessEmail, taxId, headerText, footerText, refundPolicy, businessPhone } = useSettingsStore();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
 
@@ -22,7 +22,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
   });
 
   const { user } = useAuthStore();
-  const isManufacturing = user?.organization?.business_type === 'Manufacturing' || user?.organization?.business_type === 'manufacturer';
+  const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
 
   if (isManufacturing) {
     return (
@@ -34,9 +34,25 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
               <img src={businessLogo} alt="Logo" className="h-12 object-contain mb-4" />
             )}
             <h1 className="text-xl font-black text-slate-900 m-0">{businessName || 'Inzeedo Manufacturing'}</h1>
-            <p className="mt-2 m-0 text-slate-600">{sale.branch?.address || ''}</p>
-            <p className="m-0 text-slate-600">TEL: {sale.branch?.phone || businessPhone || '+94 112 345 678'}</p>
-            {taxId && <p className="m-0 text-slate-600">VAT/TIN: {taxId}</p>}
+            <p className="mt-2 m-0 text-slate-600">{sale.branch?.address || businessAddress || ''}</p>
+            {(sale.branch?.phone || user?.organization?.phone || businessPhone) && (
+              <div className="mt-1 flex items-center gap-1.5 text-slate-600">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                <span>{sale.branch?.phone || user?.organization?.phone || businessPhone}</span>
+              </div>
+            )}
+            {(sale.branch?.email || user?.organization?.email || businessEmail) && (
+              <div className="mt-0.5 flex items-center gap-1.5 text-slate-600">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <span>{sale.branch?.email || user?.organization?.email || businessEmail}</span>
+              </div>
+            )}
+            {taxId && (
+              <div className="mt-0.5 flex items-center gap-1.5 text-slate-600">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span>VAT/TIN: {taxId}</span>
+              </div>
+            )}
           </div>
           <div className="text-right">
             <h2 className="text-2xl font-black text-indigo-600 uppercase tracking-tight m-0">Tax Invoice</h2>
@@ -168,7 +184,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
           {businessName || "Inzeedo POS"}
         </h1>
         <div className="opacity-80 leading-tight">
-          <p>{sale.branch?.address || "Main Distribution Hub"}</p>
+          <p>{sale.branch?.address || businessAddress || "Main Distribution Hub"}</p>
           <p>{t('pos.tel')}: {sale.branch?.phone || businessPhone || "+94 112 345 678"}</p>
           {taxId && <p>{t('pos.vat')}: {taxId}</p>}
         </div>

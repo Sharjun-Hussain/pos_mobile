@@ -29,6 +29,8 @@ export const useSettingsStore = create(
       // Business/Org (Synced from Cloud)
       currency: 'LKR',
       businessName: '',
+      businessAddress: '',
+      businessEmail: '',
       taxId: '',
       taxRate: 0,
       vatRate: 18,
@@ -75,7 +77,9 @@ export const useSettingsStore = create(
               taxId: b.tax_id || '',
               currency: b.currency || 'LKR',
               businessLogo: logoUrl || '',
-              businessPhone: b.phone || ''
+              businessPhone: b.phone || '',
+              businessEmail: b.email || '',
+              businessAddress: [b.address, b.city, b.state, b.zip_code].filter(Boolean).join(', ')
             });
           }
            // 3. Fetch General/Finance Settings (Tax Rate, VAT, SSCL)

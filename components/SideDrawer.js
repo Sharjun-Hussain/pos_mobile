@@ -83,7 +83,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
   const logout = useAuthStore(state => state.logout);
   const pathname = usePathname();
 
-  const isManufacturing = user?.organization?.business_type === 'Manufacturing' || user?.organization?.business_type === 'manufacturer';
+  const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
 
   const handleLogout = () => {
     haptics.heavy();

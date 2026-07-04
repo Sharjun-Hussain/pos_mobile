@@ -176,8 +176,8 @@ export default function RecipesPage() {
   const totalCount = recipesData?.meta?.total || recipesData?.total || recipes.length;
 
   return (
-    <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)]">
-      <header className="flex items-center justify-between">
+    <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface">
+      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl pt-[calc(var(--sat)+1rem)] pb-3 -mx-4 px-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={() => { haptics.light(); openDrawer(); }}

@@ -71,9 +71,9 @@ export const receiptService = {
           <td style="color:#94a3b8;font-weight:600;padding:13px 14px;font-size:12px;">${idx + 1}</td>
           <td style="padding:13px 14px;">
             <div style="font-size:13px;font-weight:600;color:#0f172a;">${item.product_name || item.product?.name || item.name || 'Item'}</div>
-            ${(item.variant?.name || item.product_variant?.name || item.variant_name)
-              ? `<div style="color:#94a3b8;font-size:11.5px;margin-top:3px;font-weight:500;">Variant: ${item.variant?.name || item.product_variant?.name || item.variant_name}</div>`
-              : ''}
+          </td>
+          <td style="padding:13px 14px;color:#64748b;font-size:12px;font-weight:500;">
+            ${item.variant?.name || item.product_variant?.name || item.variant_name || '-'}
           </td>
           <td style="text-align:center;font-weight:700;color:#334155;padding:13px 14px;font-size:13px;">${Number(item.quantity)}</td>
           <td style="text-align:right;color:#64748b;padding:13px 14px;font-size:13px;font-weight:500;">${parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, {minimumFractionDigits:2})}</td>
@@ -189,10 +189,11 @@ export const receiptService = {
       <thead>
         <tr style="background:#f1f5f9;">
           <th style="padding:11px 14px;text-align:left;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:5%;">#</th>
-          <th style="padding:11px 14px;text-align:left;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:45%;">Item Description</th>
-          <th style="padding:11px 14px;text-align:center;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:12%;">Qty</th>
-          <th style="padding:11px 14px;text-align:right;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:18%;">Unit Price</th>
-          <th style="padding:11px 14px;text-align:right;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:20%;">Amount</th>
+          <th style="padding:11px 14px;text-align:left;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:35%;">Item Description</th>
+          <th style="padding:11px 14px;text-align:left;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:15%;">Pack / Size</th>
+          <th style="padding:11px 14px;text-align:center;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:10%;">Qty</th>
+          <th style="padding:11px 14px;text-align:right;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:17.5%;">Unit Price</th>
+          <th style="padding:11px 14px;text-align:right;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:1.5px solid #e2e8f0;width:17.5%;">Amount</th>
         </tr>
       </thead>
       <tbody>

@@ -82,7 +82,8 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-left">
                 <th className="p-3 text-slate-500 font-bold uppercase text-[10px]">#</th>
-                <th className="p-3 text-slate-500 font-bold uppercase text-[10px] w-1/2">Item Description</th>
+                <th className="p-3 text-slate-500 font-bold uppercase text-[10px] w-2/5">Item Description</th>
+                <th className="p-3 text-slate-500 font-bold uppercase text-[10px] w-1/5">Pack / Size</th>
                 <th className="p-3 text-slate-500 font-bold uppercase text-[10px] text-center">Qty</th>
                 <th className="p-3 text-slate-500 font-bold uppercase text-[10px] text-right">Unit Price</th>
                 <th className="p-3 text-slate-500 font-bold uppercase text-[10px] text-right">Total</th>
@@ -96,9 +97,9 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
                     <strong className="text-slate-900 text-sm">
                       {item.product_name || item.product?.name || item.name || 'Item'}
                     </strong>
-                    {(item.variant?.name || item.product_variant?.name || item.variant_name) && (
-                      <div className="text-slate-500 mt-1 text-[10px]">Variant: {item.variant?.name || item.product_variant?.name || item.variant_name}</div>
-                    )}
+                  </td>
+                  <td className="p-3 text-slate-600 text-[11px] font-medium">
+                    {item.variant?.name || item.product_variant?.name || item.variant_name || '-'}
                   </td>
                   <td className="p-3 text-center font-bold text-slate-900">{Number(item.quantity)}</td>
                   <td className="p-3 text-right text-slate-600">{parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>

@@ -11,6 +11,7 @@ import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
 import { useRouter } from 'next/navigation';
 import { Toast } from '@capacitor/toast';
 import { receiptService } from '@/services/receipt';
+import { QuickQuantityModal } from '@/components/pos/QuickQuantityModal';
 
 // Optimized Sub-Components
 import TerminalHeader from '@/components/pos/TerminalHeader';
@@ -46,6 +47,7 @@ export default function SalesPage() {
   
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isVariantOpen, setIsVariantOpen] = useState(false);
+  const [quickQuantityProduct, setQuickQuantityProduct] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [lastSaleData, setLastSaleData] = useState(null);
@@ -168,9 +170,9 @@ export default function SalesPage() {
       setIsVariantOpen(true);
     } else if (product.variants?.length === 1) {
       haptics.light();
-      addItem(product.variants[0], isWholesale);
+      setQuickQuantityProduct(product.variants[0]);
     }
-  }, [isWholesale, addItem]);
+  }, []);
 
   const scanBarcode = useCallback(async () => {
     haptics.medium();
@@ -205,7 +207,11 @@ export default function SalesPage() {
 
   const handleVariantSelect = useCallback((variant) => {
     haptics.medium();
-    addItem(variant, isWholesale);
+    setQuickQuantityProduct(variant);
+  }, []);
+
+  const handleQuickQuantityAdd = useCallback((variant, quantity) => {
+    addItem(variant, isWholesale, null, quantity);
   }, [isWholesale, addItem]);
 
   const handleToggleWholesale = useCallback(() => {
@@ -309,6 +315,13 @@ export default function SalesPage() {
         product={selectedProduct}
         onClose={() => setIsVariantOpen(false)}
         onSelect={handleVariantSelect}
+      />
+
+      <QuickQuantityModal
+        isOpen={!!quickQuantityProduct}
+        onClose={() => setQuickQuantityProduct(null)}
+        product={quickQuantityProduct}
+        onAdd={handleQuickQuantityAdd}
       />
 
       <CheckoutSheet 

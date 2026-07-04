@@ -12,7 +12,7 @@ export const useCartStore = create(
       adjustment: 0,
       
       // Actions
-      addItem: (product, isWholesale, weight = null) => {
+      addItem: (product, isWholesale, weight = null, quantityToAdd = 1) => {
         const { cart } = get();
         const price = isWholesale ? (product.wholesalePrice || 0) : (product.retailPrice || 0);
         
@@ -22,7 +22,7 @@ export const useCartStore = create(
           const updated = [...cart];
           updated[existingIndex] = { 
             ...updated[existingIndex], 
-            quantity: updated[existingIndex].quantity + 1 
+            quantity: updated[existingIndex].quantity + quantityToAdd 
           };
           set({ cart: updated });
         } else {
@@ -39,7 +39,7 @@ export const useCartStore = create(
                 variantName: product.variantName,
                 size: product.variantName,
                 unit: product.unit || 'pc',
-                quantity: weight !== null ? weight : 1,
+                quantity: weight !== null ? weight : quantityToAdd,
                 price,
                 discount: 0,
               },

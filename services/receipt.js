@@ -5,10 +5,95 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 /**
  * Receipt Service
- * Uses hidden iframe to trigger native print dialog without opening Chrome.
+ * Uses Capacitor Filesystem + Share for native PDF download (no Chrome popup).
+ * Falls back to iframe-print for web/desktop environments.
  */
 
-const printHtmlContent = (htmlContent) => {
+/**
+ * Converts a Blob to a Base64 string.
+ */
+const blobToBase64 = (blob) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Strip the data URI prefix (e.g., "data:application/pdf;base64,")
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+
+/**
+ * Generates a PDF from an HTML string and shares it natively via Capacitor.
+ * On web, falls back to a simple print dialog via hidden iframe.
+ */
+const generateAndSharePdf = async (htmlContent, filename = 'invoice.pdf', isA4 = false) => {
+  // ─── Capacitor Native Path ─────────────────────────────────────────────
+  try {
+    const { Capacitor } = await import('@capacitor/core');
+
+    if (Capacitor.isNativePlatform()) {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem');
+      const { Share } = await import('@capacitor/share');
+      const html2pdf = (await import('html2pdf.js')).default;
+
+      // Create a temporary off-screen container
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.left = '-9999px';
+      container.style.top = '0';
+      container.style.width = isA4 ? '794px' : '302px'; // A4 or 80mm thermal
+      container.style.background = '#ffffff';
+      container.innerHTML = htmlContent;
+      document.body.appendChild(container);
+
+      const pdfOptions = isA4
+        ? {
+            margin: [8, 8, 8, 8],
+            filename,
+            image: { type: 'jpeg', quality: 0.95 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          }
+        : {
+            margin: [4, 4, 4, 4],
+            filename,
+            image: { type: 'jpeg', quality: 0.90 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: [80, 200], orientation: 'portrait' },
+          };
+
+      // Generate PDF as a Blob
+      const pdfBlob = await html2pdf().set(pdfOptions).from(container).outputPdf('blob');
+      document.body.removeChild(container);
+
+      // Convert blob to base64
+      const base64Data = await blobToBase64(pdfBlob);
+
+      // Write to Capacitor Cache directory
+      const writeResult = await Filesystem.writeFile({
+        path: filename,
+        data: base64Data,
+        directory: Directory.Cache,
+        recursive: true,
+      });
+
+      // Open native share sheet so user can Save/Print/WhatsApp etc.
+      await Share.share({
+        title: filename.replace('.pdf', ''),
+        text: 'Invoice document',
+        url: writeResult.uri,
+        dialogTitle: 'Save or Share Invoice',
+      });
+
+      return;
+    }
+  } catch (err) {
+    console.warn('[receiptService] Capacitor PDF path failed, falling back to iframe:', err);
+  }
+
+  // ─── Web / Fallback: Hidden iframe print ──────────────────────────────
   const iframe = document.createElement('iframe');
   iframe.style.position = 'absolute';
   iframe.style.width = '0px';
@@ -22,16 +107,11 @@ const printHtmlContent = (htmlContent) => {
   doc.write(htmlContent);
   doc.close();
 
-  // Wait a moment for images/fonts to render before printing
   setTimeout(() => {
     iframe.contentWindow.focus();
     iframe.contentWindow.print();
-    
-    // Cleanup iframe after a delay
     setTimeout(() => {
-      if (document.body.contains(iframe)) {
-        document.body.removeChild(iframe);
-      }
+      if (document.body.contains(iframe)) document.body.removeChild(iframe);
     }, 2000);
   }, 500);
 };
@@ -292,7 +372,8 @@ export const receiptService = {
 </body>
 </html>`;
 
-      printHtmlContent(html);
+      const invoiceFilename = `Invoice-${sale.invoice_number || 'draft'}.pdf`;
+      await generateAndSharePdf(html, invoiceFilename, true);
       return;
     }
 
@@ -436,6 +517,7 @@ export const receiptService = {
       </html>
     `;
 
-    printHtmlContent(receiptHtml);
+    const receiptFilename = `Receipt-${sale.invoice_number || 'draft'}.pdf`;
+    await generateAndSharePdf(receiptHtml, receiptFilename, false);
   }
 };

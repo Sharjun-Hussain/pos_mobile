@@ -5,9 +5,36 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 /**
  * Receipt Service
- * For Manufacturing: opens a full A4 tax invoice in a new window (save as PDF via browser).
- * For Retail/Wholesale: opens a thermal receipt in a new window and auto-prints.
+ * Uses hidden iframe to trigger native print dialog without opening Chrome.
  */
+
+const printHtmlContent = (htmlContent) => {
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.width = '0px';
+  iframe.style.height = '0px';
+  iframe.style.border = 'none';
+  iframe.style.visibility = 'hidden';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(htmlContent);
+  doc.close();
+
+  // Wait a moment for images/fonts to render before printing
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    
+    // Cleanup iframe after a delay
+    setTimeout(() => {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+    }, 2000);
+  }, 500);
+};
 
 export const receiptService = {
   print: async (sale, t) => {
@@ -265,11 +292,7 @@ export const receiptService = {
 </body>
 </html>`;
 
-      const a4Window = window.open('', '_blank', 'width=900,height=750');
-      if (a4Window) {
-        a4Window.document.write(html);
-        a4Window.document.close();
-      }
+      printHtmlContent(html);
       return;
     }
 
@@ -409,22 +432,10 @@ export const receiptService = {
           </div>
         </div>
 
-        <script>
-          window.onload = function() {
-            setTimeout(function() {
-              window.print();
-              setTimeout(function() { window.close(); }, 800);
-            }, 500);
-          };
-        </script>
       </body>
       </html>
     `;
 
-    const printWindow = window.open('', '_blank', 'width=450,height=600');
-    if (printWindow) {
-      printWindow.document.write(receiptHtml);
-      printWindow.document.close();
-    }
+    printHtmlContent(receiptHtml);
   }
 };

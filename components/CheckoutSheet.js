@@ -53,7 +53,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
 
-  const isManufacturer = user?.organization?.business_type === 'Manufacturing' || user?.organization?.business_type === 'manufacturer';
+  const businessType = (user?.organization?.business_type || "").toLowerCase();
+  const isManufacturer = businessType === 'manufacturing' || businessType === 'manufacturer';
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
   const [customers, setCustomers] = useState([]);
@@ -61,7 +62,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
-  const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '' });
+  const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '', company_name: '' });
   const [payments, setPayments] = useState([
     { id: Date.now(), method: 'cash', amount: 0 }
   ]);
@@ -76,8 +77,10 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       fetchCustomers();
     }
     if (isOpen && step === 3 && payments[0].amount === 0) {
-      // Auto-set the first payment amount to total on first entry to step 3
-      setPayments(prev => [{ ...prev[0], amount: total }]);
+      // Auto-set the first payment amount to total for retail, leave as 0 for manufacturing (credit by default)
+      if (!isManufacturer) {
+        setPayments(prev => [{ ...prev[0], amount: total }]);
+      }
     }
   }, [isOpen, step, total]);
 
@@ -187,7 +190,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const handleFinish = async (targetStatus = 'completed') => {
     if (cart.length === 0 || isSyncing) return;
 
-    if (!selectedCustomer && totalPaid < total) {
+    if (!isManufacturer && !selectedCustomer && totalPaid < total) {
       alert("Walk-in customers must pay in full.");
       return;
     }
@@ -550,6 +553,18 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                 className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
                               />
                             </div>
+                            {isManufacturer && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-bold text-text-secondary pl-1">Company Name</label>
+                                <input 
+                                  type="text"
+                                  placeholder="Enter company / business name"
+                                  value={newCustomer.company_name}
+                                  onChange={(e) => setNewCustomer({...newCustomer, company_name: e.target.value})}
+                                  className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                                />
+                              </div>
+                            )}
                             <div className="flex flex-col gap-1.5">
                               <label className="text-[10px] font-bold text-text-secondary pl-1">Phone Number</label>
                               <input 
@@ -605,57 +620,59 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       {/* Split Payment Manager */}
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between px-1">
-                          <label className="text-sm font-black text-text-secondary uppercase tracking-widest">{t('pos.payments') || 'Payments'}</label>
-                          <div className={`px-3 py-1.5 rounded-lg text-xs font-black ${totalPaid >= total ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'}`}>
-                            {totalPaid >= total ? (totalPaid > total ? `Change: ${formatCurrency(totalPaid - total)}` : 'Paid in Full') : `Remaining: ${formatCurrency(total - totalPaid)}`}
+                          <label className="text-sm font-black text-text-secondary uppercase tracking-widest">
+                            {isManufacturer ? 'Advance / Payment' : (t('pos.payments') || 'Payments')}
+                          </label>
+                          <div className={`px-3 py-1.5 rounded-lg text-xs font-black ${totalPaid >= total ? 'bg-emerald-500/10 text-emerald-600' : (isManufacturer ? 'bg-amber-500/10 text-amber-600' : 'bg-rose-500/10 text-rose-600')}`}>
+                            {totalPaid >= total ? (totalPaid > total ? `Change: ${formatCurrency(totalPaid - total)}` : 'Paid in Full') : `Credit / Pending: ${formatCurrency(total - totalPaid)}`}
                           </div>
                         </div>
 
-                        <div className="space-y-2">
-                          {payments.map((pmt, index) => (
-                            <div key={pmt.id} className="flex gap-2 items-center glass-panel bg-surface-muted/20 p-2 rounded-2xl border-glass-border/40 animate-in fade-in slide-in-from-right-2 duration-200">
-                              <select 
-                                value={pmt.method}
-                                onChange={(e) => updatePayment(pmt.id, 'method', e.target.value)}
-                                className="w-28 h-14 px-3 text-sm font-black rounded-xl bg-surface border border-glass-border/50 outline-none text-text-main"
-                              >
-                                {[
-                                  { id: 'cash', label: 'Cash' },
-                                  { id: 'card', label: 'Card' },
-                                  { id: 'bank', label: 'Bank' },
-                                  { id: 'qr', label: 'QR' },
-                                  { id: 'cheque', label: 'Cheque' }
-                                ]
-                                .filter(m => !activePaymentMethods || activePaymentMethods.includes(m.id))
-                                .map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
-                              </select>
+                          <div className="space-y-2">
+                            {payments.map((pmt, index) => (
+                              <div key={pmt.id} className="flex gap-2 items-center glass-panel bg-surface-muted/20 p-2 rounded-2xl border-glass-border/40 animate-in fade-in slide-in-from-right-2 duration-200">
+                                <select 
+                                  value={pmt.method}
+                                  onChange={(e) => updatePayment(pmt.id, 'method', e.target.value)}
+                                  className="w-28 h-14 px-3 text-sm font-black rounded-xl bg-surface border border-glass-border/50 outline-none text-text-main"
+                                >
+                                  {[
+                                    { id: 'cash', label: 'Cash' },
+                                    { id: 'card', label: 'Card' },
+                                    { id: 'bank', label: 'Bank' },
+                                    { id: 'qr', label: 'QR' },
+                                    { id: 'cheque', label: 'Cheque' }
+                                  ]
+                                  .filter(m => !activePaymentMethods || activePaymentMethods.includes(m.id))
+                                  .map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
+                                </select>
 
-                              <div className="relative flex-1">
-                                <input 
-                                  type="number"
-                                  placeholder="0.00"
-                                  value={pmt.amount || ''}
-                                  onChange={(e) => updatePayment(pmt.id, 'amount', e.target.value)}
-                                  className="w-full h-14 bg-transparent px-4 text-lg font-black text-text-main outline-none"
-                                />
-                                {index === 0 && (
-                                  <button 
-                                    onClick={() => updatePayment(pmt.id, 'amount', (parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2))}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-brand bg-brand/5 px-2 py-1 rounded-lg"
-                                  >
-                                    MAX
+                                <div className="relative flex-1">
+                                  <input 
+                                    type="number"
+                                    placeholder="0.00"
+                                    value={pmt.amount || ''}
+                                    onChange={(e) => updatePayment(pmt.id, 'amount', e.target.value)}
+                                    className="w-full h-14 bg-transparent px-4 text-lg font-black text-text-main outline-none"
+                                  />
+                                  {index === 0 && (
+                                    <button 
+                                      onClick={() => updatePayment(pmt.id, 'amount', (parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2))}
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-brand bg-brand/5 px-2 py-1 rounded-lg"
+                                    >
+                                      MAX
+                                    </button>
+                                  )}
+                                </div>
+
+                                {payments.length > 1 && (
+                                  <button onClick={() => removePayment(pmt.id)} className="h-10 w-10 flex items-center justify-center text-rose-500">
+                                    <Trash2 size={16} />
                                   </button>
                                 )}
                               </div>
-
-                              {payments.length > 1 && (
-                                <button onClick={() => removePayment(pmt.id)} className="h-10 w-10 flex items-center justify-center text-rose-500">
-                                  <Trash2 size={16} />
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
 
                         <button 
                           onClick={addPayment}

@@ -90,11 +90,13 @@ export const receiptService = {
       const changeRow = parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount)
         ? `<div style="display:flex;justify-content:space-between;color:#059669;font-weight:800;margin-top:4px;"><span>Change Due</span><span>${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString(undefined,{minimumFractionDigits:2})}</span></div>` : '';
 
-      const distributorBlock = sale.customer
-        ? `<p style="margin:0;font-size:18px;font-weight:900;color:#0f172a;">${sale.customer.name}</p>
-           ${sale.customer.phone ? `<p style="margin:6px 0 0;color:#475569;">Tel: ${sale.customer.phone}</p>` : ''}
-           ${sale.customer.email ? `<p style="margin:4px 0 0;color:#475569;">Email: ${sale.customer.email}</p>` : ''}
-           ${sale.customer.address ? `<p style="margin:4px 0 0;color:#475569;">${sale.customer.address}</p>` : ''}`
+      const dist = sale.distributor || sale.customer;
+      const distributorBlock = dist
+        ? `<p style="margin:0;font-size:15px;font-weight:900;color:#0f172a;">${dist.name}</p>
+           ${dist.company_name ? `<p style="margin:4px 0 0;font-size:13px;font-weight:600;color:#475569;">${dist.company_name}</p>` : ''}
+           ${dist.phone ? `<p style="margin:4px 0 0;font-size:12.5px;color:#64748b;">Tel: ${dist.phone}</p>` : ''}
+           ${dist.email ? `<p style="margin:4px 0 0;font-size:12.5px;color:#64748b;">Email: ${dist.email}</p>` : ''}
+           ${dist.address ? `<p style="margin:4px 0 0;font-size:12.5px;color:#64748b;">${dist.address}</p>` : ''}`
         : `<p style="margin:0;font-weight:600;color:#94a3b8;">Walk-in / No Distributor Selected</p>`;
 
       const invoiceDate = sale.created_at
@@ -116,16 +118,17 @@ export const receiptService = {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    @page { size: A4; margin: 15mm 18mm; }
+    @page { size: A4; margin: 6mm 8mm; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 13px; color: #1e293b; background: #fff; line-height: 1.5; }
     .save-bar { position: sticky; top: 0; background: #1e293b; padding: 11px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 100; }
     .save-btn { background: #6366f1; color: #fff; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; border: none; padding: 9px 22px; border-radius: 7px; cursor: pointer; letter-spacing: 0.3px; }
     .save-hint { color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 500; }
-    .wrap { padding: 36px 40px; }
+    .wrap { padding: 16px 20px; }
     .label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.2px; }
     .value { font-size: 13px; font-weight: 500; color: #334155; margin-top: 2px; }
     @media print {
+      @page { size: A4; margin: 6mm 8mm; }
       .save-bar { display: none; }
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
@@ -167,12 +170,9 @@ export const receiptService = {
             <div class="label">Invoice Number</div>
             <div style="font-size:15px;font-weight:700;color:#0f172a;margin-top:2px;">${sale.invoice_number || 'DRAFT'}</div>
           </div>
-          <div style="display:flex;justify-content:flex-end;gap:16px;">
-            <div style="text-align:right;">
-              <div class="label">Date</div>
-              <div class="value">${invoiceDate}</div>
-            </div>
-            ${invoiceTime ? `<div style="text-align:right;"><div class="label">Time</div><div class="value">${invoiceTime.toUpperCase()}</div></div>` : ''}
+          <div style="display:flex;justify-content:flex-end;gap:6px;font-size:12px;font-weight:600;color:#64748b;margin-top:-6px;">
+            <span>${invoiceDate}</span>
+            ${invoiceTime ? `<span style="color:#cbd5e1;">&bull;</span><span>${invoiceTime.toUpperCase()}</span>` : ''}
           </div>
         </div>
       </div>
@@ -217,6 +217,7 @@ export const receiptService = {
           <span>Total</span>
           <span>${parseFloat(sale.payable_amount).toLocaleString(undefined,{minimumFractionDigits:2})}</span>
         </div>
+        ${!isManufacturing ? `
         <div style="margin-top:14px;background:#f8fafc;padding:13px;border-radius:8px;">
           <div style="display:flex;justify-content:space-between;">
             <span style="font-size:12px;font-weight:500;color:#64748b;">Paid via ${(sale.payments?.[0]?.payment_method || sale.payment_method || 'Cash').toUpperCase()}</span>
@@ -224,18 +225,41 @@ export const receiptService = {
           </div>
           ${changeRow}
         </div>
+        ` : (sale.paid_amount > 0 ? `
+        <div style="display:flex;justify-content:space-between;margin-top:12px;">
+          <span style="font-size:13px;font-weight:500;color:#64748b;">Advance Payment</span>
+          <span style="font-size:13px;font-weight:600;color:#0f172a;">${parseFloat(sale.paid_amount).toLocaleString(undefined,{minimumFractionDigits:2})}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:#0f172a;border-top:1px solid #cbd5e1;padding-top:10px;margin-top:10px;">
+          <span>Balance Due</span>
+          <span>${parseFloat(sale.payable_amount - sale.paid_amount).toLocaleString(undefined,{minimumFractionDigits:2})}</span>
+        </div>
+        ` : '')}
       </div>
     </div>
 
+
     <!-- Footer -->
-    <div style="margin-top:40px;padding-top:18px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:flex-end;">
-      <div style="font-size:11.5px;color:#64748b;line-height:1.7;">
+    <div style="margin-top:36px;padding-top:20px;border-top:1px solid #e2e8f0;">
+
+      <!-- Terms & Conditions -->
+      <div style="font-size:11.5px;color:#64748b;line-height:1.7;margin-bottom:28px;">
         ${refundPolicy ? `<div><span style="font-weight:700;color:#475569;">Terms &amp; Conditions:</span> ${refundPolicy}</div>` : ''}
         ${footerText ? `<div>${footerText}</div>` : '<div style="font-weight:600;color:#475569;">Thank you for your business!</div>'}
       </div>
-      <div style="text-align:right;">
-        <div style="font-size:10px;font-weight:600;color:#cbd5e1;letter-spacing:0.5px;">GENERATED BY INZEEDO ERP &nbsp;&bull;&nbsp; 2026</div>
+
+      <!-- Authorized Signature (left-aligned) -->
+      <div style="display:inline-block;text-align:left;">
+        <div style="width:180px;height:48px;border-bottom:1.5px solid #334155;"></div>
+        <div style="margin-top:6px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.8px;">Authorized Signature</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:2px;">${businessName || ''}</div>
       </div>
+
+    </div>
+
+    <!-- Powered By -->
+    <div style="margin-top:20px;padding-top:12px;border-top:1px solid #f1f5f9;text-align:right;">
+      <div style="font-size:10px;font-weight:600;color:#cbd5e1;letter-spacing:0.5px;">GENERATED BY INZEEDO ERP &nbsp;&bull;&nbsp; 2026</div>
     </div>
   </div>
 </body>

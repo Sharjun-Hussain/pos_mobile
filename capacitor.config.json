@@ -1,6 +1,6 @@
 {
   "appId": "com.inzeedo.pos",
-  "appName": "Inzeedo pos",
+  "appName": "Inzeedo ERP",
   "webDir": "out",
   "plugins": {
     "StatusBar": {

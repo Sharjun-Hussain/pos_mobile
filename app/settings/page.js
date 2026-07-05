@@ -332,7 +332,7 @@ export default function SettingsPage() {
 
       <div className="mt-8 pb-4 opacity-30 text-center">
         <p className="text-[10px] font-bold text-text-secondary tracking-widest uppercase">
-          Inzeedo Point of Sale • Build 842-1
+          Inzeedo ERP • Version 2.0
         </p>
       </div>
 

@@ -618,67 +618,96 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       </div>
 
                       {/* Split Payment Manager */}
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-center justify-between px-1">
-                          <label className="text-sm font-black text-text-secondary uppercase tracking-widest">
-                            {isManufacturer ? 'Advance / Payment' : (t('pos.payments') || 'Payments')}
+                      <div className="flex flex-col gap-4">
+                        {/* Section Header */}
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-black text-text-secondary uppercase tracking-widest pl-1">
+                            {t('pos.payments') || 'Payment'}
                           </label>
-                          <div className={`px-3 py-1.5 rounded-lg text-xs font-black ${totalPaid >= total ? 'bg-emerald-500/10 text-emerald-600' : (isManufacturer ? 'bg-amber-500/10 text-amber-600' : 'bg-rose-500/10 text-rose-600')}`}>
-                            {totalPaid >= total ? (totalPaid > total ? `Change: ${formatCurrency(totalPaid - total)}` : 'Paid in Full') : `Credit / Pending: ${formatCurrency(total - totalPaid)}`}
-                          </div>
                         </div>
 
-                          <div className="space-y-2">
-                            {payments.map((pmt, index) => (
-                              <div key={pmt.id} className="flex gap-2 items-center glass-panel bg-surface-muted/20 p-2 rounded-2xl border-glass-border/40 animate-in fade-in slide-in-from-right-2 duration-200">
-                                <select 
-                                  value={pmt.method}
-                                  onChange={(e) => updatePayment(pmt.id, 'method', e.target.value)}
-                                  className="w-28 h-14 px-3 text-sm font-black rounded-xl bg-surface border border-glass-border/50 outline-none text-text-main"
-                                >
-                                  {[
-                                    { id: 'cash', label: 'Cash' },
-                                    { id: 'card', label: 'Card' },
-                                    { id: 'bank', label: 'Bank' },
-                                    { id: 'qr', label: 'QR' },
-                                    { id: 'cheque', label: 'Cheque' }
-                                  ]
-                                  .filter(m => !activePaymentMethods || activePaymentMethods.includes(m.id))
-                                  .map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
-                                </select>
+                        {/* Credit / Pending Badge — full width, beneath label */}
+                        {totalPaid < total && (
+                          <div className={`flex items-center justify-between px-4 py-3 rounded-2xl border ${
+                            isManufacturer
+                              ? 'bg-amber-500/10 border-amber-500/20'
+                              : 'bg-rose-500/10 border-rose-500/20'
+                          }`}>
+                            <span className={`text-xs font-black uppercase tracking-wider ${
+                              isManufacturer ? 'text-amber-600' : 'text-rose-500'
+                            }`}>
+                              {isManufacturer ? 'Credit / Advance' : 'Pending Balance'}
+                            </span>
+                            <span className={`text-sm font-black ${
+                              isManufacturer ? 'text-amber-600' : 'text-rose-500'
+                            }`}>
+                              {formatCurrency(total - totalPaid)}
+                            </span>
+                          </div>
+                        )}
+                        {totalPaid >= total && (
+                          <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                            <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
+                              {totalPaid > total ? 'Change Due' : 'Paid in Full'}
+                            </span>
+                            <span className="text-sm font-black text-emerald-600">
+                              {totalPaid > total ? formatCurrency(totalPaid - total) : '✓'}
+                            </span>
+                          </div>
+                        )}
 
-                                <div className="relative flex-1">
-                                  <input 
-                                    type="number"
-                                    placeholder="0.00"
-                                    value={pmt.amount || ''}
-                                    onChange={(e) => updatePayment(pmt.id, 'amount', e.target.value)}
-                                    className="w-full h-14 bg-transparent px-4 text-lg font-black text-text-main outline-none"
-                                  />
-                                  {index === 0 && (
-                                    <button 
-                                      onClick={() => updatePayment(pmt.id, 'amount', (parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2))}
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-brand bg-brand/5 px-2 py-1 rounded-lg"
-                                    >
-                                      MAX
-                                    </button>
-                                  )}
-                                </div>
+                        {/* Payment Rows */}
+                        <div className="flex flex-col gap-3">
+                          {payments.map((pmt, index) => (
+                            <div key={pmt.id} className="flex gap-2 items-center bg-surface-muted/40 p-3 rounded-2xl border border-glass-border/30 animate-in fade-in slide-in-from-right-2 duration-200">
+                              <select 
+                                value={pmt.method}
+                                onChange={(e) => updatePayment(pmt.id, 'method', e.target.value)}
+                                className="w-28 h-12 px-3 text-sm font-black rounded-xl bg-surface border border-glass-border/50 outline-none text-text-main"
+                              >
+                                {[
+                                  { id: 'cash', label: 'Cash' },
+                                  { id: 'card', label: 'Card' },
+                                  { id: 'bank', label: 'Bank' },
+                                  { id: 'qr', label: 'QR' },
+                                  { id: 'cheque', label: 'Cheque' }
+                                ]
+                                .filter(m => !activePaymentMethods || activePaymentMethods.includes(m.id))
+                                .map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
+                              </select>
 
-                                {payments.length > 1 && (
-                                  <button onClick={() => removePayment(pmt.id)} className="h-10 w-10 flex items-center justify-center text-rose-500">
-                                    <Trash2 size={16} />
+                              <div className="relative flex-1">
+                                <input 
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={pmt.amount || ''}
+                                  onChange={(e) => updatePayment(pmt.id, 'amount', e.target.value)}
+                                  className="w-full h-12 bg-transparent px-4 text-lg font-black text-text-main outline-none"
+                                />
+                                {index === 0 && (
+                                  <button 
+                                    onClick={() => updatePayment(pmt.id, 'amount', (parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2))}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-brand bg-brand/10 px-2.5 py-1.5 rounded-lg"
+                                  >
+                                    MAX
                                   </button>
                                 )}
                               </div>
-                            ))}
-                          </div>
+
+                              {payments.length > 1 && (
+                                <button onClick={() => removePayment(pmt.id)} className="h-10 w-10 flex items-center justify-center text-rose-500 active:scale-90 transition-transform">
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
 
                         <button 
                           onClick={addPayment}
                           className="flex items-center justify-center gap-2 py-4 border-2 border-dashed border-glass-border/40 rounded-2xl text-sm font-bold text-text-secondary active:scale-95 transition-all"
                         >
-                          <Plus size={18} /> Add Payment Method
+                          <Plus size={18} /> Add Payment
                         </button>
                       </div>
 

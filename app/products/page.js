@@ -14,6 +14,7 @@ import {
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useFetch } from '@/hooks/useFetch';
 import { ProductDetailSheet } from '@/components/dashboard/ProductDetailSheet';
 
@@ -87,7 +88,9 @@ const ProductGridItem = ({ product, getImageUrl, onClick }) => {
 
 export default function ProductsPage() {
   const { openDrawer } = useUIStore();
-  const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateProducts } = useFetch('/products?size=5000');
+  const { user } = useAuthStore();
+  const isManufacturer = user?.organization?.business_type?.toLowerCase() === 'manufacturing' || user?.organization?.business_type?.toLowerCase() === 'manufacturer';
+  const { data: productsData, isLoading: productsLoading, error: productsError, mutate: mutateProducts } = useFetch(isManufacturer ? '/products?type=product_hub&size=5000' : '/products?size=5000');
   const { data: categoriesData, isLoading: categoriesLoading } = useFetch('/main-categories/active/list');
 
   const [searchTerm, setSearchTerm] = useState('');

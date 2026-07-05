@@ -123,7 +123,7 @@ export default function ReturnsHistoryPage() {
           />
         </div>
 
-        <div className="flex justify-end px-1">
+        {/* <div className="flex justify-end px-1">
           <button
             onClick={() => {
               haptics.medium();
@@ -139,7 +139,7 @@ export default function ReturnsHistoryPage() {
             {sortBy === 'amount_low' && <ArrowDownAZ size={12} className="text-rose-500" />}
             {sortBy.replace('_', ' ')}
           </button>
-        </div>
+        </div> */}
       </section>
 
       <section className="flex flex-col">

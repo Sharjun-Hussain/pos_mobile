@@ -34,6 +34,7 @@ import { PosPaymentsSheet } from '@/components/settings/PosPaymentsSheet';
 import { PosTaxesSheet } from '@/components/settings/PosTaxesSheet';
 import { MailSettingsSheet } from '@/components/settings/MailSettingsSheet';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
+import { BusinessSettingsSheet } from '@/components/settings/BusinessSettingsSheet';
 import { useTheme } from 'next-themes';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LanguageSelectionSheet } from '@/components/settings/LanguageSelectionSheet';
@@ -100,6 +101,7 @@ export default function SettingsPage() {
   const [isMailSettingsOpen, setIsMailSettingsOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
+  const [isBusinessSettingsOpen, setIsBusinessSettingsOpen] = useState(false);
   const [isShiftManagerOpen, setIsShiftManagerOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
@@ -127,8 +129,8 @@ export default function SettingsPage() {
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`;
 
   return (
-    <div className="px-4 pb-24 flex flex-col gap-6 min-h-[100dvh] bg-surface pt-[calc(var(--sat)+1rem)] overflow-y-auto no-scrollbar pb-[calc(var(--sab)+2rem)]">
-      <header className="flex items-center justify-between mt-2">
+    <div className="px-4 flex flex-col gap-6 min-h-[100dvh] bg-surface pb-[calc(var(--sab)+2rem)]">
+      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl pt-[calc(var(--sat)+1rem)] pb-3 -mx-4 px-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={() => { haptics.light(); openDrawer(); }}
@@ -299,10 +301,17 @@ export default function SettingsPage() {
       <section className="flex flex-col gap-3">
         <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">{t('settings.technical')}</p>
         <SettingItem
-          icon={Database}
-          label={t('settings.identityBase')}
+          icon={Building2}
+          label="Business Profile"
           value={businessName || 'Synchronizing...'}
           color="emerald"
+          onClick={() => setIsBusinessSettingsOpen(true)}
+        />
+        <SettingItem
+          icon={Database}
+          label={t('settings.identityBase')}
+          value="System Data Control"
+          color="blue"
           onClick={() => { }}
         />
         <SettingItem
@@ -357,6 +366,11 @@ export default function SettingsPage() {
       <MailSettingsSheet
         isOpen={isMailSettingsOpen}
         onClose={() => setIsMailSettingsOpen(false)}
+      />
+
+      <BusinessSettingsSheet
+        isOpen={isBusinessSettingsOpen}
+        onClose={() => setIsBusinessSettingsOpen(false)}
       />
 
       <LanguageSelectionSheet

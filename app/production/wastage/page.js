@@ -12,6 +12,7 @@ import {
 import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
 import { useFetch } from '@/hooks/useFetch';
+import { CreateWastageSheet } from '@/components/production/CreateWastageSheet';
 
 const WastageRow = ({ wastage, onClick }) => {
   return (
@@ -43,9 +44,10 @@ const WastageRow = ({ wastage, onClick }) => {
 
 export default function WastagePage() {
   const { openDrawer } = useUIStore();
-  const { data: wastageData, isLoading, error, mutate } = useFetch('/production/wastage?size=5000');
+  const { data: wastageData, isLoading, error, mutate } = useFetch('/wastages?size=5000');
   
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const wastages = wastageData?.data || wastageData || [];
 
@@ -84,7 +86,7 @@ export default function WastagePage() {
             <RefreshCcw size={16} className={isLoading ? 'animate-spin' : ''} />
           </button>
           <button
-            onClick={() => { haptics.medium(); /* TODO: Open Create Form */ }}
+            onClick={() => { haptics.medium(); setIsCreateOpen(true); }}
             className="h-10 w-10 bg-brand text-white rounded-xl flex items-center justify-center active:scale-95 transition-transform shadow-sm shadow-brand/30"
           >
             <Plus size={18} strokeWidth={3} />
@@ -131,6 +133,12 @@ export default function WastagePage() {
           </div>
         )}
       </section>
+
+      <CreateWastageSheet 
+        isOpen={isCreateOpen} 
+        onClose={() => setIsCreateOpen(false)} 
+        onSuccess={() => mutate()} 
+      />
     </div>
   );
 }

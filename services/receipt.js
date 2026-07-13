@@ -221,15 +221,12 @@ export const receiptService = {
 <head>
   <meta charset="utf-8">
   <title>Invoice ${sale.invoice_number || 'DRAFT'}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     @page { size: A4; margin: 6mm 8mm; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 13px; color: #1e293b; background: #fff; line-height: 1.5; }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; color: #1e293b; background: #fff; line-height: 1.5; }
     .save-bar { position: sticky; top: 0; background: #1e293b; padding: 11px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 100; }
-    .save-btn { background: #6366f1; color: #fff; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; border: none; padding: 9px 22px; border-radius: 7px; cursor: pointer; letter-spacing: 0.3px; }
+    .save-btn { background: #6366f1; color: #fff; font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 13px; border: none; padding: 9px 22px; border-radius: 7px; cursor: pointer; letter-spacing: 0.3px; }
     .save-hint { color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 500; }
     .wrap { padding: 16px 20px; }
     .label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.2px; }

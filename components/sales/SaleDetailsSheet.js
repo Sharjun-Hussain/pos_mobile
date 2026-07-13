@@ -6,6 +6,7 @@ import {
   Printer,
   RotateCcw,
   AlertTriangle,
+  PrinterCheck,
 } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from "@/services/haptics";
@@ -59,6 +60,12 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
     if (!sale) return;
     haptics.medium();
     receiptService.print(sale, t);
+  }, [sale, t]);
+
+  const handleNativePrint = useCallback(() => {
+    if (!sale) return;
+    haptics.medium();
+    receiptService.printDirect(sale, t);
   }, [sale, t]);
 
   return (
@@ -131,7 +138,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                       <div className="h-20 w-20 rounded-full bg-brand/10 text-brand flex items-center justify-center mb-6">
                         <Printer size={32} strokeWidth={2.5} />
                       </div>
-                      <h3 className="text-xl font-black text-text-main mb-2">Order Confirmed</h3>
+                      <h3 className="text-xl font-semibold text-text-main mb-2">Order Confirmed</h3>
                       <p className="text-sm font-bold text-text-secondary max-w-[250px]">
                         The dispatch order has been successfully recorded. Tap below to download or share the A4 PDF invoice.
                       </p>
@@ -148,12 +155,21 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
             {/* Action Bar */}
             {!loading && !error && sale && (
               <div className="p-6 bg-surface border-t border-glass-border/30 flex gap-3 pb-[calc(var(--sab)+1.5rem)]">
+                {/* Download / Reprint */}
                 <button
                   onClick={handlePrint}
                   className="btn-primary flex-1 h-14 bg-brand text-white border-0 shadow-lg shadow-brand/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   <Printer size={18} />
-                  <span className="text-sm font-bold">{isManufacturing ? 'Download / Share PDF' : 'Reprint'}</span>
+                  <span className="text-sm font-bold">{isManufacturing ? 'Download' : 'Reprint'}</span>
+                </button>
+                {/* Direct Print (Bluetooth / USB) */}
+                <button
+                  onClick={handleNativePrint}
+                  className="h-14 px-5 bg-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
+                >
+                  <PrinterCheck size={18} />
+                  <span className="text-sm font-bold">Print</span>
                 </button>
                 {onReturnTrigger ? (
                   <button

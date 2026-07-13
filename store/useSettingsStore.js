@@ -143,10 +143,17 @@ export const useSettingsStore = create(
 
       updateTaxSettings: async ({ vatRate, ssclRate, taxId, enableTax }) => {
         try {
-          // 1. Update General (Rates)
+          // 1. Fetch current general settings to avoid overwriting them
+          const genRes = await api.settings.getModule('general');
+          const currentGeneral = (genRes.status === 'success' && genRes.data) ? genRes.data : {};
+          const currentFinance = currentGeneral.finance || {};
+
+          // 2. Update General (Rates) with merged data
           // Note: We also update taxRate for backward compatibility
           await api.settings.updateModule('general', {
+            ...currentGeneral,
             finance: {
+              ...currentFinance,
               enableTax,
               vatRate,
               ssclRate,
@@ -154,7 +161,7 @@ export const useSettingsStore = create(
             }
           });
           
-          // 2. Update Business (TIN)
+          // 3. Update Business (TIN)
           await api.settings.updateBusiness({ tax_id: taxId });
           
           set({ enableTax, vatRate, ssclRate, taxId, taxRate: vatRate });

@@ -23,7 +23,9 @@ export const useSettingsStore = create(
       // Hardware/Receipt
       paperWidth: '80mm',
       headerText: '',
+      showFooterText: true,
       footerText: 'Thank you for your business!\nPlease visit again.',
+      showRefundPolicy: true,
       refundPolicy: 'Returns accepted within 7 days with original receipt.',
       
       // Business/Org (Synced from Cloud)
@@ -59,7 +61,9 @@ export const useSettingsStore = create(
               language: d.language ?? get().language,
               showLogo: d.showLogo ?? get().showLogo,
               headerText: d.headerText ?? get().headerText,
+              showFooterText: d.showFooterText !== undefined ? d.showFooterText : get().showFooterText,
               footerText: d.footerText ?? get().footerText,
+              showRefundPolicy: d.showRefundPolicy !== undefined ? d.showRefundPolicy : get().showRefundPolicy,
               refundPolicy: d.refundPolicy ?? get().refundPolicy,
               paperWidth: d.paperWidth ?? get().paperWidth,
               activePaymentMethods: d.activePaymentMethods ?? get().activePaymentMethods,
@@ -109,7 +113,9 @@ export const useSettingsStore = create(
           language: newData.language,
           showLogo: newData.showLogo,
           headerText: newData.headerText,
+          showFooterText: newData.showFooterText,
           footerText: newData.footerText,
+          showRefundPolicy: newData.showRefundPolicy,
           refundPolicy: newData.refundPolicy,
           paperWidth: newData.paperWidth,
           activePaymentMethods: newData.activePaymentMethods,

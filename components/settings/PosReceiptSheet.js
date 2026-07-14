@@ -32,17 +32,17 @@ ToggleRow.displayName = 'ToggleRow';
 
 export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
   useHardwareBack(isOpen, onClose);
-  const { showLogo, paperWidth, headerText, footerText, refundPolicy, updatePOSSettings } = useSettingsStore();
+  const { showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy, updatePOSSettings } = useSettingsStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [form, setForm] = useState({ showLogo: false, paperWidth: '80mm', headerText: '', footerText: '', refundPolicy: '' });
+  const [form, setForm] = useState({ showLogo: false, paperWidth: '80mm', headerText: '', showFooterText: true, footerText: '', showRefundPolicy: true, refundPolicy: '' });
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ showLogo, paperWidth, headerText, footerText, refundPolicy });
+      setForm({ showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy });
       setSuccess(false);
     }
-  }, [isOpen, showLogo, paperWidth, headerText, footerText, refundPolicy]);
+  }, [isOpen, showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy]);
 
   const setField = useCallback((key, val) => setForm(f => ({ ...f, [key]: val })), []);
 
@@ -53,7 +53,9 @@ export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
       showLogo: form.showLogo,
       paperWidth: form.paperWidth,
       headerText: form.headerText,
+      showFooterText: form.showFooterText,
       footerText: form.footerText,
+      showRefundPolicy: form.showRefundPolicy,
       refundPolicy: form.refundPolicy
     });
     if (res.success) {
@@ -95,15 +97,18 @@ export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
                 </div>
                 {[
                   { key: 'headerText', label: 'Receipt Header', placeholder: 'Leave blank for business name', rows: 1 },
-                  { key: 'footerText', label: 'Footer Message', placeholder: 'Thank you for your business!', rows: 2 },
-                  { key: 'refundPolicy', label: 'Refund & Return Policy', placeholder: 'Enter your policy text...', rows: 3 },
-                ].map(({ key, label, placeholder, rows }) => (
+                  { key: 'footerText', toggleKey: 'showFooterText', label: 'Footer Message (Terms)', placeholder: 'Thank you for your business!', rows: 2 },
+                  { key: 'refundPolicy', toggleKey: 'showRefundPolicy', label: 'Refund & Return Policy', placeholder: 'Enter your policy text...', rows: 3 },
+                ].map(({ key, toggleKey, label, placeholder, rows }) => (
                   <div key={key} className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">{label}</label>
+                    <div className="flex items-center justify-between pr-2">
+                      <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">{label}</label>
+                      {toggleKey && <Toggle enabled={form[toggleKey]} onToggle={() => setField(toggleKey, !form[toggleKey])} />}
+                    </div>
                     {rows === 1 ? (
                       <input type="text" placeholder={placeholder} value={form[key]} onChange={(e) => setField(key, e.target.value)} className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-[14px] font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all" />
                     ) : (
-                      <textarea rows={rows} placeholder={placeholder} value={form[key]} onChange={(e) => setField(key, e.target.value)} className="w-full p-4 bg-surface-muted border border-glass-border/30 rounded-2xl text-[14px] font-medium text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all resize-none" />
+                      <textarea rows={rows} placeholder={placeholder} value={form[key]} onChange={(e) => setField(key, e.target.value)} disabled={toggleKey ? !form[toggleKey] : false} className={`w-full p-4 bg-surface-muted border border-glass-border/30 rounded-2xl text-[14px] font-medium text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all resize-none ${toggleKey && !form[toggleKey] ? 'opacity-50' : ''}`} />
                     )}
                   </div>
                 ))}

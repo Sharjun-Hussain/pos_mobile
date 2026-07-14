@@ -110,13 +110,13 @@ export default function SalesHistoryPage() {
   const filteredSales = Array.isArray(sales) ? sales
     .filter(s => {
       const matchesSearch = (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = filterStatus === 'all' || 
-                           (filterStatus === 'returned' && (s.return_status === 'partial' || s.return_status === 'full' || s.returns?.length > 0)) ||
-                           (filterStatus === 'paid' && s.payment_status === 'paid') ||
-                           (filterStatus === 'unpaid' && s.payment_status !== 'paid');
-      
+        (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus = filterStatus === 'all' ||
+        (filterStatus === 'returned' && (s.return_status === 'partial' || s.return_status === 'full' || s.returns?.length > 0)) ||
+        (filterStatus === 'paid' && s.payment_status === 'paid') ||
+        (filterStatus === 'unpaid' && s.payment_status !== 'paid');
+
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -173,26 +173,25 @@ export default function SalesHistoryPage() {
             <button
               key={chip.id}
               onClick={() => { haptics.light(); setFilterStatus(chip.id); }}
-              className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-wider transition-all border ${
-                filterStatus === chip.id 
-                  ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105' 
-                  : 'bg-surface-muted text-text-secondary/60 border-glass-border/20 opacity-70'
-              }`}
+              className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-semibold transition-all border ${filterStatus === chip.id
+                ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105'
+                : 'bg-surface-muted text-text-secondary/60 border-glass-border/20 opacity-70'
+                }`}
             >
               {chip.label}
             </button>
           ))}
-          
+
           <div className="w-[1px] h-6 bg-glass-border/20 mx-1 flex-shrink-0" />
-          
+
           <button
             onClick={() => {
               haptics.medium();
-              const modes = ['newest', 'oldest', 'amount_high', 'amount_low'];
+              const modes = ['ewest', 'oldest', 'amount_high', 'amount_low'];
               const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
               setSortBy(next);
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-muted border border-glass-border/20 text-[11px] font-black uppercase tracking-wider text-text-main whitespace-nowrap active:scale-95 transition-transform"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-muted border border-glass-border/20 text-[11px] font-black  text-text-main whitespace-nowrap active:scale-95 transition-transform"
           >
             {sortBy === 'newest' && <Clock size={12} className="text-brand" />}
             {sortBy === 'oldest' && <Clock size={12} className="opacity-30 rotate-180" />}

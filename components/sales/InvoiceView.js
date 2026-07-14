@@ -163,7 +163,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
               <span>{parseFloat(sale.payable_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
             </div>
 
-            <div className="border-2 border-black p-4">
+            <div className="pt-2">
               <div className="flex justify-between text-xs font-black text-black mb-2 uppercase">
                 <span>Amount Paid ({sale.payments?.[0]?.payment_method || sale.payment_method || 'CASH'})</span>
                 <span>{parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>

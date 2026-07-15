@@ -24,6 +24,8 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
   const [sale, setSale] = useState(initialSaleData || null);
   const [loading, setLoading] = useState(!initialSaleData);
   const [error, setError] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
@@ -56,16 +58,26 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
     }
   }, [saleId]);
 
-  const handlePrint = useCallback(() => {
+  const handlePrint = useCallback(async () => {
     if (!sale) return;
     haptics.medium();
-    receiptService.print(sale, t);
+    setIsDownloading(true);
+    try {
+      await receiptService.print(sale, t);
+    } finally {
+      setIsDownloading(false);
+    }
   }, [sale, t]);
 
-  const handleNativePrint = useCallback(() => {
+  const handleNativePrint = useCallback(async () => {
     if (!sale) return;
     haptics.medium();
-    receiptService.printDirect(sale, t);
+    setIsPrinting(true);
+    try {
+      await receiptService.printDirect(sale, t);
+    } finally {
+      setIsPrinting(false);
+    }
   }, [sale, t]);
 
   return (
@@ -158,18 +170,32 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                 {/* Download / Reprint */}
                 <button
                   onClick={handlePrint}
-                  className="btn-primary flex-1 h-14 bg-brand text-white border-0 shadow-lg shadow-brand/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  disabled={isDownloading || isPrinting}
+                  className="btn-primary flex-1 h-14 bg-brand text-white border-0 shadow-lg shadow-brand/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:active:scale-100"
                 >
-                  <Printer size={18} />
-                  <span className="text-sm font-bold">{isManufacturing ? 'Download' : 'Reprint'}</span>
+                  {isDownloading ? (
+                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <Printer size={18} />
+                      <span className="text-sm font-bold">{isManufacturing ? 'Download' : 'Reprint'}</span>
+                    </>
+                  )}
                 </button>
                 {/* Direct Print (Bluetooth / USB) */}
                 <button
                   onClick={handleNativePrint}
-                  className="h-14 px-5 bg-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
+                  disabled={isDownloading || isPrinting}
+                  className="h-14 px-5 bg-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all disabled:opacity-70 disabled:active:scale-100"
                 >
-                  <PrinterCheck size={18} />
-                  <span className="text-sm font-bold">Print</span>
+                  {isPrinting ? (
+                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <PrinterCheck size={18} />
+                      <span className="text-sm font-bold">Print</span>
+                    </>
+                  )}
                 </button>
                 {onReturnTrigger ? (
                   <button

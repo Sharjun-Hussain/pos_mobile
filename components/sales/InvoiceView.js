@@ -60,7 +60,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
             )}
           </div>
           <div className="text-right">
-            <h2 className="text-3xl font-black text-black tracking-tighter m-0 uppercase border-b-2 border-black inline-block pb-1">Tax Invoice</h2>
+            <h2 className="text-3xl font-black text-black tracking-tighter m-0 uppercase border-b-2 border-black inline-block pb-1">INVOICE</h2>
             <div className="mt-4 flex flex-col gap-1 text-right items-end">
               <div className="flex gap-2 justify-end w-full">
                 <span className="text-gray-500 font-normal w-20">INV NO:</span>

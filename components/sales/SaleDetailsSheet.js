@@ -145,76 +145,80 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                     </div>
                   )}
 
-                  {isManufacturing ? (
-                    <div className="bg-white border border-glass-border/30 rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-sm h-[300px]">
-                      <div className="h-20 w-20 rounded-full bg-brand/10 text-brand flex items-center justify-center mb-6">
-                        <Printer size={32} strokeWidth={2.5} />
-                      </div>
-                      <h3 className="text-xl font-semibold text-text-main mb-2">Order Confirmed</h3>
-                      <p className="text-sm font-bold text-text-secondary max-w-[250px]">
-                        The dispatch order has been successfully recorded. Tap below to download or share the A4 PDF invoice.
-                      </p>
+                  <div className="bg-gradient-to-br from-brand/5 to-transparent border border-brand/10 rounded-[2rem] p-8 flex flex-col items-center justify-center text-center shadow-inner h-[300px] relative overflow-hidden">
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand/5 rounded-full blur-3xl"></div>
+                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                    
+                    <div className="relative h-24 w-24 rounded-full bg-white shadow-xl shadow-brand/10 flex items-center justify-center mb-6">
+                      <div className="absolute inset-0 rounded-full border-2 border-brand/20 animate-pulse"></div>
+                      <PrinterCheck size={40} className="text-brand" strokeWidth={2} />
                     </div>
-                  ) : (
-                    <div className="shadow-2xl shadow-black/10 rounded-sm overflow-hidden bg-white">
-                      <InvoiceView sale={sale} />
-                    </div>
-                  )}
+                    <h3 className="text-2xl font-black text-text-main mb-3 tracking-tight">Transaction Complete</h3>
+                    <p className="text-[13px] font-semibold text-text-secondary/70 max-w-[250px] leading-relaxed">
+                      The sale has been successfully recorded. Tap below to print the receipt or download a PDF copy.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Action Bar */}
+            {/* Action Bar - Modern Vertical Stack */}
             {!loading && !error && sale && (
-              <div className="p-6 bg-surface border-t border-glass-border/30 flex gap-3 pb-[calc(var(--sab)+1.5rem)]">
-                {/* Download / Reprint */}
-                <button
-                  onClick={handlePrint}
-                  disabled={isDownloading || isPrinting}
-                  className="btn-primary flex-1 h-14 bg-brand text-white border-0 shadow-lg shadow-brand/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:active:scale-100"
-                >
-                  {isDownloading ? (
-                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : (
-                    <>
-                      <Printer size={18} />
-                      <span className="text-sm font-bold">{isManufacturing ? 'Download' : 'Reprint'}</span>
-                    </>
-                  )}
-                </button>
-                {/* Direct Print (Bluetooth / USB) */}
-                <button
-                  onClick={handleNativePrint}
-                  disabled={isDownloading || isPrinting}
-                  className="h-14 px-5 bg-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all disabled:opacity-70 disabled:active:scale-100"
-                >
-                  {isPrinting ? (
-                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : (
-                    <>
-                      <PrinterCheck size={18} />
-                      <span className="text-sm font-bold">Print</span>
-                    </>
-                  )}
-                </button>
+              <div className="p-6 bg-surface/80 backdrop-blur-xl border-t border-glass-border/30 flex flex-col gap-3 pb-[calc(var(--sab)+2rem)]">
+                <div className="flex gap-3">
+                  {/* Download / Reprint */}
+                  <button
+                    onClick={handlePrint}
+                    disabled={isDownloading || isPrinting}
+                    className="flex-1 h-14 bg-surface text-text-main border border-glass-border/50 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:active:scale-100 group"
+                  >
+                    {isDownloading ? (
+                      <div className="h-5 w-5 border-2 border-brand/30 border-t-brand rounded-full animate-spin"></div>
+                    ) : (
+                      <>
+                        <Printer size={18} className="text-text-secondary group-hover:text-brand transition-colors" />
+                        <span className="text-sm font-bold tracking-wide">{isManufacturing ? 'Download A4' : 'Reprint PDF'}</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Direct Print (Bluetooth / LAN) */}
+                  <button
+                    onClick={handleNativePrint}
+                    disabled={isDownloading || isPrinting}
+                    className="flex-[1.5] h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-70 disabled:active:scale-100 overflow-hidden relative"
+                  >
+                    <div className="absolute inset-0 bg-white/20 translate-y-full hover:translate-y-0 transition-transform duration-300"></div>
+                    {isPrinting ? (
+                      <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin relative z-10"></div>
+                    ) : (
+                      <>
+                        <PrinterCheck size={20} className="relative z-10" />
+                        <span className="text-sm font-bold tracking-wide relative z-10">Thermal Print</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
                 {onReturnTrigger ? (
                   <button
                     onClick={() => { haptics.medium(); onReturnTrigger(sale); }}
-                    className="flex-1 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 active:scale-95 transition-all"
+                    className="w-full h-14 bg-rose-500/10 text-rose-600 rounded-2xl flex items-center justify-center gap-2 border border-rose-500/20 shadow-sm hover:bg-rose-500 hover:text-white active:scale-95 transition-all duration-300"
                   >
                     <RotateCcw size={18} />
-                    <span className="text-sm font-bold">Return</span>
+                    <span className="text-sm font-bold tracking-wide">Initiate Return</span>
                   </button>
                 ) : (
                   <button
                     onClick={onClose}
-                    className="flex-1 h-14 bg-surface-muted text-text-main rounded-2xl flex items-center justify-center gap-2 border border-glass-border shadow-sm active:scale-95 transition-all"
+                    className="w-full h-14 bg-surface-muted text-text-main rounded-2xl flex items-center justify-center gap-2 border border-glass-border shadow-sm hover:bg-black/5 active:scale-95 transition-all duration-300"
                   >
-                    <span className="text-sm font-bold">Done</span>
+                    <span className="text-sm font-bold tracking-wide">Done</span>
                   </button>
                 )}
               </div>
             )}
+
           </div>
         </Drawer.Content>
       </Drawer.Portal>

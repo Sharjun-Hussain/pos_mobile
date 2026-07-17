@@ -161,6 +161,94 @@ export class EscPosEncoder {
   }
 
   /**
+   * Asynchronously loads and prints an image (must be run in a browser/Capacitor environment)
+   * Uses GS v 0 (Raster bit image)
+   * @param {string} url Image URL or Base64 data URI
+   * @param {number} maxWidth Maximum width in pixels (must be multiple of 8)
+   */
+  async image(url, maxWidth = 384) {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return this;
+    
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > maxWidth) {
+            height = Math.round((maxWidth / width) * height);
+            width = maxWidth;
+          }
+          width = Math.floor(width / 8) * 8; // Ensure multiple of 8
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          const imageData = ctx.getImageData(0, 0, width, height).data;
+          
+          const xL = (width / 8) % 256;
+          const xH = Math.floor((width / 8) / 256);
+          const yL = height % 256;
+          const yH = Math.floor(height / 256);
+          
+          // GS v 0 (Raster format)
+          this.buffer.push(0x1d, 0x76, 0x30, 0x00, xL, xH, yL, yH);
+          
+          let byte = 0;
+          let bitCount = 0;
+          
+          for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+              const idx = (y * width + x) * 4;
+              const r = imageData[idx];
+              const g = imageData[idx + 1];
+              const b = imageData[idx + 2];
+              const a = imageData[idx + 3];
+              
+              let isBlack = false;
+              if (a > 128) {
+                const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+                isBlack = luminance < 128;
+              }
+              
+              if (isBlack) {
+                byte |= (1 << (7 - bitCount));
+              }
+              
+              bitCount++;
+              if (bitCount === 8) {
+                this.buffer.push(byte);
+                byte = 0;
+                bitCount = 0;
+              }
+            }
+          }
+          resolve(this);
+        } catch (e) {
+          console.error("ESC/POS Image parsing error:", e);
+          resolve(this);
+        }
+      };
+      
+      img.onerror = () => {
+        console.error("ESC/POS Image load error");
+        resolve(this); 
+      };
+      
+      img.src = url;
+    });
+  }
+
+  /**
    * Returns the final Base64 string for the printer
    */
   encode() {

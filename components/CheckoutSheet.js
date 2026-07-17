@@ -80,7 +80,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     if (isOpen && step === 3 && payments[0].amount === 0) {
       // Auto-set the first payment amount to total for retail, leave as 0 for manufacturing (credit by default)
       if (!isManufacturer) {
-        setPayments(prev => [{ ...prev[0], amount: total }]);
+        setPayments(prev => [{ ...prev[0], amount: Number(total.toFixed(2)) }]);
       }
     }
   }, [isOpen, step, total, isCustomerView]);
@@ -88,7 +88,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const addPayment = () => {
     haptics.light();
     const remaining = total - payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
-    setPayments([...payments, { id: Date.now(), method: 'cash', amount: remaining > 0 ? remaining : 0 }]);
+    setPayments([...payments, { id: Date.now(), method: 'cash', amount: remaining > 0 ? Number(remaining.toFixed(2)) : 0 }]);
   };
 
   const removePayment = (id) => {
@@ -163,6 +163,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
   const handleBack = () => {
     haptics.light();
+    if (step === 3) {
+      setPayments([{ id: Date.now(), method: 'cash', amount: 0 }]);
+    }
     setStepState([step - 1, -1]);
   };
 
@@ -713,7 +716,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                 />
                                 {index === 0 && (
                                   <button 
-                                    onClick={() => updatePayment(pmt.id, 'amount', (parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2))}
+                                    onClick={() => updatePayment(pmt.id, 'amount', Number((parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2)))}
                                     className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-brand bg-brand/10 px-2.5 py-1.5 rounded-lg"
                                   >
                                     MAX

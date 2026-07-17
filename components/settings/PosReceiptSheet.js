@@ -90,9 +90,9 @@ export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Paper Dimension</label>
                   <div className="grid grid-cols-2 gap-3">
-                    {['80mm', '58mm'].map(size => (
+                    {['80mm', 'A4'].map(size => (
                       <button key={size} onClick={() => { haptics.light(); setField('paperWidth', size); }} className={`h-14 rounded-2xl border-2 font-bold text-[13px] transition-all ${form.paperWidth === size ? 'border-brand bg-brand/5 text-brand' : 'border-glass-border/30 bg-surface-muted text-text-secondary'}`}>
-                        {size} Thermal
+                        {size === 'A4' ? 'A4 PDF Print' : `${size} Thermal`}
                       </button>
                     ))}
                   </div>

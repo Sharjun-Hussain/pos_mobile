@@ -143,6 +143,16 @@ const printViaLan = async (sale, t) => {
 
     // Header
     encoder.align('center');
+    
+    if (showLogo && businessLogo) {
+      try {
+        await encoder.image(businessLogo, paperWidth === '80mm' ? 384 : 256);
+        encoder.feed(1);
+      } catch (err) {
+        console.error("Failed to print logo", err);
+      }
+    }
+    
     encoder.size(2, 2).line(businessName?.toUpperCase() || 'INZEEDO POS').size(1, 1);
     
     if (businessAddress) encoder.line(businessAddress.toUpperCase());
@@ -163,8 +173,13 @@ const printViaLan = async (sale, t) => {
     // Type & User line
     const typeStr = sale.is_wholesale !== undefined ? (sale.is_wholesale ? 'WHOLESALE POS.SALE' : 'RETAIL POS.SALE') : 'POS.SALE';
     encoder.align('center').line(typeStr).align('left');
+    encoder.divider(lineLength, '-');
+    const customerStr = sale.customer?.name?.toUpperCase() || sale.customer_name?.toUpperCase();
+    if (customerStr) {
+      encoder.line(`CUSTOMER:${' '.repeat(Math.max(1, lineLength - 9 - customerStr.length))}${customerStr}`);
+    }
     const userStr = sale.cashier?.name?.toUpperCase() || 'STAFF';
-    encoder.line(`USER: ${userStr}`);
+    encoder.line(`USER:${' '.repeat(Math.max(1, lineLength - 5 - userStr.length))}${userStr}`);
     
     encoder.divider(lineLength, '=');
     
@@ -264,7 +279,7 @@ const printViaLan = async (sale, t) => {
       }
     }
     
-    encoder.divider();
+    encoder.divider(lineLength, '=');
     
     // Footer & Barcode
     encoder.align('center');
@@ -376,8 +391,8 @@ export const receiptService = {
       (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' ||
       (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
 
-    // ─── A4 Invoice for Manufacturing ────────────────────────────────────────
-    if (isManufacturing) {
+    // ─── A4 Invoice for Manufacturing or A4 Setting ────────────────────────────────────────
+    if (isManufacturing || paperWidth === 'A4') {
       const items = (sale.items || sale.sale_items || []);
       const itemRows = items.map((item, idx) => `
         <tr style="border-bottom:1px solid #ffffff;">

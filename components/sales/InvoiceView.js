@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { QRCodeSVG } from 'qrcode.react';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -14,12 +13,6 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
   const { formatCurrency } = useCurrency();
 
   if (!sale) return null;
-
-  const qrData = JSON.stringify({
-    invoice: sale.invoice_number || "Draft",
-    date: sale.created_at ? format(new Date(sale.created_at), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
-    total: (sale.payable_amount || sale.net_total || 0).toString()
-  });
 
   const { user } = useAuthStore();
   const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
@@ -126,10 +119,6 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
         {/* Footer/Totals */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-8">
           <div className="w-full sm:w-1/3 text-center sm:text-left">
-            <div className="inline-block p-2 border-2 border-black bg-white mb-2">
-              <QRCodeSVG value={qrData} size={100} level="L" fgColor="#000000" />
-            </div>
-            <p className="text-[10px] text-black font-bold max-w-[150px] sm:mx-0 mx-auto text-center uppercase tracking-wider">Scan to Verify Authenticity</p>
           </div>
 
           <div className="w-full sm:w-2/3 max-w-sm ml-auto">
@@ -352,13 +341,7 @@ export const InvoiceView = ({ sale, terminalName = "MOBILE-POS" }) => {
         )}
       </div>
 
-      {/* QR Verification */}
-      <div className="mt-4 flex flex-col items-center justify-center space-y-1">
-        <QRCodeSVG value={qrData} size={80} level="L" />
-        <p className="text-[7px] font-bold opacity-40 tracking-widest">
-          {t('pos.scanForVerification')}
-        </p>
-      </div>
+      {/* Removed QR Verification */}
 
       {/* Footer */}
       <div className="mt-4 text-center space-y-2 border-t border-dashed border-black/20 pt-2">

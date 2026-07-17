@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { X, Smartphone, Save, Check } from 'lucide-react';
+import { X, Smartphone, Save, Check, Barcode } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -32,17 +32,17 @@ ToggleRow.displayName = 'ToggleRow';
 
 export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
   useHardwareBack(isOpen, onClose);
-  const { showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy, updatePOSSettings } = useSettingsStore();
+  const { showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy, showBarcode, updatePOSSettings } = useSettingsStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [form, setForm] = useState({ showLogo: false, paperWidth: '80mm', headerText: '', showFooterText: true, footerText: '', showRefundPolicy: true, refundPolicy: '' });
+  const [form, setForm] = useState({ showLogo: false, paperWidth: '80mm', headerText: '', showFooterText: true, footerText: '', showRefundPolicy: true, refundPolicy: '', showBarcode: true });
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy });
+      setForm({ showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy, showBarcode });
       setSuccess(false);
     }
-  }, [isOpen, showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy]);
+  }, [isOpen, showLogo, paperWidth, headerText, showFooterText, footerText, showRefundPolicy, refundPolicy, showBarcode]);
 
   const setField = useCallback((key, val) => setForm(f => ({ ...f, [key]: val })), []);
 
@@ -56,7 +56,8 @@ export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
       showFooterText: form.showFooterText,
       footerText: form.footerText,
       showRefundPolicy: form.showRefundPolicy,
-      refundPolicy: form.refundPolicy
+      refundPolicy: form.refundPolicy,
+      showBarcode: form.showBarcode
     });
     if (res.success) {
       haptics.heavy();
@@ -85,6 +86,7 @@ export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
             <div className="flex-1 overflow-y-auto px-8 no-scrollbar pb-36">
               <div className="flex flex-col gap-4">
                 <ToggleRow icon={Smartphone} color="bg-brand/10 text-brand" label="Show Business Logo" desc="Display branding on receipt" enabled={form.showLogo} onToggle={() => setField('showLogo', !form.showLogo)} />
+                <ToggleRow icon={Barcode} color="bg-blue-500/10 text-blue-500" label="Print Barcode" desc="Show invoice barcode at bottom" enabled={form.showBarcode} onToggle={() => setField('showBarcode', !form.showBarcode)} />
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Paper Dimension</label>
                   <div className="grid grid-cols-2 gap-3">

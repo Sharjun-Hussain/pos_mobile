@@ -27,6 +27,10 @@ export const useSettingsStore = create(
       footerText: 'Thank you for your business!\nPlease visit again.',
       showRefundPolicy: true,
       refundPolicy: 'Returns accepted within 7 days with original receipt.',
+      showBarcode: true,
+      useLanPrinter: false,
+      printerIp: '',
+      printerPort: 9100,
       
       // Business/Org (Synced from Cloud)
       currency: 'LKR',
@@ -47,6 +51,7 @@ export const useSettingsStore = create(
       setActiveCategory: (cat) => set({ activeCategory: cat }),
       toggleWholesale: () => set((state) => ({ isWholesale: !state.isWholesale })),
       setPosViewMode: (mode) => set({ posViewMode: mode }),
+      setLanPrinterSetting: (updates) => set((state) => ({ ...state, ...updates })),
       
       setTerminalSetting: (key, val) => set({ [key]: val }),
       
@@ -65,6 +70,7 @@ export const useSettingsStore = create(
               footerText: d.footerText ?? get().footerText,
               showRefundPolicy: d.showRefundPolicy !== undefined ? d.showRefundPolicy : get().showRefundPolicy,
               refundPolicy: d.refundPolicy ?? get().refundPolicy,
+              showBarcode: d.showBarcode !== undefined ? d.showBarcode : get().showBarcode,
               paperWidth: d.paperWidth ?? get().paperWidth,
               activePaymentMethods: d.activePaymentMethods ?? get().activePaymentMethods,
               requireShift: d.requireShift !== undefined ? d.requireShift : get().requireShift,
@@ -117,6 +123,7 @@ export const useSettingsStore = create(
           footerText: newData.footerText,
           showRefundPolicy: newData.showRefundPolicy,
           refundPolicy: newData.refundPolicy,
+          showBarcode: newData.showBarcode,
           paperWidth: newData.paperWidth,
           activePaymentMethods: newData.activePaymentMethods,
           requireShift: newData.requireShift

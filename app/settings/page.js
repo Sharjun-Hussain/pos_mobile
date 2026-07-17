@@ -21,6 +21,7 @@ import {
   Calculator,
   MailIcon,
   Lock,
+  Printer,
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -32,6 +33,7 @@ import { PosTerminalSheet } from '@/components/settings/PosTerminalSheet';
 import { PosReceiptSheet } from '@/components/settings/PosReceiptSheet';
 import { PosPaymentsSheet } from '@/components/settings/PosPaymentsSheet';
 import { PosTaxesSheet } from '@/components/settings/PosTaxesSheet';
+import { PosLanPrinterSheet } from '@/components/settings/PosLanPrinterSheet';
 import { MailSettingsSheet } from '@/components/settings/MailSettingsSheet';
 import { BranchSelectionSheet } from '@/components/auth/BranchSelectionSheet';
 import { BusinessSettingsSheet } from '@/components/settings/BusinessSettingsSheet';
@@ -86,7 +88,10 @@ export default function SettingsPage() {
     paperWidth,
     activePaymentMethods,
     language,
-    requireShift
+    requireShift,
+    useLanPrinter,
+    printerIp,
+    printerPort
   } = useSettingsStore();
 
   const [mounted, setMounted] = useState(false);
@@ -102,6 +107,7 @@ export default function SettingsPage() {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isBusinessSettingsOpen, setIsBusinessSettingsOpen] = useState(false);
+  const [isPosLanPrinterOpen, setIsPosLanPrinterOpen] = useState(false);
   const [isShiftManagerOpen, setIsShiftManagerOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBranchSheetOpen, setIsBranchSheetOpen] = useState(false);
@@ -266,6 +272,13 @@ export default function SettingsPage() {
           onClick={() => setIsPosReceiptOpen(true)}
         />
         <SettingItem
+          icon={Printer}
+          label="Network Printer (LAN)"
+          value={useLanPrinter ? `Active (${printerIp}:${printerPort})` : 'Disabled'}
+          color="emerald"
+          onClick={() => setIsPosLanPrinterOpen(true)}
+        />
+        <SettingItem
           icon={CreditCard}
           label={t('settings.paymentProtocol')}
           value={`${activePaymentMethods?.length || 0} Gateway Methods`}
@@ -361,6 +374,11 @@ export default function SettingsPage() {
       <PosTaxesSheet
         isOpen={isPosTaxesOpen}
         onClose={() => setIsPosTaxesOpen(false)}
+      />
+
+      <PosLanPrinterSheet
+        isOpen={isPosLanPrinterOpen}
+        onClose={() => setIsPosLanPrinterOpen(false)}
       />
 
       <MailSettingsSheet

@@ -2,6 +2,8 @@
 
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { EscPosEncoder } from './esc-pos';
+import LanPrinter from './LanPrinter';
 
 /**
  * Receipt Service
@@ -118,9 +120,209 @@ const generateAndSharePdf = async (htmlContent, filename = 'invoice.pdf', isA4 =
   }, 500);
 };
 
+const printViaLan = async (sale, t) => {
+  const { useLanPrinter, printerIp, printerPort, showLogo, businessLogo, businessName, businessAddress, businessPhone, taxId, headerText, showRefundPolicy, refundPolicy, showFooterText, footerText, showBarcode, paperWidth } = useSettingsStore.getState();
+  
+  if (!useLanPrinter || !printerIp) return false;
+
+  const formatDate = (dateStr) => {
+    try {
+      const date = new Date(dateStr || new Date());
+      return date.toLocaleString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '');
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+  try {
+    const encoder = new EscPosEncoder();
+    encoder.initialize();
+    
+    // FORCE BOLD FOR THE ENTIRE RECEIPT TO MAKE IT DARK
+    encoder.bold(true);
+
+    // Header
+    encoder.align('center');
+    encoder.size(2, 2).line(businessName?.toUpperCase() || 'INZEEDO POS').size(1, 1);
+    
+    if (businessAddress) encoder.line(businessAddress.toUpperCase());
+    if (businessPhone) encoder.line(`TEL: ${businessPhone}`);
+    if (taxId) encoder.line(`VAT/TIN: ${taxId}`);
+    
+    const lineLength = paperWidth === '80mm' ? 46 : 32;
+    
+    encoder.divider(lineLength, '=').align('left');
+    
+    const invStr = sale.invoice_number || 'DRAFT';
+    encoder.line(`INVOICE:${' '.repeat(Math.max(1, lineLength - 8 - invStr.length))}${invStr}`);
+    const dateStr = formatDate(sale.created_at);
+    encoder.line(`DATE:${' '.repeat(Math.max(1, lineLength - 5 - dateStr.length))}${dateStr}`);
+    
+    encoder.divider(lineLength, '=');
+    
+    // Type & User line
+    const typeStr = sale.is_wholesale !== undefined ? (sale.is_wholesale ? 'WHOLESALE POS.SALE' : 'RETAIL POS.SALE') : 'POS.SALE';
+    encoder.align('center').line(typeStr).align('left');
+    const userStr = sale.cashier?.name?.toUpperCase() || 'STAFF';
+    encoder.line(`USER: ${userStr}`);
+    
+    encoder.divider(lineLength, '=');
+    
+    // Items Table Header
+    encoder.line(lineLength === 46 ? '# DESCRIPTION         QTY    PRICE      AMOUNT' : '# DESCRIPTION  QTY  PRICE AMOUNT');
+    encoder.divider(lineLength, '=');
+    
+    // Items
+    let totalMrpSaved = 0;
+    const items = sale.items || sale.sale_items || [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const maxNameLen = lineLength === 46 ? 46 : 32;
+      const rawProdName = (item.product_name || item.product?.name || item.name || 'Item').toUpperCase();
+      const itemName = `${i + 1} ${rawProdName}`.substring(0, maxNameLen);
+      encoder.line(itemName);
+      
+      const variantName = (item.variant?.name || item.product_variant?.name || item.variant_name || '').toUpperCase();
+      if (variantName && variantName !== rawProdName) {
+        encoder.line(`  - ${variantName}`.substring(0, maxNameLen));
+      }
+      
+      const priceStr = parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+      const lineTotal = parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 });
+      const qtyStr = `${Number(item.quantity)} x ${priceStr}`;
+      
+      const spaces = lineLength - qtyStr.length - lineTotal.length - 3; 
+      encoder.line(`${' '.repeat(Math.max(0, spaces > 0 ? spaces : 16))}${qtyStr}   ${lineTotal}`);
+      
+      const discount = parseFloat(item.discount_amount || 0);
+      if (discount > 0) {
+        totalMrpSaved += discount;
+        encoder.line(`  SAVE: ${discount.toLocaleString()}`);
+      }
+    }
+    
+    encoder.divider(lineLength, '=');
+    
+    // Totals
+    const subtotalStr = parseFloat(sale.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+    encoder.line(`SUB TOTAL:${' '.repeat(Math.max(1, lineLength - 10 - subtotalStr.length))}${subtotalStr}`);
+    
+    if (totalMrpSaved > 0) {
+      const savedStr = totalMrpSaved.toLocaleString();
+      encoder.line(`YOU SAVED (MRP):${' '.repeat(Math.max(1, lineLength - 16 - savedStr.length))}${savedStr}`);
+    } else if (parseFloat(sale.discount_amount) > 0) {
+      const discountStr = parseFloat(sale.discount_amount).toLocaleString();
+      encoder.line(`YOU SAVED:${' '.repeat(Math.max(1, lineLength - 10 - discountStr.length))}${discountStr}`);
+    }
+    
+    if (parseFloat(sale.tax_amount) > 0) {
+      const taxStr = parseFloat(sale.tax_amount).toLocaleString(undefined, { minimumFractionDigits: 2 });
+      encoder.line(`TAX:${' '.repeat(Math.max(1, lineLength - 4 - taxStr.length))}${taxStr}`);
+    }
+    if (parseFloat(sale.adjustment || 0) !== 0) {
+      const adjStr = parseFloat(sale.adjustment).toLocaleString(undefined, { minimumFractionDigits: 2 });
+      encoder.line(`ADJUSTMENT:${' '.repeat(Math.max(1, lineLength - 11 - adjStr.length))}${adjStr}`);
+    }
+    
+    encoder.divider(lineLength, '=');
+    const totalStr = parseFloat(sale.payable_amount || 0).toLocaleString();
+    const bigLineLen = Math.floor(lineLength / 2);
+    encoder.size(2, 2);
+    encoder.line(`TOTAL:${' '.repeat(Math.max(1, bigLineLen - 6 - totalStr.length))}${totalStr}`);
+    encoder.size(1, 1);
+    encoder.divider(lineLength, '=');
+    
+    // Payments
+    const parseAmt = (val) => parseFloat(String(val || 0).replace(/,/g, '')) || 0;
+    
+    if (sale.payments && sale.payments.length > 0) {
+      let totalPaid = 0;
+      sale.payments.forEach(pmt => {
+        const amt = parseAmt(pmt.amount);
+        totalPaid += amt;
+        const methodStr = `${(pmt.payment_method || 'CASH').toUpperCase()} PAID:`;
+        const amtStr = amt.toLocaleString();
+        encoder.line(`${methodStr}${' '.repeat(Math.max(1, lineLength - methodStr.length - amtStr.length))}${amtStr}`);
+      });
+      
+      const payableAmount = parseAmt(sale.payable_amount);
+      if (totalPaid > payableAmount) {
+        const changeStr = (totalPaid - payableAmount).toLocaleString();
+        encoder.line(`CHANGE:${' '.repeat(Math.max(1, lineLength - 7 - changeStr.length))}${changeStr}`);
+      }
+    } else {
+      let paidAmount = parseAmt(sale.paid_amount || sale.payable_amount);
+      const payableAmount = parseAmt(sale.payable_amount);
+      
+      const methodStr = `${(sale.payment_method || 'CASH').toUpperCase()} PAID:`;
+      const amtStr = paidAmount.toLocaleString();
+      encoder.line(`${methodStr}${' '.repeat(Math.max(1, lineLength - methodStr.length - amtStr.length))}${amtStr}`);
+      
+      if (paidAmount > payableAmount) {
+        const changeStr = (paidAmount - payableAmount).toLocaleString();
+        encoder.line(`CHANGE:${' '.repeat(Math.max(1, lineLength - 7 - changeStr.length))}${changeStr}`);
+      }
+    }
+    
+    encoder.divider();
+    
+    // Footer & Barcode
+    encoder.align('center');
+    if (showRefundPolicy && refundPolicy) encoder.line(refundPolicy.toUpperCase());
+    
+    if (showFooterText && footerText) {
+      encoder.line(footerText.toUpperCase());
+    } else {
+      encoder.line('THANK YOU FOR YOUR BUSINESS!');
+      encoder.line('PLEASE VISIT AGAIN.');
+    }
+    
+    encoder.newline();
+    encoder.line('ERP SYSTEM FROM INZEEDO');
+    encoder.line('(c) 2026 INZEEDO.LK | +94785706441');
+    
+    encoder.newline();
+    try {
+      if (showBarcode && sale.invoice_number) {
+        encoder.barcode(sale.invoice_number);
+      }
+    } catch (e) {}
+    
+    encoder.newline().newline().cut();
+    
+    const data = encoder.encode();
+    const res = await LanPrinter.connect({ ip: printerIp, port: printerPort || 9100 });
+    if (res.success) {
+      await LanPrinter.print({ ip: printerIp, port: printerPort || 9100, data });
+      try {
+        const { Toast } = await import('@capacitor/toast');
+        await Toast.show({ text: 'Printed to LAN Printer', duration: 'short' });
+      } catch(e) {}
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error('LAN Print Error:', err);
+    return false;
+  }
+};
+
 export const receiptService = {
   print: async (sale, t) => {
     if (!sale) return;
+
+    try {
+      const { Capacitor } = await import('@capacitor/core');
+      const user = useAuthStore.getState().user;
+      const isManufacturing = (user?.organization?.business_type || '').toLowerCase() === 'manufacturing' || (user?.organization?.business_type || '').toLowerCase() === 'manufacturer';
+      
+      if (!isManufacturing && Capacitor.isNativePlatform()) {
+        const lanSuccess = await printViaLan(sale, t);
+        if (lanSuccess) return;
+      }
+    } catch (e) {
+      // Ignore if Capacitor is missing
+    }
 
     const translate = t || ((key) => {
       const parts = key.split('.');
@@ -484,20 +686,25 @@ export const receiptService = {
         </div>
 
         <div style="margin-top: 8px; border-top: 1px dashed #000; padding-top: 4px;">
-          ${sale.payments && sale.payments.length > 0 ? sale.payments.map(pmt => `
-            <div class="row" style="font-size: 11px;"><span class="">${pmt.payment_method} PAID:</span><span class="bold">${parseFloat(pmt.amount).toLocaleString()}</span></div>
-          `).join('') : `
-            <div class="row" style="font-size: 11px;"><span class="">${sale.payment_method || 'CASH'} PAID:</span><span class="bold">${parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString()}</span></div>
-          `}
-          ${parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount) ? `
-            <div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString()}</span></div>
-          ` : ''}
+          ${(sale.payments && sale.payments.length > 0) ? (() => {
+            let totalPaid = 0;
+            const pmtHtml = sale.payments.map(pmt => {
+              const amt = parseFloat(String(pmt.amount || 0).replace(/,/g, '')) || 0;
+              totalPaid += amt;
+              return `<div class="row" style="font-size: 11px;"><span class="">${pmt.payment_method} PAID:</span><span class="bold">${amt.toLocaleString()}</span></div>`;
+            }).join('');
+            const payableAmt = parseFloat(String(sale.payable_amount || 0).replace(/,/g, '')) || 0;
+            const changeHtml = totalPaid > payableAmt ? `<div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(totalPaid - payableAmt).toLocaleString()}</span></div>` : '';
+            return pmtHtml + changeHtml;
+          })() : (() => {
+            const paidAmt = parseFloat(String(sale.paid_amount || sale.payable_amount || 0).replace(/,/g, '')) || 0;
+            const payableAmt = parseFloat(String(sale.payable_amount || 0).replace(/,/g, '')) || 0;
+            const changeHtml = paidAmt > payableAmt ? `<div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(paidAmt - payableAmt).toLocaleString()}</span></div>` : '';
+            return `<div class="row" style="font-size: 11px;"><span class="">${sale.payment_method || 'CASH'} PAID:</span><span class="bold">${paidAmt.toLocaleString()}</span></div>` + changeHtml;
+          })()}
         </div>
 
-        <div class="qr-container">
-          <img class="qr-image" src="${qrUrl}" alt="Verification QR" />
-          <div style="font-size: 7px; margin-top: 4px;  letter-spacing: 1.5px; opacity: 0.4; font-weight: bold;">Scan for digital verification</div>
-        </div>
+
 
         <div class="footer center">
           ${showRefundPolicy && refundPolicy ? `<div style="border-bottom: 1px dashed #ccc; padding-bottom: 4px; margin-bottom: 8px; font-size: 9px;"><span class="bold">REFUND/RETURN POLICY:</span><br/>${refundPolicy}</div>` : ''}
@@ -729,6 +936,9 @@ ${showFooterText && footerText ? `<div class="c b" style="margin-top:7px;font-si
     try {
       const { Capacitor } = await import('@capacitor/core');
       if (Capacitor.isNativePlatform()) {
+        const lanSuccess = await printViaLan(sale, t);
+        if (lanSuccess) return;
+
         const receiptFilename = `Receipt-${sale.invoice_number || 'draft'}.pdf`;
         await generateAndSharePdf(htmlContent, receiptFilename, isManufacturing, 'share');
         return;

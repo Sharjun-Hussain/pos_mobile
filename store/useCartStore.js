@@ -38,7 +38,7 @@ export const useCartStore = create(
                 productName: product.name,
                 variantName: product.variantName,
                 size: product.variantName,
-                unit: product.unit || 'pc',
+                unit: (typeof product.unit === 'object' && product.unit) ? (product.unit.short_name || product.unit.name || 'pc') : (product.unit || 'pc'),
                 quantity: weight !== null ? weight : quantityToAdd,
                 price,
                 discount: 0,

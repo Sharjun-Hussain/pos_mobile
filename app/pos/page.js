@@ -113,7 +113,7 @@ export default function SalesPage() {
                 fullName: variantLabel ? `${p.name} - ${variantLabel}` : p.name,
                 sku: v.sku || p.sku || p.code,
                 barcode: v.barcode || p.barcode,
-                unit: v.unit || p.unit || 'pc',
+                unit: (typeof (v.unit || p.unit) === 'object' && (v.unit || p.unit)) ? ((v.unit || p.unit).short_name || (v.unit || p.unit).name || 'pc') : (v.unit || p.unit || 'pc'),
                 stock: variantStock,
                 retailPrice: parseFloat(v.price) || 0,
                 wholesalePrice: parseFloat(v.wholesale_price) || 0,

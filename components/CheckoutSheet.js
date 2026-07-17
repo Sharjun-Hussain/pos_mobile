@@ -57,6 +57,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const isManufacturer = businessType === 'manufacturing' || businessType === 'manufacturer';
 
   const [[step, direction], setStepState] = useState([checkoutPreview ? 1 : 2, 0]);
+  const [isCustomerView, setIsCustomerView] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -82,7 +83,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
         setPayments(prev => [{ ...prev[0], amount: total }]);
       }
     }
-  }, [isOpen, step, total]);
+  }, [isOpen, step, total, isCustomerView]);
 
   const addPayment = () => {
     haptics.light();
@@ -136,14 +137,15 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const res = isManufacturer 
-        ? await api.distributors.getActiveList()
-        : await api.customers.getActiveList();
+      const isActuallyCustomer = !isManufacturer || isCustomerView;
+      const res = isActuallyCustomer
+        ? await api.customers.getActiveList()
+        : await api.distributors.getActiveList();
       if (res.status === 'success') {
         setCustomers(res.data || []);
       }
     } catch (e) {
-      console.error(isManufacturer ? 'Failed to fetch distributors' : 'Failed to fetch customers');
+      console.error('Failed to fetch entities');
     } finally {
       setLoading(false);
     }
@@ -169,19 +171,20 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     setLoading(true);
     haptics.medium();
     try {
-      const res = isManufacturer
-        ? await api.distributors.create(newCustomer)
-        : await api.customers.create(newCustomer);
+      const isActuallyCustomer = !isManufacturer || isCustomerView;
+      const res = isActuallyCustomer
+        ? await api.customers.create(newCustomer)
+        : await api.distributors.create(newCustomer);
       if (res.status === 'success') {
         const createdCustomer = res.data;
         haptics.heavy();
         setCustomers(prev => [createdCustomer, ...prev]);
         setSelectedCustomer(createdCustomer);
         setIsAddingCustomer(false);
-        setNewCustomer({ name: '', phone: '', email: '' });
+        setNewCustomer({ name: '', phone: '', email: '', company_name: '' });
       }
     } catch (e) {
-      console.error(isManufacturer ? 'Failed to create distributor' : 'Failed to create customer');
+      console.error('Failed to create entity');
     } finally {
       setLoading(false);
     }
@@ -203,8 +206,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       const { vatRate, ssclRate, enableTax } = useSettingsStore.getState();
       
       const payload = {
-        customer_id: !isManufacturer && selectedCustomer ? selectedCustomer.id : null,
-        distributor_id: isManufacturer && selectedCustomer ? selectedCustomer.id : null,
+        customer_id: (!isManufacturer || isCustomerView) && selectedCustomer ? selectedCustomer.id : null,
+        distributor_id: (isManufacturer && !isCustomerView) && selectedCustomer ? selectedCustomer.id : null,
         items: cart.map(item => {
           const itemSubtotal = item.price * item.quantity;
           const itemDiscount = itemSubtotal * (discount / 100);
@@ -278,9 +281,13 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
           setPayments([{ id: Date.now(), method: 'cash', amount: 0 }]);
           setIsSyncing(false);
         }, 500);
+      } else {
+        alert(res.message || "Failed to process sale.");
+        setIsSyncing(false);
       }
     } catch (e) {
       console.error('Sale Sync Failed:', e);
+      alert(e?.response?.data?.message || e.message || "Sale Sync Failed. Please try again.");
     } finally {
       setIsSyncing(false);
     }
@@ -321,7 +328,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                 )}
                 <div>
                   <h2 className="text-xl font-bold text-text-main leading-none">
-                    {step === 1 ? 'Review Order' : step === 2 ? (isManufacturer ? 'Select Distributor' : 'Select Customer') : 'Finalize Sale'}
+                    {step === 1 ? 'Review Order' : step === 2 ? ((!isManufacturer || isCustomerView) ? 'Select Customer' : 'Select Distributor') : 'Finalize Sale'}
                   </h2>
                   <div className="flex gap-1.5 mt-2">
                     {[1, 2, 3].map(i => (
@@ -436,13 +443,33 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
                   {step === 2 && (
                     <div className="flex flex-col gap-4 pb-4 pointer-events-auto animate-in fade-in slide-in-from-right-4 duration-300">
+                      
+                      {isManufacturer && !isAddingCustomer && (
+                        <div className="px-6">
+                            <div className="flex p-1 bg-surface-muted/30 border border-glass-border rounded-xl">
+                              <button
+                                onClick={() => { setIsCustomerView(false); setSelectedCustomer(null); }}
+                                className={`flex-1 h-10 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${!isCustomerView ? 'bg-surface shadow-sm text-text-main' : 'text-text-secondary hover:bg-surface-muted/50'}`}
+                              >
+                                Distributor
+                              </button>
+                              <button
+                                onClick={() => { setIsCustomerView(true); setSelectedCustomer(null); }}
+                                className={`flex-1 h-10 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${isCustomerView ? 'bg-surface shadow-sm text-text-main' : 'text-text-secondary hover:bg-surface-muted/50'}`}
+                              >
+                                Customer
+                              </button>
+                            </div>
+                        </div>
+                      )}
+
                       {!isAddingCustomer ? (
                         <>
                           <div className="relative px-6">
                             <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
                             <input 
                               type="text" 
-                              placeholder={isManufacturer ? 'Search distributors...' : t('common.search')}
+                              placeholder={(!isManufacturer || isCustomerView) ? t('common.search') : 'Search distributors...'}
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
                               className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
@@ -459,8 +486,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                     <User size={20} />
                                   </div>
                                   <div className="text-left overflow-hidden">
-                                    <p className="text-sm font-bold text-text-main truncate">{isManufacturer ? 'Cash Purchase' : t('checkout.walkIn')}</p>
-                                    <p className="text-[10px] font-medium text-text-secondary">{isManufacturer ? 'No wholesale tracking' : 'Standard Retail Pricing'}</p>
+                                    <p className="text-sm font-bold text-text-main truncate">{(!isManufacturer || isCustomerView) ? t('checkout.walkIn') : 'Cash Purchase'}</p>
+                                    <p className="text-[10px] font-medium text-text-secondary">{(!isManufacturer || isCustomerView) ? 'Standard Retail Pricing' : 'No wholesale tracking'}</p>
                                   </div>
                                 </div>
                                 {!selectedCustomer && <CheckCircle2 className="text-brand shrink-0" size={18} />}
@@ -497,7 +524,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                     <UserPlus size={28} strokeWidth={1.5} />
                                   </div>
                                   <p className="text-sm font-black text-text-main mb-1">
-                                    {isManufacturer ? 'Distributor not found' : 'Customer not found'}
+                                    {(!isManufacturer || isCustomerView) ? 'Customer not found' : 'Distributor not found'}
                                   </p>
                                   {search ? (
                                     <>
@@ -531,14 +558,14 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               onClick={() => { haptics.medium(); setIsAddingCustomer(true); }}
                               className="w-full h-14 border-2 border-dashed border-glass-border rounded-3xl flex items-center justify-center gap-2 text-text-secondary text-xs font-bold hover:border-brand/40 hover:text-brand transition-all"
                             >
-                              <UserPlus size={16} /> {isManufacturer ? 'New Distributor' : t('checkout.newCustomer')}
+                              <UserPlus size={16} /> {(!isManufacturer || isCustomerView) ? t('checkout.newCustomer') : 'New Distributor'}
                             </button>
                           </div>
                         </>
                       ) : (
                         <div className="px-6 py-2 flex flex-col gap-5 overflow-y-auto no-scrollbar">
                           <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-bold text-text-main">{isManufacturer ? 'New Distributor' : 'Quick Registration'}</h3>
+                            <h3 className="text-sm font-bold text-text-main">{(!isManufacturer || isCustomerView) ? 'Quick Registration' : 'New Distributor'}</h3>
                             <button onClick={() => setIsAddingCustomer(false)} className="text-[10px] font-bold text-rose-500">Cancel</button>
                           </div>
                           
@@ -547,13 +574,13 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               <label className="text-[10px] font-bold text-text-secondary pl-1">Full Name *</label>
                               <input 
                                 type="text"
-                                placeholder={isManufacturer ? "Enter distributor name" : "Enter customer name"}
+                                placeholder={(!isManufacturer || isCustomerView) ? "Enter customer name" : "Enter distributor name"}
                                 value={newCustomer.name}
                                 onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
                                 className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
                               />
                             </div>
-                            {isManufacturer && (
+                            {(isManufacturer && !isCustomerView) && (
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-bold text-text-secondary pl-1">Company Name</label>
                                 <input 
@@ -592,7 +619,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             disabled={!newCustomer.name || loading}
                             className="btn-primary w-full h-14 text-sm mt-2 disabled:opacity-50"
                           >
-                            {loading ? 'Registering...' : (isManufacturer ? 'Save & Select Distributor' : 'Save & Select Customer')}
+                            {loading ? 'Registering...' : ((!isManufacturer || isCustomerView) ? 'Save & Select Customer' : 'Save & Select Distributor')}
                           </button>
                         </div>
                       )}

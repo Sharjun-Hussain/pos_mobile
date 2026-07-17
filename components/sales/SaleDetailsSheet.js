@@ -16,6 +16,7 @@ import { InvoiceView } from './InvoiceView';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
 
 
 
@@ -28,7 +29,9 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
   const [isPrinting, setIsPrinting] = useState(false);
   const { t } = useTranslation();
   const { user } = useAuthStore();
+  const { paperWidth } = useSettingsStore();
   const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
+  const isA4 = isManufacturing || paperWidth === 'A4';
 
   useEffect(() => {
     if (isOpen) {
@@ -177,27 +180,29 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                     ) : (
                       <>
                         <Printer size={18} className="text-text-secondary group-hover:text-brand transition-colors" />
-                        <span className="text-sm font-bold tracking-wide">{isManufacturing ? 'Download A4' : 'Reprint PDF'}</span>
+                        <span className="text-sm font-bold tracking-wide">{isA4 ? 'Download A4' : 'Reprint PDF'}</span>
                       </>
                     )}
                   </button>
 
                   {/* Direct Print (Bluetooth / LAN) */}
-                  <button
-                    onClick={handleNativePrint}
-                    disabled={isDownloading || isPrinting}
-                    className="flex-[1.5] h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-70 disabled:active:scale-100 overflow-hidden relative"
-                  >
-                    <div className="absolute inset-0 bg-white/20 translate-y-full hover:translate-y-0 transition-transform duration-300"></div>
-                    {isPrinting ? (
-                      <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin relative z-10"></div>
-                    ) : (
-                      <>
-                        <PrinterCheck size={20} className="relative z-10" />
-                        <span className="text-sm font-bold tracking-wide relative z-10">Thermal Print</span>
-                      </>
-                    )}
-                  </button>
+                  {!isA4 && (
+                    <button
+                      onClick={handleNativePrint}
+                      disabled={isDownloading || isPrinting}
+                      className="flex-[1.5] h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-70 disabled:active:scale-100 overflow-hidden relative"
+                    >
+                      <div className="absolute inset-0 bg-white/20 translate-y-full hover:translate-y-0 transition-transform duration-300"></div>
+                      {isPrinting ? (
+                        <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin relative z-10"></div>
+                      ) : (
+                        <>
+                          <PrinterCheck size={20} className="relative z-10" />
+                          <span className="text-sm font-bold tracking-wide relative z-10">Thermal Print</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {onReturnTrigger ? (

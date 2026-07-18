@@ -170,7 +170,7 @@ export default function SettingsPage() {
           <div className="text-center">
             <h3 className="text-lg font-black text-text-main leading-tight">{user?.name || 'Inzeedo Admin'}</h3>
             <div className="flex flex-col items-center gap-1.5 mt-2">
-              <p className="text-[10px] font-bold text-text-secondary bg-surface-muted px-4 py-1.5 rounded-full border border-glass-border/20 uppercase tracking-wide">
+              <p className="text-[11px] font-bold text-text-secondary bg-surface-muted px-4 py-1.5 rounded-full border border-glass-border/20 tracking-wide">
                 {user?.organization?.name || 'Enterprise Manager'}
               </p>
             </div>
@@ -188,7 +188,7 @@ export default function SettingsPage() {
             </div>
             <div className="text-left overflow-hidden">
               <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60 truncate">
-                {user?.organization?.name || 'Active Branch'}
+                Active Branch
               </p>
               <p className="text-[14px] font-bold text-text-main truncate">{selectedBranch?.name || 'Not Selected'}</p>
             </div>

@@ -91,11 +91,11 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[500]" />
-        <Drawer.Content className="bg-surface flex flex-col rounded-t-[2.5rem] h-[95%] mt-24 fixed bottom-0 left-0 right-0 z-[501] outline-none shadow-2xl overflow-hidden">
+        <Drawer.Content className="bg-surface flex flex-col rounded-t-[2.5rem] h-auto max-h-[90dvh] fixed bottom-0 left-0 right-0 z-[501] outline-none shadow-2xl overflow-hidden">
           {/* Drag Handle */}
           <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-text-secondary/20 mt-4 mb-2" />
 
-          <div className="flex flex-col h-full overflow-hidden">
+          <div className="flex flex-col overflow-hidden">
             {/* Header */}
             <div className="p-6 pb-4 flex items-center justify-between border-b border-glass-border/30 bg-surface">
               <div className="flex items-center gap-3">
@@ -148,17 +148,17 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                     </div>
                   )}
 
-                  <div className="bg-gradient-to-br from-brand/5 to-transparent border border-brand/10 rounded-[2rem] p-8 flex flex-col items-center justify-center text-center shadow-inner h-[300px] relative overflow-hidden">
-                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand/5 rounded-full blur-3xl"></div>
-                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                  <div className="bg-gradient-to-br from-brand/10 to-transparent border border-brand/20 rounded-[2rem] py-10 px-8 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden mt-2">
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand/10 rounded-full blur-3xl"></div>
+                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
                     
-                    <div className="relative h-24 w-24 rounded-full bg-white shadow-xl shadow-brand/10 flex items-center justify-center mb-6">
+                    <div className="relative h-20 w-20 rounded-full bg-surface shadow-xl shadow-brand/10 flex items-center justify-center mb-5">
                       <div className="absolute inset-0 rounded-full border-2 border-brand/20 animate-pulse"></div>
-                      <PrinterCheck size={40} className="text-brand" strokeWidth={2} />
+                      <PrinterCheck size={32} className="text-brand" strokeWidth={2.5} />
                     </div>
-                    <h3 className="text-2xl font-black text-text-main mb-3 tracking-tight">Transaction Complete</h3>
-                    <p className="text-[13px] font-semibold text-text-secondary/70 max-w-[250px] leading-relaxed">
-                      The sale has been successfully recorded. Tap below to print the receipt or download a PDF copy.
+                    <h3 className="text-xl font-black text-text-main mb-2 tracking-tight">Transaction Complete</h3>
+                    <p className="text-xs font-bold text-text-secondary max-w-[250px] leading-relaxed">
+                      The sale has been successfully recorded. Tap below to print the receipt.
                     </p>
                   </div>
                 </div>
@@ -169,40 +169,38 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
             {!loading && !error && sale && (
               <div className="p-6 bg-surface/80 backdrop-blur-xl border-t border-glass-border/30 flex flex-col gap-3 pb-[calc(var(--sab)+2rem)]">
                 <div className="flex gap-3">
-                  {/* Download / Reprint */}
+                  {/* A4 Print */}
                   <button
                     onClick={handlePrint}
                     disabled={isDownloading || isPrinting}
-                    className="flex-1 h-14 bg-surface text-text-main border border-glass-border/50 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:active:scale-100 group"
+                    className="flex-1 h-14 bg-surface-muted text-text-main border border-glass-border/80 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:active:scale-100 group"
                   >
                     {isDownloading ? (
                       <div className="h-5 w-5 border-2 border-brand/30 border-t-brand rounded-full animate-spin"></div>
                     ) : (
                       <>
                         <Printer size={18} className="text-text-secondary group-hover:text-brand transition-colors" />
-                        <span className="text-sm font-bold tracking-wide">{isA4 ? 'Download A4' : 'Reprint PDF'}</span>
+                        <span className="text-sm font-bold tracking-wide">A4 Print</span>
                       </>
                     )}
                   </button>
 
-                  {/* Direct Print (Bluetooth / LAN) */}
-                  {!isA4 && (
-                    <button
-                      onClick={handleNativePrint}
-                      disabled={isDownloading || isPrinting}
-                      className="flex-[1.5] h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-70 disabled:active:scale-100 overflow-hidden relative"
-                    >
-                      <div className="absolute inset-0 bg-white/20 translate-y-full hover:translate-y-0 transition-transform duration-300"></div>
-                      {isPrinting ? (
-                        <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin relative z-10"></div>
-                      ) : (
-                        <>
-                          <PrinterCheck size={20} className="relative z-10" />
-                          <span className="text-sm font-bold tracking-wide relative z-10">Thermal Print</span>
-                        </>
-                      )}
-                    </button>
-                  )}
+                  {/* Thermal Print */}
+                  <button
+                    onClick={handleNativePrint}
+                    disabled={isDownloading || isPrinting}
+                    className="flex-1 h-14 bg-brand text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-brand/25 hover:shadow-brand/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-70 disabled:active:scale-100 overflow-hidden relative"
+                  >
+                    <div className="absolute inset-0 bg-white/20 translate-y-full hover:translate-y-0 transition-transform duration-300"></div>
+                    {isPrinting ? (
+                      <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin relative z-10"></div>
+                    ) : (
+                      <>
+                        <PrinterCheck size={20} className="relative z-10" />
+                        <span className="text-sm font-bold tracking-wide relative z-10">Thermal Print</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 {onReturnTrigger ? (

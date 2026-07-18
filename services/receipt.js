@@ -65,7 +65,7 @@ const generateAndSharePdf = async (htmlContent, filename = 'invoice.pdf', isA4 =
 
       // Write to Capacitor Cache directory (for share) or Documents (for download)
       const targetDirectory = action === 'download' ? Directory.Documents : Directory.Cache;
-      
+
       const writeResult = await Filesystem.writeFile({
         path: filename,
         data: base64Data,
@@ -80,7 +80,7 @@ const generateAndSharePdf = async (htmlContent, filename = 'invoice.pdf', isA4 =
             text: `Saved to Documents: ${filename}`,
             duration: 'long'
           });
-        } catch(e) {}
+        } catch (e) { }
       } else {
         // Open native share sheet so user can Save/Print/WhatsApp etc.
         await Share.share({
@@ -122,7 +122,7 @@ const generateAndSharePdf = async (htmlContent, filename = 'invoice.pdf', isA4 =
 
 const printViaLan = async (sale, t) => {
   const { useLanPrinter, printerIp, printerPort, showLogo, businessLogo, businessName, businessAddress, businessPhone, taxId, headerText, showRefundPolicy, refundPolicy, showFooterText, footerText, showBarcode, paperWidth } = useSettingsStore.getState();
-  
+
   if (!useLanPrinter || !printerIp) return false;
 
   const formatDate = (dateStr) => {
@@ -137,13 +137,13 @@ const printViaLan = async (sale, t) => {
   try {
     const encoder = new EscPosEncoder();
     encoder.initialize();
-    
+
     // FORCE BOLD FOR THE ENTIRE RECEIPT TO MAKE IT DARK
     encoder.bold(true);
 
     // Header
     encoder.align('center');
-    
+
     if (showLogo && businessLogo) {
       try {
         await encoder.image(businessLogo, paperWidth === '80mm' ? 384 : 256);
@@ -152,24 +152,24 @@ const printViaLan = async (sale, t) => {
         console.error("Failed to print logo", err);
       }
     }
-    
+
     encoder.size(2, 2).line(businessName?.toUpperCase() || 'INZEEDO POS').size(1, 1);
-    
+
     if (businessAddress) encoder.line(businessAddress.toUpperCase());
     if (businessPhone) encoder.line(`TEL: ${businessPhone}`);
     if (taxId) encoder.line(`VAT/TIN: ${taxId}`);
-    
+
     const lineLength = paperWidth === '80mm' ? 46 : 32;
-    
+
     encoder.divider(lineLength, '=').align('left');
-    
+
     const invStr = sale.invoice_number || 'DRAFT';
     encoder.line(`INVOICE:${' '.repeat(Math.max(1, lineLength - 8 - invStr.length))}${invStr}`);
     const dateStr = formatDate(sale.created_at);
     encoder.line(`DATE:${' '.repeat(Math.max(1, lineLength - 5 - dateStr.length))}${dateStr}`);
-    
+
     encoder.divider(lineLength, '=');
-    
+
     // Type & User line
     const typeStr = sale.is_wholesale !== undefined ? (sale.is_wholesale ? 'WHOLESALE POS.SALE' : 'RETAIL POS.SALE') : 'POS.SALE';
     encoder.align('center').line(typeStr).align('left');
@@ -180,13 +180,13 @@ const printViaLan = async (sale, t) => {
     }
     const userStr = sale.cashier?.name?.toUpperCase() || 'STAFF';
     encoder.line(`USER:${' '.repeat(Math.max(1, lineLength - 5 - userStr.length))}${userStr}`);
-    
+
     encoder.divider(lineLength, '=');
-    
+
     // Items Table Header
     encoder.line(lineLength === 46 ? '# DESCRIPTION         QTY    PRICE      AMOUNT' : '# DESCRIPTION  QTY  PRICE AMOUNT');
     encoder.divider(lineLength, '=');
-    
+
     // Items
     let totalMrpSaved = 0;
     const items = sale.items || sale.sale_items || [];
@@ -196,32 +196,32 @@ const printViaLan = async (sale, t) => {
       const rawProdName = (item.product_name || item.product?.name || item.name || 'Item').toUpperCase();
       const itemName = `${i + 1} ${rawProdName}`.substring(0, maxNameLen);
       encoder.line(itemName);
-      
+
       const variantName = (item.variant?.name || item.product_variant?.name || item.variant_name || '').toUpperCase();
       if (variantName && variantName !== rawProdName) {
         encoder.line(`  - ${variantName}`.substring(0, maxNameLen));
       }
-      
+
       const priceStr = parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
       const lineTotal = parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 });
       const qtyStr = `${Number(item.quantity)} x ${priceStr}`;
-      
-      const spaces = lineLength - qtyStr.length - lineTotal.length - 3; 
+
+      const spaces = lineLength - qtyStr.length - lineTotal.length - 3;
       encoder.line(`${' '.repeat(Math.max(0, spaces > 0 ? spaces : 16))}${qtyStr}   ${lineTotal}`);
-      
+
       const discount = parseFloat(item.discount_amount || 0);
       if (discount > 0) {
         totalMrpSaved += discount;
         encoder.line(`  SAVE: ${discount.toLocaleString()}`);
       }
     }
-    
+
     encoder.divider(lineLength, '=');
-    
+
     // Totals
     const subtotalStr = parseFloat(sale.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
     encoder.line(`SUB TOTAL:${' '.repeat(Math.max(1, lineLength - 10 - subtotalStr.length))}${subtotalStr}`);
-    
+
     if (totalMrpSaved > 0) {
       const savedStr = totalMrpSaved.toLocaleString();
       encoder.line(`YOU SAVED (MRP):${' '.repeat(Math.max(1, lineLength - 16 - savedStr.length))}${savedStr}`);
@@ -229,7 +229,7 @@ const printViaLan = async (sale, t) => {
       const discountStr = parseFloat(sale.discount_amount).toLocaleString();
       encoder.line(`YOU SAVED:${' '.repeat(Math.max(1, lineLength - 10 - discountStr.length))}${discountStr}`);
     }
-    
+
     if (parseFloat(sale.tax_amount) > 0) {
       const taxStr = parseFloat(sale.tax_amount).toLocaleString(undefined, { minimumFractionDigits: 2 });
       encoder.line(`TAX:${' '.repeat(Math.max(1, lineLength - 4 - taxStr.length))}${taxStr}`);
@@ -238,7 +238,7 @@ const printViaLan = async (sale, t) => {
       const adjStr = parseFloat(sale.adjustment).toLocaleString(undefined, { minimumFractionDigits: 2 });
       encoder.line(`ADJUSTMENT:${' '.repeat(Math.max(1, lineLength - 11 - adjStr.length))}${adjStr}`);
     }
-    
+
     encoder.divider(lineLength, '=');
     const totalStr = parseFloat(sale.payable_amount || 0).toLocaleString();
     const bigLineLen = Math.floor(lineLength / 2);
@@ -246,10 +246,10 @@ const printViaLan = async (sale, t) => {
     encoder.line(`TOTAL:${' '.repeat(Math.max(1, bigLineLen - 6 - totalStr.length))}${totalStr}`);
     encoder.size(1, 1);
     encoder.divider(lineLength, '=');
-    
+
     // Payments
     const parseAmt = (val) => parseFloat(String(val || 0).replace(/,/g, '')) || 0;
-    
+
     if (sale.payments && sale.payments.length > 0) {
       let totalPaid = 0;
       sale.payments.forEach(pmt => {
@@ -259,7 +259,7 @@ const printViaLan = async (sale, t) => {
         const amtStr = amt.toLocaleString();
         encoder.line(`${methodStr}${' '.repeat(Math.max(1, lineLength - methodStr.length - amtStr.length))}${amtStr}`);
       });
-      
+
       const payableAmount = parseAmt(sale.payable_amount);
       if (totalPaid > payableAmount) {
         const changeStr = (totalPaid - payableAmount).toLocaleString();
@@ -268,43 +268,43 @@ const printViaLan = async (sale, t) => {
     } else {
       let paidAmount = parseAmt(sale.paid_amount || sale.payable_amount);
       const payableAmount = parseAmt(sale.payable_amount);
-      
+
       const methodStr = `${(sale.payment_method || 'CASH').toUpperCase()} PAID:`;
       const amtStr = paidAmount.toLocaleString();
       encoder.line(`${methodStr}${' '.repeat(Math.max(1, lineLength - methodStr.length - amtStr.length))}${amtStr}`);
-      
+
       if (paidAmount > payableAmount) {
         const changeStr = (paidAmount - payableAmount).toLocaleString();
         encoder.line(`CHANGE:${' '.repeat(Math.max(1, lineLength - 7 - changeStr.length))}${changeStr}`);
       }
     }
-    
+
     encoder.divider(lineLength, '=');
-    
+
     // Footer & Barcode
     encoder.align('center');
     if (showRefundPolicy && refundPolicy) encoder.line(refundPolicy.toUpperCase());
-    
+
     if (showFooterText && footerText) {
       encoder.line(footerText.toUpperCase());
     } else {
       encoder.line('THANK YOU FOR YOUR BUSINESS!');
       encoder.line('PLEASE VISIT AGAIN.');
     }
-    
+
     encoder.newline();
     encoder.line('ERP SYSTEM FROM INZEEDO');
     encoder.line('(c) 2026 INZEEDO.LK | +94785706441');
-    
+
     encoder.newline();
     try {
       if (showBarcode && sale.invoice_number) {
         encoder.barcode(sale.invoice_number);
       }
-    } catch (e) {}
-    
+    } catch (e) { }
+
     encoder.newline().newline().cut();
-    
+
     const data = encoder.encode();
     const res = await LanPrinter.connect({ ip: printerIp, port: printerPort || 9100 });
     if (res.success) {
@@ -312,7 +312,7 @@ const printViaLan = async (sale, t) => {
       try {
         const { Toast } = await import('@capacitor/toast');
         await Toast.show({ text: 'Printed to LAN Printer', duration: 'short' });
-      } catch(e) {}
+      } catch (e) { }
       return true;
     }
     return false;
@@ -326,12 +326,16 @@ export const receiptService = {
   print: async (sale, t) => {
     if (!sale) return;
 
+    const { paperWidth } = useSettingsStore.getState();
+    const isA4Layout = paperWidth === 'A4';
+
     try {
       const { Capacitor } = await import('@capacitor/core');
       const user = useAuthStore.getState().user;
       const isManufacturing = (user?.organization?.business_type || '').toLowerCase() === 'manufacturing' || (user?.organization?.business_type || '').toLowerCase() === 'manufacturer';
-      
-      if (!isManufacturing && Capacitor.isNativePlatform()) {
+
+      // NEVER send A4 layout to thermal printer
+      if (!isA4Layout && Capacitor.isNativePlatform()) {
         const lanSuccess = await printViaLan(sale, t);
         if (lanSuccess) return;
       }
@@ -355,7 +359,6 @@ export const receiptService = {
       footerText,
       showRefundPolicy,
       refundPolicy,
-      paperWidth,
       terminalName,
       businessPhone,
       businessEmail,
@@ -391,8 +394,8 @@ export const receiptService = {
       (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' ||
       (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
 
-    // ─── A4 Invoice for Manufacturing or A4 Setting ────────────────────────────────────────
-    if (isManufacturing || paperWidth === 'A4') {
+    // ─── A4 Invoice for A4 Setting ────────────────────────────────────────
+    if (paperWidth === 'A4') {
       const items = (sale.items || sale.sale_items || []);
       const itemRows = items.map((item, idx) => `
         <tr style="border-bottom:1px solid #ffffff;">
@@ -517,8 +520,8 @@ export const receiptService = {
                 <td style="padding:12px;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;text-align:left;">${idx + 1}</td>
                 <td style="padding:12px;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;text-align:left;">${item.product_name || item.product?.name || item.name || 'Item'}</td>
                 <td style="padding:12px;text-align:center;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;">${Number(item.quantity)}</td>
-                <td style="padding:12px;text-align:right;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;">${parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                <td style="padding:12px;text-align:right;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;">${parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td style="padding:12px;text-align:right;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;">${parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td style="padding:12px;text-align:right;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;">${parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -538,27 +541,27 @@ export const receiptService = {
           <div style="margin-bottom:16px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;">
               <span style="font-weight:700;">Subtotal</span>
-              <span style="font-weight:700;">${parseFloat(sale.total_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              <span style="font-weight:700;">${parseFloat(sale.total_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
-            ${parseFloat(sale.discount_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">Discount</span><span style="font-weight:700;">- ${parseFloat(sale.discount_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>` : ''}
-            ${parseFloat(sale.tax_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">VAT / Tax</span><span style="font-weight:700;">${parseFloat(sale.tax_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>` : ''}
-            ${parseFloat(sale.adjustment || 0) !== 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">Adjustment</span><span style="font-weight:700;">${parseFloat(sale.adjustment).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>` : ''}
+            ${parseFloat(sale.discount_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">Discount</span><span style="font-weight:700;">- ${parseFloat(sale.discount_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : ''}
+            ${parseFloat(sale.tax_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">VAT / Tax</span><span style="font-weight:700;">${parseFloat(sale.tax_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : ''}
+            ${parseFloat(sale.adjustment || 0) !== 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">Adjustment</span><span style="font-weight:700;">${parseFloat(sale.adjustment).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : ''}
           </div>
           
           <div style="display:flex;justify-content:space-between;align-items:center;background:#000 !important;padding:16px;margin-top:16px;margin-bottom:24px;border-radius:4px;">
             <span style="font-size:20px;font-weight:900;text-transform:uppercase;color:#fff !important;">Total Payable</span>
-            <span style="font-size:20px;font-weight:900;color:#fff !important;">${parseFloat(sale.payable_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            <span style="font-size:20px;font-weight:900;color:#fff !important;">${parseFloat(sale.payable_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
           </div>
 
           <div style="border:2px solid #000;padding:16px;">
             <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:8px;">
               <span>Amount Paid (${sale.payments?.[0]?.payment_method || sale.payment_method || 'CASH'})</span>
-              <span>${parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              <span>${parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
             ${parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount) ? `
               <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;text-transform:uppercase;border-top:1px dashed #000;padding-top:8px;">
                 <span>Change Due</span>
-                <span>${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                <span>${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
               </div>
             ` : ''}
           </div>
@@ -702,21 +705,21 @@ export const receiptService = {
 
         <div style="margin-top: 8px; border-top: 1px dashed #000; padding-top: 4px;">
           ${(sale.payments && sale.payments.length > 0) ? (() => {
-            let totalPaid = 0;
-            const pmtHtml = sale.payments.map(pmt => {
-              const amt = parseFloat(String(pmt.amount || 0).replace(/,/g, '')) || 0;
-              totalPaid += amt;
-              return `<div class="row" style="font-size: 11px;"><span class="">${pmt.payment_method} PAID:</span><span class="bold">${amt.toLocaleString()}</span></div>`;
-            }).join('');
-            const payableAmt = parseFloat(String(sale.payable_amount || 0).replace(/,/g, '')) || 0;
-            const changeHtml = totalPaid > payableAmt ? `<div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(totalPaid - payableAmt).toLocaleString()}</span></div>` : '';
-            return pmtHtml + changeHtml;
-          })() : (() => {
-            const paidAmt = parseFloat(String(sale.paid_amount || sale.payable_amount || 0).replace(/,/g, '')) || 0;
-            const payableAmt = parseFloat(String(sale.payable_amount || 0).replace(/,/g, '')) || 0;
-            const changeHtml = paidAmt > payableAmt ? `<div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(paidAmt - payableAmt).toLocaleString()}</span></div>` : '';
-            return `<div class="row" style="font-size: 11px;"><span class="">${sale.payment_method || 'CASH'} PAID:</span><span class="bold">${paidAmt.toLocaleString()}</span></div>` + changeHtml;
-          })()}
+        let totalPaid = 0;
+        const pmtHtml = sale.payments.map(pmt => {
+          const amt = parseFloat(String(pmt.amount || 0).replace(/,/g, '')) || 0;
+          totalPaid += amt;
+          return `<div class="row" style="font-size: 11px;"><span class="">${pmt.payment_method} PAID:</span><span class="bold">${amt.toLocaleString()}</span></div>`;
+        }).join('');
+        const payableAmt = parseFloat(String(sale.payable_amount || 0).replace(/,/g, '')) || 0;
+        const changeHtml = totalPaid > payableAmt ? `<div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(totalPaid - payableAmt).toLocaleString()}</span></div>` : '';
+        return pmtHtml + changeHtml;
+      })() : (() => {
+        const paidAmt = parseFloat(String(sale.paid_amount || sale.payable_amount || 0).replace(/,/g, '')) || 0;
+        const payableAmt = parseFloat(String(sale.payable_amount || 0).replace(/,/g, '')) || 0;
+        const changeHtml = paidAmt > payableAmt ? `<div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(paidAmt - payableAmt).toLocaleString()}</span></div>` : '';
+        return `<div class="row" style="font-size: 11px;"><span class="">${sale.payment_method || 'CASH'} PAID:</span><span class="bold">${paidAmt.toLocaleString()}</span></div>` + changeHtml;
+      })()}
         </div>
 
 
@@ -773,7 +776,7 @@ export const receiptService = {
 
     let htmlContent;
 
-    if (isManufacturing) {
+    if (paperWidth === 'A4') {
       const items = (sale.items || sale.sale_items || []);
       const companyAddress = sale.branch?.address || businessAddress || user?.organization?.address || '';
       const companyPhone = sale.branch?.phone || user?.organization?.phone || businessPhone || '';
@@ -826,13 +829,15 @@ export const receiptService = {
 
 <div style="margin-bottom:24px;">
   <div style="font-size:10px;font-weight:900;color:#fff !important;background:#000 !important;text-transform:uppercase;letter-spacing:1px;padding:6px 12px;border-radius:4px;margin-bottom:12px;display:inline-block;">Billed To</div>
-  ${(() => { const dist = sale.distributor || sale.customer; return dist ? `
+  ${(() => {
+          const dist = sale.distributor || sale.customer; return dist ? `
   <div>
     <div style="font-size:16px;font-weight:900;color:#000;">${dist.name || ''}</div>
     ${dist.phone ? `<div style="font-size:12px;font-weight:700;color:#000;margin-top:4px;">P: ${dist.phone}</div>` : ''}
     ${dist.email ? `<div style="font-size:12px;font-weight:700;color:#000;margin-top:2px;">E: ${dist.email}</div>` : ''}
     ${dist.address ? `<div style="margin-top:6px;font-size:12px;color:#000 !important;font-weight:500;max-width:300px;">${dist.address}</div>` : ''}
-  </div>` : '<div style="font-size:14px;font-weight:700;color:#000;">Walk-in / No Distributor Selected</div>'; })()}
+  </div>` : '<div style="font-size:14px;font-weight:700;color:#000;">Walk-in / No Distributor Selected</div>';
+        })()}
 </div>
 
 <div style="margin-bottom:24px;">
@@ -864,15 +869,15 @@ export const receiptService = {
     <div style="margin-bottom:16px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;">
         <span style="font-weight:700;">Subtotal</span>
-        <span style="font-weight:700;">${parseFloat(sale.total_amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+        <span style="font-weight:700;">${parseFloat(sale.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
       </div>
-      ${parseFloat(sale.discount_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">Discount</span><span style="font-weight:700;">- ${parseFloat(sale.discount_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>` : ''}
-      ${parseFloat(sale.tax_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">VAT / Tax</span><span style="font-weight:700;">${parseFloat(sale.tax_amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>` : ''}
+      ${parseFloat(sale.discount_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">Discount</span><span style="font-weight:700;">- ${parseFloat(sale.discount_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : ''}
+      ${parseFloat(sale.tax_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">VAT / Tax</span><span style="font-weight:700;">${parseFloat(sale.tax_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : ''}
     </div>
     
     <div style="display:flex;justify-content:space-between;align-items:center;background:#000 !important;padding:16px;margin-top:16px;margin-bottom:24px;border-radius:4px;">
       <span style="font-size:20px;font-weight:900;text-transform:uppercase;color:#fff !important;">Total Payable</span>
-      <span style="font-size:20px;font-weight:900;color:#fff !important;">${parseFloat(sale.payable_amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+      <span style="font-size:20px;font-weight:900;color:#fff !important;">${parseFloat(sale.payable_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
     </div>
   </div>
 </div>

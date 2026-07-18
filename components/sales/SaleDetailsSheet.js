@@ -31,7 +31,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
   const { user } = useAuthStore();
   const { paperWidth } = useSettingsStore();
   const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
-  const isA4 = isManufacturing || paperWidth === 'A4';
+  const isA4 = paperWidth === 'A4';
 
   useEffect(() => {
     if (isOpen) {

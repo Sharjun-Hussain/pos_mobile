@@ -14,7 +14,8 @@ export class EscPosEncoder {
    */
   initialize() {
     this.buffer.push(0x1b, 0x40); // Init
-    this.buffer.push(0x1c, 0x26); // Enable Chinese font mode (uses the thicker ROM font for English too!)
+    this.buffer.push(0x1c, 0x2e); // Disable Chinese font mode (forces standard ASCII)
+    this.buffer.push(0x1b, 0x4d, 0x00); // Explicitly select Font A (12x24 crisp font)
     this.buffer.push(0x1b, 0x74, 0x00); // Select standard PC437 codepage
 
     // Force maximum darkness (ESC 7) - Common on generic thermal printers

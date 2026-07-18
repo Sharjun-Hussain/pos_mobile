@@ -632,28 +632,31 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
 
                   {step === 3 && (
                     <div className="flex flex-col gap-4 pb-4 pointer-events-auto px-6 overflow-y-auto no-scrollbar max-h-[60vh] animate-in fade-in slide-in-from-right-4 duration-300">
-                      {/* Summary Card - High Contrast Glass Panel */}
-                      <div className="p-6 rounded-[2.5rem] bg-brand shadow-2xl shadow-brand/20 flex flex-col items-center text-center gap-1 border border-white/20 relative overflow-hidden">
-                        {/* Decorative Blur */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[40px] -mr-16 -mt-16" />
+                      {/* Summary Card - Premium Minimalist Design */}
+                      <div className="p-6 rounded-[2rem] bg-surface-muted/30 border border-glass-border/40 flex flex-col items-center text-center gap-1 relative overflow-hidden shadow-sm">
+                        <div className="absolute inset-0 bg-gradient-to-br from-brand/5 to-transparent opacity-50" />
                         
-                        <p className="text-base font-black text-white/90 tracking-wide uppercase">Payable Amount</p>
-                        <h3 className="text-5xl leading-none font-black text-white mt-2">{formatCurrency(total)}</h3>
-                        
-                        {selectedCustomer && (
-                          <div className="flex items-center gap-2 mt-2 bg-white/20 px-3.5 py-1.5 rounded-full backdrop-blur-md border border-white/10">
-                            <User size={12} className="text-white" strokeWidth={3} />
-                            <span className="text-[10px] font-bold text-white truncate max-w-[150px]">{selectedCustomer.name}</span>
-                          </div>
-                        )}
+                        <div className="relative z-10 flex flex-col items-center w-full">
+                          <p className="text-sm font-bold text-text-secondary">Payable Amount</p>
+                          <h3 className="text-5xl leading-none font-black text-text-main mt-2 tracking-tight">
+                            {formatCurrency(total)}
+                          </h3>
+                          
+                          {selectedCustomer && (
+                            <div className="flex items-center gap-1.5 mt-4 bg-brand/10 px-3.5 py-1.5 rounded-full border border-brand/20">
+                              <User size={12} className="text-brand" strokeWidth={2.5} />
+                              <span className="text-[11px] font-bold text-brand truncate max-w-[150px]">{selectedCustomer.name}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Split Payment Manager */}
                       <div className="flex flex-col gap-4">
                         {/* Section Header */}
                         <div className="flex items-center justify-between">
-                          <label className="text-xs font-black text-text-secondary uppercase tracking-widest pl-1">
-                            {t('pos.payments') || 'Payment'}
+                          <label className="text-base font-black text-text-secondary pl-1">
+                            Payments
                           </label>
                         </div>
 
@@ -664,7 +667,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               ? 'bg-amber-500/10 border-amber-500/20'
                               : 'bg-rose-500/10 border-rose-500/20'
                           }`}>
-                            <span className={`text-xs font-black uppercase tracking-wider ${
+                            <span className={`text-sm font-black ${
                               isManufacturer ? 'text-amber-600' : 'text-rose-500'
                             }`}>
                               {isManufacturer ? 'Credit / Advance' : 'Pending Balance'}
@@ -678,7 +681,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         )}
                         {totalPaid >= total && (
                           <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                            <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
+                            <span className="text-sm font-black text-emerald-600">
                               {totalPaid > total ? 'Change Due' : 'Paid in Full'}
                             </span>
                             <span className="text-sm font-black text-emerald-600">
@@ -690,11 +693,11 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         {/* Payment Rows */}
                         <div className="flex flex-col gap-3">
                           {payments.map((pmt, index) => (
-                            <div key={pmt.id} className="flex gap-2 items-center bg-surface-muted/40 p-3 rounded-2xl border border-glass-border/30 animate-in fade-in slide-in-from-right-2 duration-200">
+                            <div key={pmt.id} className="flex gap-2 items-center bg-surface-muted/20 p-2 rounded-[1.5rem] border border-glass-border/30 animate-in fade-in slide-in-from-right-2 duration-200">
                               <select 
                                 value={pmt.method}
                                 onChange={(e) => updatePayment(pmt.id, 'method', e.target.value)}
-                                className="w-28 h-12 px-3 text-sm font-black rounded-xl bg-surface border border-glass-border/50 outline-none text-text-main"
+                                className="w-32 h-16 px-4 text-lg font-black rounded-2xl bg-surface border border-glass-border/50 outline-none text-text-main shadow-sm"
                               >
                                 {[
                                   { id: 'cash', label: 'Cash' },
@@ -707,18 +710,19 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                 .map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
                               </select>
 
-                              <div className="relative flex-1">
+                              <div className="relative flex-1 bg-surface shadow-inner rounded-2xl border border-glass-border/50 h-16 flex items-center overflow-hidden">
+                                <span className="pl-4 text-base font-black text-text-secondary opacity-60 select-none">{currentCurrency || 'LKR'}</span>
                                 <input 
                                   type="number"
                                   placeholder="0.00"
                                   value={pmt.amount || ''}
                                   onChange={(e) => updatePayment(pmt.id, 'amount', e.target.value)}
-                                  className="w-full h-12 bg-transparent px-4 text-lg font-black text-text-main outline-none"
+                                  className="w-full h-full bg-transparent px-3 text-3xl font-black text-text-main outline-none placeholder:text-text-secondary/30"
                                 />
                                 {index === 0 && (
                                   <button 
                                     onClick={() => updatePayment(pmt.id, 'amount', Number((parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2)))}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-brand bg-brand/10 px-2.5 py-1.5 rounded-lg"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-brand bg-brand/10 px-3 py-1.5 rounded-xl hover:bg-brand/20 active:scale-95 transition-all"
                                   >
                                     MAX
                                   </button>
@@ -726,8 +730,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               </div>
 
                               {payments.length > 1 && (
-                                <button onClick={() => removePayment(pmt.id)} className="h-10 w-10 flex items-center justify-center text-rose-500 active:scale-90 transition-transform">
-                                  <Trash2 size={16} />
+                                <button onClick={() => removePayment(pmt.id)} className="h-16 w-16 shrink-0 flex items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 active:scale-90 transition-transform">
+                                  <Trash2 size={20} />
                                 </button>
                               )}
                             </div>
@@ -743,31 +747,31 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       </div>
 
                       {/* Small Breakdown - High Density */}
-                      <div className="space-y-3 border-t border-glass-border/30 pt-5 px-2">
-                        <div className="flex justify-between items-center text-sm">
+                      <div className="space-y-4 border-t border-glass-border/30 pt-6 px-2 pb-2">
+                        <div className="flex justify-between items-center text-lg">
                           <span className="text-text-secondary font-black">{t('checkout.subtotal')}</span>
                           <span className="text-text-main font-black">{formatCurrency(subtotal)}</span>
                         </div>
                         {discount > 0 && (
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-rose-500 font-black">Discount ({discount}%)</span>
+                          <div className="flex justify-between items-center text-lg">
+                            <span className="text-rose-500 font-black">{t('checkout.discount') || 'Discount'} ({discount}%)</span>
                             <span className="text-rose-500 font-black">- {formatCurrency(getDiscountAmount())}</span>
                           </div>
                         )}
                         {adjustment !== 0 && (
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-brand font-black">Adjustment</span>
+                          <div className="flex justify-between items-center text-lg">
+                            <span className="text-brand font-black">{t('checkout.adjustment') || 'Adjustment'}</span>
                             <span className="text-brand font-black">{adjustment > 0 ? '+' : '-'} {formatCurrency(Math.abs(adjustment))}</span>
                           </div>
                         )}
                         {enableTax && ssclRate > 0 && (
-                          <div className="flex justify-between items-center text-sm border-t border-glass-border/10 pt-3">
+                          <div className="flex justify-between items-center text-lg border-t border-glass-border/10 pt-4">
                             <span className="text-text-secondary font-black">SSCL ({ssclRate}%)</span>
                             <span className="text-text-main font-black">{formatCurrency(getSSCLAmount())}</span>
                           </div>
                         )}
                         {enableTax && vatRate > 0 && (
-                          <div className="flex justify-between items-center text-sm border-t border-glass-border/10 pt-3">
+                          <div className="flex justify-between items-center text-lg border-t border-glass-border/10 pt-4">
                             <span className="text-text-secondary font-black">VAT ({vatRate}%)</span>
                             <span className="text-text-main font-black">{formatCurrency(getVATAmount())}</span>
                           </div>
@@ -792,27 +796,33 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                       </button>
 
                         {showActions && (
-                          <div className="absolute bottom-full left-0 w-48 bg-surface rounded-2xl shadow-2xl p-1.5 border border-glass-border mb-2 z-[200] animate-in fade-in slide-in-from-bottom-2 duration-200">
-                            <button 
-                              onClick={() => { haptics.medium(); handleFinish('draft'); }}
-                              disabled={isSyncing}
-                              className="w-full p-3 rounded-xl flex items-center gap-3 text-text-main hover:bg-brand/5 active:bg-brand/10 transition-colors disabled:opacity-50"
-                            >
-                              <div className="h-8 w-8 rounded-lg bg-brand/10 flex items-center justify-center text-brand">
-                                <Plus size={16} strokeWidth={3} />
-                              </div>
-                              <span className="text-xs font-bold">Hold Sale</span>
-                            </button>
-                            <button 
-                              onClick={() => { haptics.heavy(); clearCart(); handleClose(); }}
-                              className="w-full p-3 rounded-xl flex items-center gap-3 text-rose-500 hover:bg-rose-500/5 active:bg-rose-500/10 transition-colors border-t border-glass-border/10 mt-1"
-                            >
-                              <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
-                                <Trash2 size={16} strokeWidth={3} />
-                              </div>
-                              <span className="text-xs font-bold">Clear Cart</span>
-                            </button>
-                          </div>
+                          <>
+                            <div 
+                              className="fixed inset-0 z-[190]"
+                              onClick={(e) => { e.stopPropagation(); setShowActions(false); }}
+                            />
+                            <div className="absolute bottom-full left-0 w-48 bg-surface rounded-2xl shadow-2xl p-1.5 border border-glass-border mb-2 z-[200] animate-in fade-in slide-in-from-bottom-2 duration-200">
+                              <button 
+                                onClick={() => { haptics.medium(); handleFinish('draft'); setShowActions(false); }}
+                                disabled={isSyncing}
+                                className="w-full p-3 rounded-xl flex items-center gap-3 text-text-main hover:bg-brand/5 active:bg-brand/10 transition-colors disabled:opacity-50"
+                              >
+                                <div className="h-8 w-8 rounded-lg bg-brand/10 flex items-center justify-center text-brand">
+                                  <Plus size={16} strokeWidth={3} />
+                                </div>
+                                <span className="text-xs font-bold">Hold Sale</span>
+                              </button>
+                              <button 
+                                onClick={() => { haptics.heavy(); clearCart(); handleClose(); setShowActions(false); }}
+                                className="w-full p-3 rounded-xl flex items-center gap-3 text-rose-500 hover:bg-rose-500/5 active:bg-rose-500/10 transition-colors border-t border-glass-border/10 mt-1"
+                              >
+                                <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center">
+                                  <Trash2 size={16} strokeWidth={3} />
+                                </div>
+                                <span className="text-xs font-bold">Clear Cart</span>
+                              </button>
+                            </div>
+                          </>
                         )}
                     </>
                   ) : (

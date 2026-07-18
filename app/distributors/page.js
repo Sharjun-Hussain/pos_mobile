@@ -57,7 +57,7 @@ export default function DistributorsPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState('add'); // 'add', 'view', 'edit'
 
-  const [currentDistributor, setCurrentDistributor] = useState({ name: '', phone: '', region: '', address: '' });
+  const [currentDistributor, setCurrentDistributor] = useState({ name: '', phone: '', region: '', address: '', credit_limit: '', opening_balance: '' });
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -66,7 +66,7 @@ export default function DistributorsPage() {
   const handleOpenAdd = () => {
     haptics.medium();
     setDrawerMode('add');
-    setCurrentDistributor({ name: '', phone: '', region: '', address: '' });
+    setCurrentDistributor({ name: '', phone: '', region: '', address: '', credit_limit: '', opening_balance: '' });
     setIsDrawerOpen(true);
   };
 
@@ -249,16 +249,24 @@ export default function DistributorsPage() {
               {drawerMode === 'view' ? (
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-black text-text-secondary uppercase tracking-wider opacity-50">Phone</span>
+                    <span className="text-sm font-semibold text-text-secondary opacity-70">Phone</span>
                     <span className="text-sm font-bold text-text-main">{currentDistributor.phone || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-black text-text-secondary uppercase tracking-wider opacity-50">Region</span>
+                    <span className="text-sm font-semibold text-text-secondary opacity-70">Region</span>
                     <span className="text-sm font-bold text-text-main">{currentDistributor.region || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-black text-text-secondary uppercase tracking-wider opacity-50">Address</span>
+                    <span className="text-sm font-semibold text-text-secondary opacity-70">Address</span>
                     <span className="text-sm font-bold text-text-main">{currentDistributor.address || 'N/A'}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-semibold text-text-secondary opacity-70">Credit Limit</span>
+                    <span className="text-sm font-bold text-emerald-500">{parseFloat(currentDistributor.credit_limit || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-semibold text-text-secondary opacity-70">Opening Balance</span>
+                    <span className="text-sm font-bold text-text-main">{parseFloat(currentDistributor.opening_balance || 0).toLocaleString()}</span>
                   </div>
                 </div>
               ) : (
@@ -303,6 +311,28 @@ export default function DistributorsPage() {
                         onChange={(e) => setCurrentDistributor({ ...currentDistributor, address: e.target.value })}
                         className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all"
                       />
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="flex flex-col gap-1.5 flex-1">
+                        <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Credit Limit</label>
+                        <input
+                          type="number"
+                          placeholder="0.00"
+                          value={currentDistributor.credit_limit}
+                          onChange={(e) => setCurrentDistributor({ ...currentDistributor, credit_limit: e.target.value })}
+                          className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5 flex-1">
+                        <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Opening Bal.</label>
+                        <input
+                          type="number"
+                          placeholder="0.00"
+                          value={currentDistributor.opening_balance}
+                          onChange={(e) => setCurrentDistributor({ ...currentDistributor, opening_balance: e.target.value })}
+                          className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
 

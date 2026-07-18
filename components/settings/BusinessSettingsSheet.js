@@ -108,7 +108,7 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
           <div className="flex flex-col h-full overflow-hidden">
             <div className="flex items-center justify-between px-8 pt-4 mb-5">
               <div>
-                <h2 className="text-xl font-bold text-text-main leading-none">Business Profile</h2>
+                <Drawer.Title className="text-xl font-bold text-text-main leading-none">Business Profile</Drawer.Title>
                 <p className="text-sm font-semibold text-text-secondary opacity-70 mt-1.5">Global Organization Details</p>
               </div>
               <button onClick={onClose} className="h-11 w-11 bg-surface-muted rounded-2xl flex items-center justify-center text-text-secondary active:scale-90 transition-transform">

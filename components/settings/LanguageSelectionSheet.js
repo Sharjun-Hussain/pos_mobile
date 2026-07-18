@@ -41,7 +41,7 @@ export const LanguageSelectionSheet = memo(({ isOpen, onClose }) => {
           <div className="flex flex-col h-full overflow-hidden">
             <div className="flex items-center justify-between mb-4 px-8 pt-4">
               <div>
-                <h2 className="text-xl font-bold text-text-main leading-none">Language</h2>
+                <Drawer.Title className="text-xl font-bold text-text-main leading-none">Language</Drawer.Title>
                 <p className="text-[10px] font-bold text-text-secondary opacity-40 mt-1.5 uppercase tracking-widest">
                   Interface Basis
                 </p>

@@ -330,9 +330,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   </button>
                 )}
                 <div>
-                  <h2 className="text-xl font-bold text-text-main leading-none">
+                  <Drawer.Title className="text-xl font-bold text-text-main leading-none">
                     {step === 1 ? 'Review Order' : step === 2 ? ((!isManufacturer || isCustomerView) ? 'Select Customer' : 'Select Distributor') : 'Finalize Sale'}
-                  </h2>
+                  </Drawer.Title>
                   <div className="flex gap-1.5 mt-2">
                     {[1, 2, 3].map(i => (
                       <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${step >= i ? 'w-8 bg-brand' : 'w-2 bg-surface-muted'}`} />

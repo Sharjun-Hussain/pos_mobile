@@ -193,7 +193,7 @@ export const MailSettingsSheet = memo(({ isOpen, onClose }) => {
             {/* Header */}
             <div className="flex items-center justify-between px-8 pt-4 mb-5">
               <div>
-                <h2 className="text-xl font-bold text-text-main leading-none">Mail Setup</h2>
+                <Drawer.Title className="text-xl font-bold text-text-main leading-none">Mail Setup</Drawer.Title>
                 <p className="text-[10px] font-bold text-text-secondary opacity-40 mt-1.5 uppercase tracking-widest">Communication & Alerts</p>
               </div>
               <button

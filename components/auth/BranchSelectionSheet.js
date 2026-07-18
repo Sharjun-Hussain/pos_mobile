@@ -46,7 +46,7 @@ export const BranchSelectionSheet = memo(({ isOpen, onClose, allowClose = true }
           <div className="flex flex-col h-full overflow-hidden">
             <div className="flex items-center justify-between mb-4 px-8 pt-4">
               <div>
-                <h2 className="text-xl font-bold text-text-main leading-none">Select Branch</h2>
+                <Drawer.Title className="text-xl font-bold text-text-main leading-none">Select Branch</Drawer.Title>
                 <p className="text-xs font-bold text-text-secondary opacity-40 mt-1.5 uppercase tracking-wide">
                   {user?.name || 'Context Selection'}
                 </p>

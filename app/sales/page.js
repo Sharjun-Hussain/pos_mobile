@@ -20,7 +20,7 @@ import { useFetch } from '@/hooks/useFetch';
 import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
 import { ReturnSheet } from '@/components/sales/ReturnSheet';
 
-const SaleRow = ({ sale, onClick }) => {
+const SaleRow = React.memo(({ sale, onClick }) => {
   const date = new Date(sale.created_at).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -38,7 +38,7 @@ const SaleRow = ({ sale, onClick }) => {
 
   return (
     <div
-      onClick={() => { haptics.light(); onClick(); }}
+      onClick={() => { haptics.light(); onClick(sale.id); }}
       className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer"
     >
       <div className="flex items-center gap-3 overflow-hidden">
@@ -78,7 +78,9 @@ const SaleRow = ({ sale, onClick }) => {
       </div>
     </div>
   );
-};
+});
+
+SaleRow.displayName = 'SaleRow';
 
 export default function SalesHistoryPage() {
   const { data: salesData, isLoading: salesLoading, error: salesError, mutate: refetchSales } = useFetch('/sales?size=50');
@@ -96,10 +98,10 @@ export default function SalesHistoryPage() {
   const loading = salesLoading;
   const error = salesError;
 
-  const handleSaleClick = (saleId) => {
+  const handleSaleClick = React.useCallback((saleId) => {
     setSelectedSaleId(saleId);
     setIsDetailsOpen(true);
-  };
+  }, []);
 
   const handleReturnTrigger = (sale) => {
     setIsDetailsOpen(false);
@@ -218,7 +220,7 @@ export default function SalesHistoryPage() {
         ) : filteredSales.length > 0 ? (
           <div className="flex flex-col">
             {filteredSales.map(sale => (
-              <SaleRow key={sale.id} sale={sale} onClick={() => handleSaleClick(sale.id)} />
+              <SaleRow key={sale.id} sale={sale} onClick={handleSaleClick} />
             ))}
           </div>
         ) : (
@@ -233,6 +235,7 @@ export default function SalesHistoryPage() {
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         saleId={selectedSaleId}
+        initialSaleData={filteredSales.find(s => s.id === selectedSaleId) || sales.find(s => s.id === selectedSaleId)}
         onReturnTrigger={handleReturnTrigger}
       />
 

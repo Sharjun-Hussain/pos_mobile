@@ -52,7 +52,7 @@ export const ProductDetailSheet = ({ isOpen, onClose, product }) => {
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-black text-text-main leading-tight mb-2">{product.name}</h2>
+                <Drawer.Title className="text-xl font-black text-text-main leading-tight mb-2">{product.name}</Drawer.Title>
                 <div className="flex items-center justify-center gap-2">
                   <span className="px-3 py-1 bg-brand/10 text-brand rounded-full text-[10px] font-black uppercase tracking-wider border border-brand/20">
                     {product.main_category?.name || 'General Catalog'}

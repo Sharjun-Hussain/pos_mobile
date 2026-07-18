@@ -38,18 +38,22 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
       if (initialSaleData) {
         setSale(initialSaleData);
         setLoading(false);
-      } else if (saleId) {
+      }
+      if (saleId) {
         fetchSaleDetails();
       }
     } else {
-      // Reset state when closed to ensure a clean slate for next time
-      setSale(null);
-      setLoading(true);
+      // Delay resetting state to prevent flicker during closing animation
+      const timer = setTimeout(() => {
+        setSale(null);
+        setLoading(true);
+      }, 300);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, saleId, initialSaleData]);
 
   const fetchSaleDetails = useCallback(async () => {
-    setLoading(true);
+    if (!sale) setLoading(true);
     setError(null);
     try {
       const res = await api.sales.getById(saleId);
@@ -103,7 +107,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                   #
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-text-main leading-none mb-1">Sale Invoice</h3>
+                  <Drawer.Title className="text-base font-bold text-text-main leading-none mb-1">Sale Invoice</Drawer.Title>
                   <p className="text-[10px] font-bold text-text-secondary opacity-50">{sale?.invoice_number || 'Loading...'}</p>
                 </div>
               </div>
@@ -115,13 +119,12 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
               </button>
             </div>
 
-            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto no-scrollbar bg-surface-muted/30">
-              {loading ? (
+              {loading && !sale ? (
                 <div className="p-8 flex flex-col gap-6 animate-pulse">
-                  <div className="h-[500px] w-full bg-surface-muted rounded-2xl shadow-sm" />
+                  <div className="h-[300px] w-full bg-surface-muted rounded-2xl shadow-sm" />
                 </div>
-              ) : error ? (
+              ) : error && !sale ? (
                 <div className="p-12 text-center flex flex-col items-center gap-4 text-rose-500">
                   <AlertTriangle size={48} strokeWidth={1} />
                   <p className="font-bold text-sm text-center px-4">{error}</p>
@@ -166,7 +169,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
             </div>
 
             {/* Action Bar - Modern Vertical Stack */}
-            {!loading && !error && sale && (
+            {(sale || (!loading && !error)) && (
               <div className="p-6 bg-surface/80 backdrop-blur-xl border-t border-glass-border/30 flex flex-col gap-3 pb-[calc(var(--sab)+2rem)]">
                 <div className="flex gap-3">
                   {/* A4 Print */}

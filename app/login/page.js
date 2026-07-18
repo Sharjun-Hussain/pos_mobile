@@ -116,7 +116,7 @@ export default function LoginPage() {
               <button 
                 type="button" 
                 onClick={() => { haptics.light(); router.push('/forgot-password'); }}
-                className="text-brand text-xs font-bold active:opacity-50 transition-opacity"
+                className="text-brand text-sm font-bold active:opacity-50 transition-opacity"
               >
                 Forgot password?
               </button>

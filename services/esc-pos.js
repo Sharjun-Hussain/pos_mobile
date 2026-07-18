@@ -70,7 +70,7 @@ export class EscPosEncoder {
 
   /**
    * Sets text to bold
-   * @param {boolean} bold 
+   * @param {boolean} bold
    */
   bold(bold) {
     this.buffer.push(0x1b, 0x45, bold ? 1 : 0);
@@ -108,7 +108,7 @@ export class EscPosEncoder {
     this.buffer.push(0x1b, 0x64, lines);
     return this;
   }
-  
+
   /**
    * Draws a divider line
    */
@@ -140,7 +140,7 @@ export class EscPosEncoder {
     }
     // 5. Print
     this.buffer.push(0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x51, 0x30);
-    
+
     return this;
   }
 
@@ -150,35 +150,33 @@ export class EscPosEncoder {
    */
   barcode(data) {
     if (!data) return this;
-    
+
     // Set height
     this.buffer.push(0x1d, 0x68, 60);
     // Set width
     this.buffer.push(0x1d, 0x77, 2);
     // Set text position (2 = below barcode)
     this.buffer.push(0x1d, 0x48, 2);
-    
+
     // Print barcode (CODE39 is m=69)
     const upperData = data.toUpperCase();
     this.buffer.push(0x1d, 0x6b, 69, upperData.length);
     for (let i = 0; i < upperData.length; i++) {
       this.buffer.push(upperData.charCodeAt(i));
     }
-    
+
     return this;
   }
 
   /**
    * Asynchronously loads and prints an image using ESC * (Bit Image Mode).
    * ESC * is universally supported by all thermal printers.
-   * GS v 0 (raster) is EPSON-specific — most generic printers dump raw bytes as text,
-   * producing the "garbage on a long roll" issue.
    *
-   * @param {string} url  Image URL or Base64 data URI
-   * @param {number} maxWidth  Max width in pixels (will be rounded down to multiple of 8)
-   * @param {number} maxHeight Max height in pixels — caps logo size to avoid wasting paper
+   * @param {string} url       Image URL or Base64 data URI
+   * @param {number} maxWidth  Max width in pixels (rounded down to multiple of 8)
+   * @param {number} maxHeight Max height in pixels — keeps logo compact (~10mm on 203 DPI)
    */
-  async image(url, maxWidth = 384, maxHeight = 120) {
+  async image(url, maxWidth = 384, maxHeight = 80) {
     if (typeof window === 'undefined' || typeof document === 'undefined') return this;
 
     return new Promise((resolve) => {
@@ -193,13 +191,13 @@ export class EscPosEncoder {
           let width = img.width;
           let height = img.height;
 
-          // Scale down to fit maxWidth
+          // Scale down to fit maxWidth (maintain aspect ratio)
           if (width > maxWidth) {
             height = Math.round((maxWidth / width) * height);
             width = maxWidth;
           }
 
-          // Cap height to prevent a high-res logo from wasting half a roll
+          // Cap height — prevents a high-res or square logo from being too tall
           if (height > maxHeight) {
             width = Math.round((maxHeight / height) * width);
             height = maxHeight;
@@ -212,33 +210,43 @@ export class EscPosEncoder {
           canvas.width = width;
           canvas.height = height;
 
+          // White background
           ctx.fillStyle = 'white';
           ctx.fillRect(0, 0, width, height);
+
+          // Boost contrast before 1-bit conversion so gray logo details are preserved.
+          // Without this, mid-tone pixels (oval border, fine lines) vanish at the 1-bit stage.
+          try { ctx.filter = 'contrast(180%) brightness(1.05)'; } catch (_) {}
           ctx.drawImage(img, 0, 0, width, height);
+          try { ctx.filter = 'none'; } catch (_) {}
 
           const imageData = ctx.getImageData(0, 0, width, height).data;
 
-          // ── ESC * (Bit Image Mode) ──────────────────────────────────────
-          // Prints the image as 8-dot-tall horizontal strips, column by column.
+          // ── ESC * (Bit Image Mode) ──────────────────────────────────────────
+          // Prints the image as 8-dot-tall column strips.
           // Command: ESC * m nL nH [data]
-          //   m  = 0  → 8-dot single-density (most compatible)
-          //   nL = width % 256  (number of columns, low byte)
-          //   nH = width / 256  (number of columns, high byte)
-          //   data = one byte per column per strip; bit7=top dot, bit0=bottom dot
+          //   m  = 0    → 8-dot single-density (most compatible)
+          //   nL = width % 256  (columns, low byte)
+          //   nH = width / 256  (columns, high byte)
+          //   data = 1 byte per column, bit7=top dot, bit0=bottom dot
           //
-          // Before each strip: ESC 3 n — set line spacing to n/180" so strips
-          // are tight (no gap between rows of the image).
-          // After image: ESC 2 — restore default line spacing.
-          // ────────────────────────────────────────────────────────────────
+          // Strip advancement: ESC J 8  (0x1b 0x4a 0x08)
+          //   Feeds paper EXACTLY 8 dots regardless of current line spacing.
+          //   Using LF (0x0a) + ESC 3 was wrong — this printer interprets ESC 3
+          //   units as 1/72" (not 1/180"), inflating each strip gap to ~22 dots
+          //   and making the logo 3× too tall on paper.
+          // ───────────────────────────────────────────────────────────────────
 
           const nL = width % 256;
           const nH = Math.floor(width / 256);
 
-          // Set line spacing to exactly 8 dots so LF advances by one strip height
-          this.buffer.push(0x1b, 0x33, 0x08); // ESC 3 8
+          // Black threshold: 150 instead of 128.
+          // 128 discards too many mid-tone pixels (gray oval border, fine logo lines).
+          // 150 captures those as black, giving a crisper, more complete logo.
+          const BLACK_THRESHOLD = 150;
 
           for (let y = 0; y < height; y += 8) {
-            // Begin one 8-dot strip: ESC * 0 nL nH
+            // Start one 8-dot-high strip: ESC * 0 nL nH
             this.buffer.push(0x1b, 0x2a, 0x00, nL, nH);
 
             for (let x = 0; x < width; x++) {
@@ -251,23 +259,19 @@ export class EscPosEncoder {
                 const g = imageData[idx + 1];
                 const b = imageData[idx + 2];
                 const a = imageData[idx + 3];
-                let isBlack = false;
                 if (a > 128) {
                   const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-                  isBlack = luminance < 128;
-                }
-                if (isBlack) {
-                  byte |= (0x80 >> dot); // bit7 = topmost dot in strip
+                  if (luminance < BLACK_THRESHOLD) {
+                    byte |= (0x80 >> dot); // bit7 = topmost dot in strip
+                  }
                 }
               }
               this.buffer.push(byte);
             }
 
-            this.buffer.push(0x0a); // LF — advance to next strip
+            // ESC J 8: feed exactly 8 dots of paper (dot-precise, line-spacing-independent)
+            this.buffer.push(0x1b, 0x4a, 0x08);
           }
-
-          // Restore default line spacing (30/180" ≈ 4.2 mm)
-          this.buffer.push(0x1b, 0x32); // ESC 2
 
           resolve(this);
         } catch (e) {

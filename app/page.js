@@ -101,7 +101,7 @@ const TransactionsSection = memo(({ recentSales, loading, onSaleClick, router })
       <h2 className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60">Recent Transactions</h2>
       <button
         onClick={() => { haptics.light(); router.push('/sales'); }}
-        className="text-[10px] font-black text-brand uppercase tracking-wider"
+        className="text-xs font-black text-brand uppercase tracking-wider"
       >
         See All
       </button>
@@ -121,9 +121,9 @@ const InventoryAlerts = memo(({ lowStockItems, loading, router }) => {
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between px-1">
         <h2 className="text-xs font-bold text-rose-500 uppercase tracking-widest opacity-80">Inventory Alerts</h2>
-        <button 
+        <button
           onClick={() => router.push('/inventory?filter=low-stock')}
-          className="text-[10px] font-black text-rose-500 uppercase tracking-wider"
+          className="text-xs font-black text-rose-500 uppercase tracking-wider"
         >
           Manage
         </button>
@@ -162,14 +162,14 @@ const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradie
           <Icon size={18} />
         </div>
         {trendValue && (
-          <div className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-[10px] font-bold ${isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
+          <div className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-xs font-bold ${isUp ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
             }`}>
             {trendValue}
           </div>
         )}
       </div>
       <div>
-        <p className="text-text-secondary text-[10px] font-bold uppercase tracking-wider opacity-60">{title}</p>
+        <p className="text-text-secondary text-xs font-bold uppercase tracking-wider opacity-60">{title}</p>
         <h3 className="text-lg font-black mt-1 text-text-main tracking-tight">{value}</h3>
       </div>
     </div>
@@ -209,7 +209,7 @@ const ActionCard = memo(({ title, description, icon: Icon, color, isLoading, onC
       </div>
       <div>
         <h4 className="font-bold text-text-main text-sm">{title}</h4>
-        <p className="text-[11px] text-text-secondary leading-tight mt-0.5 opacity-70">{description}</p>
+        <p className="text-xs text-text-secondary leading-tight mt-0.5 opacity-70">{description}</p>
       </div>
     </button>
   );
@@ -235,10 +235,10 @@ export default function Home() {
   const recentTransactions = useMemo(() => {
     const s = salesData?.data || salesData || [];
     const r = returnsData?.data || returnsData || [];
-    
+
     const salesWithType = Array.isArray(s) ? s.map(item => ({ ...item, txType: 'sale' })) : [];
     const returnsWithType = Array.isArray(r) ? r.map(item => ({ ...item, txType: 'return' })) : [];
-    
+
     return [...salesWithType, ...returnsWithType]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 5);
@@ -261,13 +261,13 @@ export default function Home() {
 
   const aggregatedChartData = useMemo(() => {
     if (!chartReportData?.transactions) return null;
-    
+
     const dailyMap = chartReportData.transactions.reduce((acc, sale) => {
       const date = new Date(sale.date).toLocaleDateString('en-US', { weekday: 'short' });
       acc[date] = (acc[date] || 0) + (parseFloat(sale.total) || 0);
       return acc;
     }, {});
-    
+
     const series = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
@@ -310,12 +310,12 @@ export default function Home() {
   const lowStockItems = (productsData?.data || productsData || []).filter(p => p.stock <= (p.reorder_level || 5));
   const displayUser = userData?.user || user;
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUser?.name || 'Felix'}`;
-  
+
   const handleSaleClick = useCallback((item) => {
     haptics.medium();
     startTransition(() => {
-        setSelectedSaleId(item.sale_id || item.id);
-        setIsDetailsOpen(true);
+      setSelectedSaleId(item.sale_id || item.id);
+      setIsDetailsOpen(true);
     });
   }, []);
 
@@ -352,7 +352,7 @@ export default function Home() {
             </div>
           ) : (
             <div>
-              <p className="text-[10px] font-black text-brand uppercase tracking-wider mb-1 opacity-70">{getGreeting()}</p>
+              <p className="text-xs font-black text-brand uppercase tracking-wider mb-1 opacity-70">{getGreeting()}</p>
               <h1 className="text-xl font-bold text-text-main leading-none">
                 {displayUser?.name || "Partner"}
               </h1>
@@ -363,22 +363,22 @@ export default function Home() {
           {loading ? (
             <div className="w-full h-full animate-pulse" />
           ) : (
-            <Image 
-              src={avatarSrc} 
-              alt="Avatar" 
+            <Image
+              src={avatarSrc}
+              alt="Avatar"
               fill
-              className="object-cover" 
+              className="object-cover"
             />
           )}
         </div>
       </header>
 
       {/* Memoized Stats Section */}
-      <DashboardStats 
-         stats={stats} 
-         loading={statsLoading} 
-         formatCurrency={formatCurrency} 
-         t={t} 
+      <DashboardStats
+        stats={stats}
+        loading={statsLoading}
+        formatCurrency={formatCurrency}
+        t={t}
       />
 
       {statsError && (
@@ -397,17 +397,17 @@ export default function Home() {
 
       <BusinessPulse chartData={aggregatedChartData || stats?.chartData} loading={chartLoading || statsLoading} />
 
-      <TransactionsSection 
-        recentSales={recentTransactions} 
-        loading={salesLoading || returnsLoading} 
-        onSaleClick={handleSaleClick} 
-        router={router} 
+      <TransactionsSection
+        recentSales={recentTransactions}
+        loading={salesLoading || returnsLoading}
+        onSaleClick={handleSaleClick}
+        router={router}
       />
 
-      <InventoryAlerts 
-        lowStockItems={lowStockItems} 
-        loading={productsLoading} 
-        router={router} 
+      <InventoryAlerts
+        lowStockItems={lowStockItems}
+        loading={productsLoading}
+        router={router}
       />
 
       <BranchSelectionSheet

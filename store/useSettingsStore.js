@@ -17,7 +17,7 @@ export const useSettingsStore = create(
       showLogo: false,
       showTaxBreakdown: false,
       checkoutPreview: true,
-      posViewMode: 'grid',
+      posViewMode: 'list',
       requireShift: true,
       
       // Hardware/Receipt

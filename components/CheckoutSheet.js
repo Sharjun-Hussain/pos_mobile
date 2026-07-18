@@ -445,7 +445,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   )}
 
                   {step === 2 && (
-                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div className="flex flex-col gap-4 pb-4 pointer-events-auto animate-in fade-in slide-in-from-right-4 duration-300 h-full">
                       
                       {isManufacturer && !isAddingCustomer && (
                         <div className="px-6">
@@ -479,7 +479,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             />
                           </div>
 
-                          <div className="flex flex-col bg-surface-muted/5 border-y border-glass-border/20 overflow-hidden overflow-y-auto max-h-[42vh] min-h-[30vh] no-scrollbar overscroll-contain">
+                          <div className="flex-1 flex flex-col bg-surface-muted/5 border-y border-glass-border/20 overflow-hidden overflow-y-auto no-scrollbar overscroll-contain">
                             <button 
                               onClick={() => { haptics.light(); setSelectedCustomer(null); }}
                               className={`flex items-center justify-between p-4 px-8 transition-all border-b border-glass-border/10 ${!selectedCustomer ? 'bg-brand/5' : ''}`}
@@ -556,12 +556,13 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             </div>
 
                           {/* Fixed Footer within Step */}
-                          <div className="px-6 py-4">
+                          <div className="px-6 py-4 mt-auto border-t border-glass-border/10">
                             <button 
                               onClick={() => { haptics.medium(); setIsAddingCustomer(true); }}
-                              className="w-full h-14 border-2 border-dashed border-glass-border rounded-3xl flex items-center justify-center gap-2 text-text-secondary text-xs font-bold hover:border-brand/40 hover:text-brand transition-all"
+                              className="w-full h-14 bg-brand text-white rounded-2xl flex items-center justify-center gap-2 text-sm font-black shadow-lg shadow-brand/20 active:scale-[0.98] transition-all"
                             >
-                              <UserPlus size={16} /> {(!isManufacturer || isCustomerView) ? t('checkout.newCustomer') : 'New Distributor'}
+                              <UserPlus size={18} strokeWidth={2.5} />
+                              {(!isManufacturer || isCustomerView) ? t('checkout.newCustomer') : 'New Distributor'}
                             </button>
                           </div>
                         </>

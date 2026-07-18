@@ -120,8 +120,8 @@ export default function CustomersPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Customers</h1>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Relationship Registry</p>
+            <h1 className="text-xl font-bold text-text-main leading-none mb-1">Customers</h1>
+            <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Relationship Registry</p>
           </div>
         </div>
         <button
@@ -224,7 +224,7 @@ export default function CustomersPage() {
             <div className="flex flex-col overflow-y-auto no-scrollbar p-6">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-2xl font-black text-text-main">New Customer</h3>
+                  <h3 className="text-xl font-bold text-text-main">New Customer</h3>
                   <p className="text-xs font-bold text-text-secondary opacity-40">Growth Registry</p>
                 </div>
                 <button

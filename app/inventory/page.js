@@ -86,8 +86,8 @@ export default function InventoryPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Stock Hub</h1>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Quick Inventory Check</p>
+            <h1 className="text-xl font-bold text-text-main leading-none mb-1">Stock Hub</h1>
+            <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Quick Inventory Check</p>
           </div>
         </div>
         <button

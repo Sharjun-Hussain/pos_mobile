@@ -20,7 +20,7 @@ const RecoveryHeader = memo(() => (
       />
     </div>
     <div className="text-center px-4">
-      <h1 className="text-2xl font-bold text-text-main tracking-tight">Recovery</h1>
+      <h1 className="text-xl font-bold text-text-main tracking-tight">Recovery</h1>
       <p className="text-text-secondary text-sm font-medium mt-2 leading-relaxed max-w-[320px] mx-auto">
         Enter your email to receive secure recovery instructions.
       </p>

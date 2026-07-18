@@ -139,12 +139,12 @@ export default function DistributorsPage() {
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-text-main leading-none mb-1">Distributors</h1>
+              <h1 className="text-xl font-bold text-text-main leading-none mb-1">Distributors</h1>
               <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand text-[10px] font-black">
                 {searchTerm ? `${filteredDistributors.length} / ${totalCount}` : totalCount}
               </span>
             </div>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Distribution Network</p>
+            <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Distribution Network</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -212,7 +212,7 @@ export default function DistributorsPage() {
             <div className="flex flex-col overflow-y-auto no-scrollbar p-6">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-2xl font-black text-text-main">
+                  <h3 className="text-xl font-bold text-text-main">
                     {drawerMode === 'add' ? 'New Distributor' : drawerMode === 'edit' ? 'Edit Distributor' : currentDistributor.name}
                   </h3>
                   <p className="text-xs font-bold text-text-secondary opacity-40">

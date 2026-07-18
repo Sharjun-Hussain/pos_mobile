@@ -70,12 +70,12 @@ export default function WastagePage() {
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-text-main leading-none mb-1">Wastage Log</h1>
+              <h1 className="text-xl font-bold text-text-main leading-none mb-1">Wastage Log</h1>
               <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand text-[10px] font-black">
                 {searchTerm ? `${filteredWastages.length} / ${totalCount}` : totalCount}
               </span>
             </div>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Production Quality Control</p>
+            <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Production Quality Control</p>
           </div>
         </div>
         <div className="flex gap-2">

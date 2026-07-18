@@ -290,11 +290,11 @@ export default function DynamicReportViewer({ params }) {
                         <div className="bg-gradient-to-br from-brand/20 to-brand/5 border border-brand/20 rounded-3xl p-4 flex flex-col gap-1 relative overflow-hidden">
                           <div className="absolute -right-4 -top-4 w-16 h-16 bg-brand/10 rounded-full blur-xl" />
                           <span className="text-xs font-bold text-brand uppercase tracking-wider">Total Volume</span>
-                          <span className="text-2xl font-black text-text-main">{currency} {totalRevenue.toFixed(2)}</span>
+                          <span className="text-xl font-bold text-text-main">{currency} {totalRevenue.toFixed(2)}</span>
                         </div>
                         <div className="bg-surface-muted/60 border border-glass-border/30 rounded-3xl p-4 flex flex-col gap-1">
                           <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Total Records</span>
-                          <span className="text-2xl font-black text-text-main">{totalItems}</span>
+                          <span className="text-xl font-bold text-text-main">{totalItems}</span>
                         </div>
                      </div>
                      

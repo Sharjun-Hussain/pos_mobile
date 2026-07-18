@@ -20,7 +20,7 @@ const LoginHeader = memo(() => (
       />
     </div>
     <div className="text-center px-4">
-      <h1 className="text-2xl font-bold text-text-main tracking-tight">
+      <h1 className="text-xl font-bold text-text-main tracking-tight">
         {process.env.NEXT_PUBLIC_APP_NAME || "Inzeedo ERP"}
       </h1>
       <p className="text-text-secondary text-sm font-medium mt-2 leading-relaxed">

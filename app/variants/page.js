@@ -142,10 +142,10 @@ export default function VariantsPage() {
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-text-main leading-none mb-1">Variant Registry</h1>
+              <h1 className="text-xl font-bold text-text-main leading-none mb-1">Variant Registry</h1>
               <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand text-[10px] font-black">{filteredAndSortedVariants.length}</span>
             </div>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Unified Variant Catalog</p>
+            <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Unified Variant Catalog</p>
           </div>
         </div>
         <button 

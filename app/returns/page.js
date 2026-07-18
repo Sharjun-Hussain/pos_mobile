@@ -99,8 +99,8 @@ export default function ReturnsHistoryPage() {
             <Menu size={24} strokeWidth={2.5} />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-text-main leading-none mb-1">Sales Returns</h1>
-            <p className="text-xs font-bold text-text-secondary leading-none opacity-70">Refund Manifest</p>
+            <h1 className="text-xl font-bold text-text-main leading-none mb-1">Sales Returns</h1>
+            <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Refund Manifest</p>
           </div>
         </div>
         <button

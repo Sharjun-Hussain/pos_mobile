@@ -322,8 +322,8 @@ export default function SettingsPage() {
         />
         <SettingItem
           icon={CreditCard}
-          label={t('settings.paymentProtocol')}
-          value={`${activePaymentMethods?.length || 0} Gateway Methods`}
+          label="Payment Methods"
+          value={`${activePaymentMethods?.length || 0} Active Methods`}
           color="blue"
           onClick={() => setIsPosPaymentsOpen(true)}
         />

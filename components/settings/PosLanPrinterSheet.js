@@ -178,7 +178,7 @@ export const PosLanPrinterSheet = memo(({ isOpen, onClose }) => {
                 {form.useLanPrinter && (
                   <>
                     <div className="flex flex-col gap-1.5 mt-2">
-                      <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Printer IP Address</label>
+                      <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Printer IP Address</label>
                       <div className="relative">
                         <Wifi size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary/50" />
                         <input 
@@ -192,7 +192,7 @@ export const PosLanPrinterSheet = memo(({ isOpen, onClose }) => {
                     </div>
                     
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Port (Default 9100)</label>
+                      <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Port (Default 9100)</label>
                       <input 
                         type="number" 
                         placeholder="9100" 

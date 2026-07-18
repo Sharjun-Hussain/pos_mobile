@@ -30,10 +30,10 @@ const TerminalHeader = memo(({
               <ArrowLeft size={18} />
             </button>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-text-main">{displayTitle}</h1>
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <h1 className="text-base font-bold text-text-main leading-none">{displayTitle}</h1>
                 {productCount !== undefined && (
-                  <span className="px-1.5 py-0.5 rounded bg-brand/10 text-brand text-[9px] font-black">{productCount}</span>
+                  <span className="px-1.5 py-0.5 rounded bg-brand/10 text-brand text-[10px] font-black leading-none">{productCount}</span>
                 )}
               </div>
               {branchName && (

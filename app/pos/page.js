@@ -243,6 +243,20 @@ export default function SalesPage() {
     return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }, [cart]);
 
+  const productGridNodes = useMemo(() => (
+    <div className={posViewMode === 'grid' ? "grid grid-cols-3 gap-3" : "flex flex-col gap-2"}>
+      {filteredProducts.slice(0, 60).map(p => (
+        <ProductCard 
+          key={p.id}
+          product={p}
+          onAdd={handleAddToCart}
+          isWholesale={isWholesale}
+          viewMode={posViewMode}
+        />
+      ))}
+    </div>
+  ), [filteredProducts, posViewMode, isWholesale, handleAddToCart]);
+
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-surface">
       
@@ -288,19 +302,7 @@ export default function SalesPage() {
           <div className="text-center py-24 opacity-30">
             <p className="text-xs font-bold text-text-main">{t('pos.noMatches')}</p>
           </div>
-        ) : (
-          <div className={posViewMode === 'grid' ? "grid grid-cols-3 gap-3" : "flex flex-col gap-2"}>
-            {filteredProducts.slice(0, 60).map(p => (
-              <ProductCard 
-                key={p.id}
-                product={p}
-                onAdd={handleAddToCart}
-                isWholesale={isWholesale}
-                viewMode={posViewMode}
-              />
-            ))}
-          </div>
-        )}
+        ) : productGridNodes}
       </div>
 
       <DockedCart 

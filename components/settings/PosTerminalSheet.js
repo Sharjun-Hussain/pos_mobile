@@ -35,7 +35,7 @@ ToggleRow.displayName = 'ToggleRow';
 
 export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
   const {
-    terminalName, enableSound, checkoutPreview, showTaxBreakdown, requireShift,
+    terminalName, enableSound, checkoutPreview, showTaxBreakdown,
     setTerminalSetting, updatePOSSettings
   } = useSettingsStore();
 
@@ -43,20 +43,19 @@ export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [form, setForm] = useState({ 
+  const [form, setForm] = useState({
     terminalName: '', 
     enableSound: true, 
     checkoutPreview: true, 
-    showTaxBreakdown: false,
-    requireShift: true 
+    showTaxBreakdown: false
   });
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ terminalName, enableSound, checkoutPreview, showTaxBreakdown, requireShift });
+      setForm({ terminalName, enableSound, checkoutPreview, showTaxBreakdown });
       setSuccess(false);
     }
-  }, [isOpen, terminalName, enableSound, checkoutPreview, showTaxBreakdown, requireShift]);
+  }, [isOpen, terminalName, enableSound, checkoutPreview, showTaxBreakdown]);
 
   const setField = useCallback((key, val) => setForm(f => ({ ...f, [key]: val })), []);
 
@@ -67,8 +66,7 @@ export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
     const res = await updatePOSSettings({
       enableSound: form.enableSound,
       checkoutPreview: form.checkoutPreview,
-      showTaxBreakdown: form.showTaxBreakdown,
-      requireShift: form.requireShift
+      showTaxBreakdown: form.showTaxBreakdown
     });
     if (res.success) {
       haptics.heavy();
@@ -111,7 +109,6 @@ export const PosTerminalSheet = memo(({ isOpen, onClose }) => {
                 <ToggleRow icon={Volume2} color="bg-blue-500/10 text-blue-500" label="Haptic & Audio" desc="Synthesize sounds on scan" enabled={form.enableSound} onToggle={() => setField('enableSound', !form.enableSound)} />
                 <ToggleRow icon={FileText} color="bg-orange-500/10 text-orange-500" label="Checkout Preview" desc="Verify items before payment" enabled={form.checkoutPreview} onToggle={() => setField('checkoutPreview', !form.checkoutPreview)} />
                 <ToggleRow icon={ShieldAlert} color="bg-indigo-500/10 text-indigo-500" label="Tax Transparency" desc="Display breakdown in checkout" enabled={form.showTaxBreakdown} onToggle={() => setField('showTaxBreakdown', !form.showTaxBreakdown)} />
-                <ToggleRow icon={Calculator} color="bg-brand/10 text-brand" label="Shift Management" desc="Require opening/closing shift" enabled={form.requireShift} onToggle={() => setField('requireShift', !form.requireShift)} />
               </div>
             </div>
             <div className="absolute bottom-0 left-0 right-0 px-8 py-6 pb-[calc(var(--sab)+1.5rem)] bg-gradient-to-t from-surface via-surface/95 to-transparent border-t border-glass-border/10">

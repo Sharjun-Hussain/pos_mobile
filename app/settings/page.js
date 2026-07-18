@@ -73,6 +73,37 @@ const SettingItem = memo(({ icon: Icon, label, value, color = 'brand', onClick }
 });
 SettingItem.displayName = 'SettingItem';
 
+const SettingToggleItem = memo(({ icon: Icon, label, value, color = 'brand', enabled, onToggle }) => {
+  const colors = {
+    brand: 'bg-brand/10 text-brand',
+    blue: 'bg-blue-500/10 text-blue-500',
+    amber: 'bg-amber-500/10 text-amber-500',
+    rose: 'bg-rose-500/10 text-rose-500',
+    emerald: 'bg-emerald-500/10 text-emerald-500'
+  };
+
+  return (
+    <div className="w-full bg-surface p-4 rounded-[1.75rem] flex items-center justify-between border border-glass-border/30 shadow-sm">
+      <div className="flex items-center gap-4">
+        <div className={`p-2.5 rounded-xl ${colors[color]}`}>
+          <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div className="text-left">
+          <p className="text-[14px] font-bold text-text-main leading-tight">{label}</p>
+          {value && <p className="text-[11px] font-medium text-text-secondary mt-0.5 opacity-60 italic">{value}</p>}
+        </div>
+      </div>
+      <button
+        onClick={() => { haptics.light(); onToggle(!enabled); }}
+        className={`h-8 w-14 rounded-full transition-all duration-200 flex items-center px-1 flex-shrink-0 ${enabled ? 'bg-brand' : 'bg-surface-muted border border-glass-border/30'}`}
+      >
+        <div className={`h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${enabled ? 'translate-x-6' : 'translate-x-0'}`} />
+      </button>
+    </div>
+  );
+});
+SettingToggleItem.displayName = 'SettingToggleItem';
+
 export default function SettingsPage() {
   const router = useRouter();
   const { openDrawer } = useUIStore();
@@ -91,7 +122,8 @@ export default function SettingsPage() {
     requireShift,
     useLanPrinter,
     printerIp,
-    printerPort
+    printerPort,
+    updatePOSSettings
   } = useSettingsStore();
 
   const [mounted, setMounted] = useState(false);
@@ -307,12 +339,16 @@ export default function SettingsPage() {
       {/* Shift Management */}
       <section className="flex flex-col gap-3">
         <p className="text-sm font-semibold text-text-secondary pl-4 opacity-70 mb-1">Shift Management</p>
-        <SettingItem
+        <SettingToggleItem
           icon={Calculator}
-          label="Shift Protocol"
+          label="Require Shift Management"
           value={requireShift ? "Mandatory Opening/Closing" : "Bypassed / Not Required"}
           color={requireShift ? "brand" : "rose"}
-          onClick={() => setIsPosTerminalOpen(true)}
+          enabled={requireShift}
+          onToggle={async (v) => {
+            haptics.medium();
+            await updatePOSSettings({ requireShift: v });
+          }}
         />
         {requireShift && activeShift && (
           <SettingItem

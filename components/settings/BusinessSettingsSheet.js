@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, memo } from 'react';
-import { X, Building2, Save, Check, MapPin, Phone, Mail, FileText } from 'lucide-react';
+import React, { useState, useEffect, useCallback, memo, useRef } from 'react';
+import { X, Building2, Save, Check, MapPin, Phone, Mail, FileText, Camera } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -25,9 +25,14 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
     tax_number: ''
   });
 
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const fileInputRef = useRef(null);
+
   useEffect(() => {
     if (isOpen) {
       setSuccess(false);
+      setLogoFile(null);
       fetchBusinessProfile();
     }
   }, [isOpen]);
@@ -44,6 +49,11 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
           address: res.data.address || '',
           tax_number: res.data.tax_number || ''
         });
+        if (res.data.logo) {
+          api.getImageUrl(res.data.logo).then(setLogoPreview);
+        } else {
+          setLogoPreview(null);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch business settings:', err);
@@ -54,11 +64,21 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
 
   const setField = useCallback((key, val) => setForm(f => ({ ...f, [key]: val })), []);
 
+  const handleLogoChange = useCallback((e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  }, []);
+
   const handleSave = useCallback(async () => {
     setLoading(true);
     haptics.medium();
     
     try {
+      if (logoFile) {
+        await api.settings.uploadLogo(logoFile);
+      }
       const res = await api.settings.updateBusiness(form);
       if (res.status === 'success') {
         haptics.heavy();
@@ -105,6 +125,25 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
+                  {/* Logo Upload */}
+                  <div className="flex justify-center pt-2 mb-2">
+                    <div className="relative">
+                      <div className="h-24 w-24 rounded-[2.5rem] bg-brand/10 border-4 border-surface shadow-lg overflow-hidden">
+                        {logoPreview
+                          ? <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                          : <div className="w-full h-full flex items-center justify-center text-brand"><Building2 size={40} strokeWidth={2} /></div>
+                        }
+                      </div>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="absolute bottom-0 right-0 h-9 w-9 bg-brand text-white rounded-xl shadow-lg shadow-brand/30 flex items-center justify-center active:scale-95 transition-transform"
+                      >
+                        <Camera size={15} strokeWidth={2.5} />
+                      </button>
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                    </div>
+                  </div>
+
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Registered Name</label>
                     <div className="relative">

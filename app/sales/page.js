@@ -164,42 +164,44 @@ export default function SalesHistoryPage() {
           />
         </div>
 
-        {/* Filter Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-          {[
-            { id: 'all', label: 'All Sales' },
-            { id: 'paid', label: 'Paid' },
-            { id: 'unpaid', label: 'Unpaid' },
-            { id: 'returned', label: 'Refunded' }
-          ].map(chip => (
-            <button
-              key={chip.id}
-              onClick={() => { haptics.light(); setFilterStatus(chip.id); }}
-              className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-semibold transition-all border ${filterStatus === chip.id
-                ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105'
-                : 'bg-surface-muted text-text-secondary/60 border-glass-border/20 opacity-70'
-                }`}
-            >
-              {chip.label}
-            </button>
-          ))}
+        {/* Filters & Sorting */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-1">
+            {[
+              { id: 'all', label: 'All Sales' },
+              { id: 'paid', label: 'Paid' },
+              { id: 'unpaid', label: 'Unpaid' },
+              { id: 'returned', label: 'Refunded' }
+            ].map(chip => (
+              <button
+                key={chip.id}
+                onClick={() => { haptics.light(); setFilterStatus(chip.id); }}
+                className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-bold transition-all border ${filterStatus === chip.id
+                  ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105'
+                  : 'bg-surface-muted text-text-secondary border-glass-border/40 hover:bg-black/5 dark:hover:bg-white/5'
+                  }`}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
 
-          <div className="w-[1px] h-6 bg-glass-border/20 mx-1 flex-shrink-0" />
+          <div className="w-[1px] h-6 bg-glass-border/20 flex-shrink-0" />
 
           <button
             onClick={() => {
               haptics.medium();
-              const modes = ['ewest', 'oldest', 'amount_high', 'amount_low'];
+              const modes = ['newest', 'oldest', 'amount_high', 'amount_low'];
               const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
               setSortBy(next);
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-muted border border-glass-border/20 text-[11px] font-black  text-text-main whitespace-nowrap active:scale-95 transition-transform"
+            className="flex items-center justify-center h-9 px-3 rounded-full bg-surface-muted border border-glass-border/40 text-[11px] font-bold text-text-main whitespace-nowrap active:scale-95 transition-transform hover:bg-black/5 dark:hover:bg-white/5 flex-shrink-0"
           >
-            {sortBy === 'newest' && <Clock size={12} className="text-brand" />}
-            {sortBy === 'oldest' && <Clock size={12} className="opacity-30 rotate-180" />}
-            {sortBy === 'amount_high' && <ArrowUpAZ size={12} className="text-emerald-500" />}
-            {sortBy === 'amount_low' && <ArrowDownAZ size={12} className="text-rose-500" />}
-            {sortBy.replace('_', ' ')}
+            {sortBy === 'newest' && <Clock size={14} className="text-brand mr-1" />}
+            {sortBy === 'oldest' && <Clock size={14} className="text-text-secondary rotate-180 mr-1" />}
+            {sortBy === 'amount_high' && <ArrowUpAZ size={14} className="text-emerald-500 mr-1" />}
+            {sortBy === 'amount_low' && <ArrowDownAZ size={14} className="text-rose-500 mr-1" />}
+            Sort
           </button>
         </div>
       </section>

@@ -13,14 +13,21 @@ export class EscPosEncoder {
    * Initializes the printer (ESC @)
    */
   initialize() {
-    this.buffer.push(0x1b, 0x40); // Init
+    this.buffer.push(0x1b, 0x40); // ESC @ — Full printer reset
     this.buffer.push(0x1c, 0x2e); // Disable Chinese font mode (forces standard ASCII)
-    this.buffer.push(0x1b, 0x4d, 0x00); // Explicitly select Font A (12x24 crisp font)
-    this.buffer.push(0x1b, 0x74, 0x00); // Select standard PC437 codepage
+    this.buffer.push(0x1b, 0x4d, 0x00); // ESC M 0 — Select Font A (12×24, crispest)
+    this.buffer.push(0x1b, 0x74, 0x00); // ESC t 0 — PC437 codepage
 
-    // Force maximum darkness (ESC 7) - Common on generic thermal printers
-    this.buffer.push(0x1b, 0x37, 0x00, 0xff, 0x02);
-    
+    // ESC 7 — Set printing parameters for maximum darkness:
+    //   n1 = 0x0f (15) — dots per heating slice (higher = more heat per stroke)
+    //   n2 = 0xb4 (180) — heating time in 10µs units (was 0xff but some printers cap at 180)
+    //   n3 = 0x01 (1)   — heating interval (lower = shorter gap between strokes = darker)
+    this.buffer.push(0x1b, 0x37, 0x0f, 0xb4, 0x01);
+
+    // ESC ! — Select print mode: bit3=bold, bit4=double-height, bit5=double-width
+    // 0x08 = bold only. Catches printers that ignore ESC E but honour ESC !
+    this.buffer.push(0x1b, 0x21, 0x08);
+
     return this;
   }
 
@@ -162,89 +169,118 @@ export class EscPosEncoder {
   }
 
   /**
-   * Asynchronously loads and prints an image (must be run in a browser/Capacitor environment)
-   * Uses GS v 0 (Raster bit image)
-   * @param {string} url Image URL or Base64 data URI
-   * @param {number} maxWidth Maximum width in pixels (must be multiple of 8)
+   * Asynchronously loads and prints an image using ESC * (Bit Image Mode).
+   * ESC * is universally supported by all thermal printers.
+   * GS v 0 (raster) is EPSON-specific — most generic printers dump raw bytes as text,
+   * producing the "garbage on a long roll" issue.
+   *
+   * @param {string} url  Image URL or Base64 data URI
+   * @param {number} maxWidth  Max width in pixels (will be rounded down to multiple of 8)
+   * @param {number} maxHeight Max height in pixels — caps logo size to avoid wasting paper
    */
-  async image(url, maxWidth = 384) {
+  async image(url, maxWidth = 384, maxHeight = 120) {
     if (typeof window === 'undefined' || typeof document === 'undefined') return this;
-    
+
     return new Promise((resolve) => {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
+
       img.onload = () => {
         try {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          
+
           let width = img.width;
           let height = img.height;
-          
+
+          // Scale down to fit maxWidth
           if (width > maxWidth) {
             height = Math.round((maxWidth / width) * height);
             width = maxWidth;
           }
-          width = Math.floor(width / 8) * 8; // Ensure multiple of 8
-          
+
+          // Cap height to prevent a high-res logo from wasting half a roll
+          if (height > maxHeight) {
+            width = Math.round((maxHeight / height) * width);
+            height = maxHeight;
+          }
+
+          // Width must be a multiple of 8 for ESC * column encoding
+          width = Math.floor(width / 8) * 8;
+          if (width < 8) { resolve(this); return; }
+
           canvas.width = width;
           canvas.height = height;
-          
+
           ctx.fillStyle = 'white';
           ctx.fillRect(0, 0, width, height);
           ctx.drawImage(img, 0, 0, width, height);
-          
+
           const imageData = ctx.getImageData(0, 0, width, height).data;
-          
-          const xL = (width / 8) % 256;
-          const xH = Math.floor((width / 8) / 256);
-          const yL = height % 256;
-          const yH = Math.floor(height / 256);
-          
-          // GS v 0 (Raster format)
-          this.buffer.push(0x1d, 0x76, 0x30, 0x00, xL, xH, yL, yH);
-          
-          let byte = 0;
-          let bitCount = 0;
-          
-          for (let y = 0; y < height; y++) {
+
+          // ── ESC * (Bit Image Mode) ──────────────────────────────────────
+          // Prints the image as 8-dot-tall horizontal strips, column by column.
+          // Command: ESC * m nL nH [data]
+          //   m  = 0  → 8-dot single-density (most compatible)
+          //   nL = width % 256  (number of columns, low byte)
+          //   nH = width / 256  (number of columns, high byte)
+          //   data = one byte per column per strip; bit7=top dot, bit0=bottom dot
+          //
+          // Before each strip: ESC 3 n — set line spacing to n/180" so strips
+          // are tight (no gap between rows of the image).
+          // After image: ESC 2 — restore default line spacing.
+          // ────────────────────────────────────────────────────────────────
+
+          const nL = width % 256;
+          const nH = Math.floor(width / 256);
+
+          // Set line spacing to exactly 8 dots so LF advances by one strip height
+          this.buffer.push(0x1b, 0x33, 0x08); // ESC 3 8
+
+          for (let y = 0; y < height; y += 8) {
+            // Begin one 8-dot strip: ESC * 0 nL nH
+            this.buffer.push(0x1b, 0x2a, 0x00, nL, nH);
+
             for (let x = 0; x < width; x++) {
-              const idx = (y * width + x) * 4;
-              const r = imageData[idx];
-              const g = imageData[idx + 1];
-              const b = imageData[idx + 2];
-              const a = imageData[idx + 3];
-              
-              let isBlack = false;
-              if (a > 128) {
-                const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-                isBlack = luminance < 128;
+              let byte = 0;
+              for (let dot = 0; dot < 8; dot++) {
+                const py = y + dot;
+                if (py >= height) break;
+                const idx = (py * width + x) * 4;
+                const r = imageData[idx];
+                const g = imageData[idx + 1];
+                const b = imageData[idx + 2];
+                const a = imageData[idx + 3];
+                let isBlack = false;
+                if (a > 128) {
+                  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+                  isBlack = luminance < 128;
+                }
+                if (isBlack) {
+                  byte |= (0x80 >> dot); // bit7 = topmost dot in strip
+                }
               }
-              
-              if (isBlack) {
-                byte |= (1 << (7 - bitCount));
-              }
-              
-              bitCount++;
-              if (bitCount === 8) {
-                this.buffer.push(byte);
-                byte = 0;
-                bitCount = 0;
-              }
+              this.buffer.push(byte);
             }
+
+            this.buffer.push(0x0a); // LF — advance to next strip
           }
+
+          // Restore default line spacing (30/180" ≈ 4.2 mm)
+          this.buffer.push(0x1b, 0x32); // ESC 2
+
           resolve(this);
         } catch (e) {
-          console.error("ESC/POS Image parsing error:", e);
+          console.error('ESC/POS Image parsing error:', e);
           resolve(this);
         }
       };
-      
+
       img.onerror = () => {
-        console.error("ESC/POS Image load error");
-        resolve(this); 
+        console.error('ESC/POS Image load error for:', url?.substring(0, 60));
+        resolve(this);
       };
-      
+
       img.src = url;
     });
   }

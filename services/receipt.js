@@ -6,6 +6,33 @@ import { EscPosEncoder } from './esc-pos';
 import LanPrinter from './LanPrinter';
 
 /**
+ * Fetches an image URL using the stored auth token and returns a base64 data URI.
+ * This is required because `new Image()` cannot send Authorization headers,
+ * so loading a protected backend URL directly causes garbage bitmap output.
+ */
+const fetchLogoAsDataUri = async (url) => {
+  if (!url) return null;
+  // Already a data URI — use directly
+  if (url.startsWith('data:')) return url;
+  try {
+    const token = useAuthStore.getState().token;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await fetch(url, { headers });
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.warn('[receiptService] Logo fetch failed:', e);
+    return null;
+  }
+};
+
+/**
  * Receipt Service
  * Uses Capacitor Filesystem + Share for native PDF download (no Chrome popup).
  * Falls back to iframe-print for web/desktop environments.
@@ -146,14 +173,21 @@ const printViaLan = async (sale, t) => {
 
     if (showLogo && businessLogo) {
       try {
-        await encoder.image(businessLogo, paperWidth === '80mm' ? 384 : 256);
-        encoder.feed(1);
+        // Fetch logo as authenticated data URI to avoid sending garbage bytes
+        // when the backend URL requires an Authorization header.
+        const logoDataUri = await fetchLogoAsDataUri(businessLogo);
+        if (logoDataUri) {
+          await encoder.image(logoDataUri, paperWidth === '80mm' ? 384 : 256);
+          encoder.feed(1);
+        }
       } catch (err) {
         console.error("Failed to print logo", err);
       }
     }
 
-    encoder.size(2, 2).line(businessName?.toUpperCase() || 'INZEEDO POS').size(1, 1);
+    // size(1, 2) = double HEIGHT only, keeping full line width (46 chars on 80mm).
+    // size(2, 2) would halve the usable width to ~23 chars, causing long names to wrap.
+    encoder.size(1, 2).line(businessName?.toUpperCase() || 'INZEEDO POS').size(1, 1);
 
     if (businessAddress) encoder.line(businessAddress.toUpperCase());
     if (businessPhone) encoder.line(`TEL: ${businessPhone}`);

@@ -96,6 +96,7 @@ export default function SettingsPage() {
 
   const [mounted, setMounted] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
+  const [orgLogoUrl, setOrgLogoUrl] = useState(null);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [initialProfileTab, setInitialProfileTab] = useState('profile');
 
@@ -130,7 +131,10 @@ export default function SettingsPage() {
     if (user?.profile_image) {
       api.getImageUrl(user.profile_image).then(setProfileImageUrl);
     }
-  }, [user?.profile_image]);
+    if (user?.organization?.logo) {
+      api.getImageUrl(user.organization.logo).then(setOrgLogoUrl);
+    }
+  }, [user?.profile_image, user?.organization?.logo]);
 
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`;
 
@@ -175,12 +179,18 @@ export default function SettingsPage() {
 
         <div className="flex bg-surface-muted/30 p-2 rounded-[2rem] mx-1 gap-3 items-center justify-between border border-glass-border/30">
           <div className="flex items-center gap-3 ml-1">
-            <div className="p-3 rounded-2xl bg-brand/10 text-brand">
-              <Building2 size={20} strokeWidth={2.5} />
+            <div className="h-12 w-12 rounded-2xl bg-brand/10 text-brand flex items-center justify-center overflow-hidden shrink-0">
+              {orgLogoUrl ? (
+                <img src={orgLogoUrl} alt="Organization Logo" className="h-full w-full object-cover" />
+              ) : (
+                <Building2 size={20} strokeWidth={2.5} />
+              )}
             </div>
-            <div className="text-left">
-              <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60">Active Branch</p>
-              <p className="text-[14px] font-bold text-text-main">{selectedBranch?.name || 'Not Selected'}</p>
+            <div className="text-left overflow-hidden">
+              <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest opacity-60 truncate">
+                {user?.organization?.name || 'Active Branch'}
+              </p>
+              <p className="text-[14px] font-bold text-text-main truncate">{selectedBranch?.name || 'Not Selected'}</p>
             </div>
           </div>
           <button

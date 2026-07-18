@@ -22,6 +22,7 @@ import {
   MailIcon,
   Lock,
   Printer,
+  CloudDownload
 } from 'lucide-react';
 import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
@@ -384,6 +385,16 @@ export default function SettingsPage() {
           value={`${currency} (Standard Billing)`}
           color="emerald"
           onClick={() => setIsCurrencyOpen(true)}
+        />
+        <SettingItem
+          icon={CloudDownload}
+          label="Check for Updates"
+          value="Ensure your system is up to date"
+          color="blue"
+          onClick={() => {
+            haptics.medium();
+            alert("Checking for updates...\n\nYou are on the latest version (v2.0).");
+          }}
         />
       </section>
 

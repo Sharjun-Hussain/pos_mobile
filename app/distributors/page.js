@@ -21,7 +21,7 @@ import { Drawer } from 'vaul';
 
 const DistributorRow = ({ distributor, onClick }) => {
   return (
-    <div 
+    <div
       onClick={() => { haptics.light(); onClick(distributor); }}
       className="flex items-center justify-between py-3 border-b border-glass-border/30 px-1 active:bg-brand/5 transition-colors cursor-pointer"
     >
@@ -50,13 +50,13 @@ const DistributorRow = ({ distributor, onClick }) => {
 export default function DistributorsPage() {
   const { openDrawer } = useUIStore();
   const { data: distributorsData, isLoading, error, mutate } = useFetch('/distributors?size=5000');
-  
+
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Drawer states
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState('add'); // 'add', 'view', 'edit'
-  
+
   const [currentDistributor, setCurrentDistributor] = useState({ name: '', phone: '', region: '', address: '' });
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -104,7 +104,7 @@ export default function DistributorsPage() {
   const handleDelete = async () => {
     if (!currentDistributor.id) return;
     if (!window.confirm('Are you sure you want to delete this distributor?')) return;
-    
+
     setIsDeleting(true);
     haptics.medium();
     try {
@@ -119,7 +119,7 @@ export default function DistributorsPage() {
     }
   };
 
-  const filteredDistributors = Array.isArray(distributors) ? distributors.filter(d => 
+  const filteredDistributors = Array.isArray(distributors) ? distributors.filter(d =>
     d.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     d.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     d.region?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -208,7 +208,7 @@ export default function DistributorsPage() {
           <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md z-[300]" />
           <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-surface rounded-t-[2.5rem] flex flex-col z-[301] shadow-2xl safe-area-inset-bottom outline-none max-h-[90dvh] pb-[calc(var(--sab)+2rem)]">
             <div className="mx-auto w-14 h-1.5 flex-shrink-0 rounded-full bg-text-secondary/20 mt-4 mb-2" />
-            
+
             <div className="flex flex-col overflow-y-auto no-scrollbar p-6">
               <div className="flex items-center justify-between mb-8">
                 <div>
@@ -264,44 +264,44 @@ export default function DistributorsPage() {
               ) : (
                 <>
                   <div className="flex flex-col gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Distributor Name*</label>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Distributor Name*</label>
                       <input
                         type="text"
                         placeholder="Enter name"
                         value={currentDistributor.name}
                         onChange={(e) => setCurrentDistributor({ ...currentDistributor, name: e.target.value })}
-                        className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl px-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40"
+                        className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Phone Number</label>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Phone Number</label>
                       <input
                         type="tel"
                         placeholder="07x xxxx xxx"
                         value={currentDistributor.phone}
                         onChange={(e) => setCurrentDistributor({ ...currentDistributor, phone: e.target.value })}
-                        className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl px-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40"
+                        className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Region</label>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Region</label>
                       <input
                         type="text"
                         placeholder="E.g., Colombo"
                         value={currentDistributor.region}
                         onChange={(e) => setCurrentDistributor({ ...currentDistributor, region: e.target.value })}
-                        className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl px-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40"
+                        className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Address</label>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Address</label>
                       <input
                         type="text"
                         placeholder="Enter full address"
                         value={currentDistributor.address}
                         onChange={(e) => setCurrentDistributor({ ...currentDistributor, address: e.target.value })}
-                        className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl px-4 text-[13px] font-bold text-text-main outline-none focus:border-brand/40"
+                        className="w-full h-14 bg-surface-muted border border-glass-border/30 rounded-2xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/5 transition-all"
                       />
                     </div>
                   </div>
@@ -309,13 +309,13 @@ export default function DistributorsPage() {
                   <button
                     onClick={handleSave}
                     disabled={!currentDistributor.name || isSaving}
-                    className="w-full h-12 bg-brand text-white rounded-2xl text-[13px] font-black mt-8 shadow-lg shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                    className="w-full h-14 bg-brand text-white rounded-2xl font-bold mt-8 shadow-xl shadow-brand/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-70"
                   >
                     {isSaving ? (
-                      <RefreshCcw size={18} className="animate-spin" />
+                      <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
                       <>
-                        <CheckCircle2 size={18} strokeWidth={3} />
+                        <CheckCircle2 size={18} strokeWidth={2.5} />
                         <span>{drawerMode === 'add' ? 'Register Distributor' : 'Save Changes'}</span>
                       </>
                     )}

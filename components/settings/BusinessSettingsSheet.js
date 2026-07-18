@@ -89,7 +89,7 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
             <div className="flex items-center justify-between px-8 pt-4 mb-5">
               <div>
                 <h2 className="text-xl font-bold text-text-main leading-none">Business Profile</h2>
-                <p className="text-[10px] font-bold text-text-secondary opacity-40 mt-1.5 uppercase tracking-widest">Global Organization Details</p>
+                <p className="text-sm font-semibold text-text-secondary opacity-70 mt-1.5">Global Organization Details</p>
               </div>
               <button onClick={onClose} className="h-11 w-11 bg-surface-muted rounded-2xl flex items-center justify-center text-text-secondary active:scale-90 transition-transform">
                 <X size={20} />
@@ -106,7 +106,7 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
               ) : (
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Registered Name</label>
+                    <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Registered Name</label>
                     <div className="relative">
                       <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={18} />
                       <input
@@ -119,7 +119,7 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Contact Email</label>
+                    <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Contact Email</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={18} />
                       <input
@@ -132,7 +132,7 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Phone Number</label>
+                    <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Phone Number</label>
                     <div className="relative">
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={18} />
                       <input
@@ -145,7 +145,7 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Tax / VAT Number</label>
+                    <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Tax / VAT Number</label>
                     <div className="relative">
                       <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={18} />
                       <input
@@ -158,7 +158,7 @@ export const BusinessSettingsSheet = memo(({ isOpen, onClose }) => {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Physical Address</label>
+                    <label className="text-sm font-semibold text-text-secondary pl-1 opacity-70">Physical Address</label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-4 text-text-secondary opacity-40" size={18} />
                       <textarea

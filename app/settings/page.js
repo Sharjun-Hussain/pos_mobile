@@ -372,13 +372,6 @@ export default function SettingsPage() {
           onClick={() => setIsBusinessSettingsOpen(true)}
         />
         <SettingItem
-          icon={Database}
-          label={t('settings.identityBase')}
-          value="System Data Control"
-          color="blue"
-          onClick={() => { }}
-        />
-        <SettingItem
           icon={Globe}
           label="Interface Language"
           value={language === 'en' ? 'English (Global)' : language === 'si' ? 'Sinhala (Local)' : 'Tamil (Local)'}

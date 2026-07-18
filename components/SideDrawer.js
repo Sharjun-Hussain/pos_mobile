@@ -123,7 +123,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                   </div>
                   <div className="flex flex-col justify-center">
                     <h2 className="text-base font-black text-text-main leading-tight">
-                      {user?.organization?.name || "Inzeedo"}
+                      Inzeedo ERP
                     </h2>
                     <span className="text-[11px] font-bold text-brand opacity-80 uppercase tracking-tight">
                       {selectedBranch?.name || 'Terminal'}

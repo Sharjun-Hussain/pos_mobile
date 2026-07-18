@@ -260,7 +260,7 @@ export default function SalesPage() {
           onBack={() => router.back()}
           branchName={selectedBranch?.name}
           productCount={filteredProducts.length}
-          title={isManufacturing ? 'New Dispatch' : undefined}
+          title={isManufacturing ? 'New Order' : undefined}
         />
 
         {!isManufacturing && (

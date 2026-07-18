@@ -381,3 +381,7 @@ Always provide:
 3. Technical decisions
 4. Security considerations
 5. Testing performed
+
+
+
+Another Important Rule is dont Default put Uppercase and tracking classes everywhere.  

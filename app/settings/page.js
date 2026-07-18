@@ -219,7 +219,7 @@ export default function SettingsPage() {
 
       {/* Global Preferences */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">{t('settings.preferences')}</p>
+        <p className="text-sm font-semibold text-text-secondary pl-4 opacity-70 mb-1">{t('settings.preferences')}</p>
         <SettingItem
           icon={MailIcon}
           label="Mail & Notifications"
@@ -266,7 +266,7 @@ export default function SettingsPage() {
 
       {/* POS Configuration */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">POS Configuration</p>
+        <p className="text-sm font-semibold text-text-secondary pl-4 opacity-70 mb-1">POS Configuration</p>
         <SettingItem
           icon={Smartphone}
           label={t('settings.terminalHost')}
@@ -302,6 +302,11 @@ export default function SettingsPage() {
           color="rose"
           onClick={() => setIsPosTaxesOpen(true)}
         />
+      </section>
+
+      {/* Shift Management */}
+      <section className="flex flex-col gap-3">
+        <p className="text-sm font-semibold text-text-secondary pl-4 opacity-70 mb-1">Shift Management</p>
         <SettingItem
           icon={Calculator}
           label="Shift Protocol"
@@ -322,7 +327,7 @@ export default function SettingsPage() {
 
       {/* Technical Configuration */}
       <section className="flex flex-col gap-3">
-        <p className="text-[10px] font-black text-text-secondary pl-4 opacity-50 mb-1 uppercase tracking-widest">{t('settings.technical')}</p>
+        <p className="text-sm font-semibold text-text-secondary pl-4 opacity-70 mb-1">{t('settings.technical')}</p>
         <SettingItem
           icon={Building2}
           label="Business Profile"

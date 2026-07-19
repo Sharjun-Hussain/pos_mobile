@@ -204,6 +204,22 @@ export const api = {
     },
     getById: (id) => api.get(`/sales/${id}`),
     create: (data) => api.post('/sales', data),
+    /**
+     * Download the server-generated PDF for a sale as an ArrayBuffer.
+     * Uses raw fetch so we get binary bytes, not JSON.
+     */
+    getPdfBuffer: async (saleId) => {
+      const token = useAuthStore.getState().token || await storage.get('auth_token');
+      const customUrl = await storage.get('custom_api_url');
+      const baseUrl = customUrl || API_BASE_URL;
+      const url = `${baseUrl}/sales/invoice/${saleId}/pdf`;
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!resp.ok) throw new Error(`PDF generation failed: ${resp.status}`);
+      return resp.arrayBuffer();
+    },
     returns: {
       create: (data) => api.post('/sales/returns', data),
       getAll: (params = {}) => {

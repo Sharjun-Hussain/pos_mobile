@@ -71,15 +71,15 @@ const generateAndSharePdf = async (htmlContent, filename = 'invoice.pdf', isA4 =
         ? {
           margin: [8, 8, 8, 8],
           filename,
-          image: { type: 'jpeg', quality: 0.95 },
-          html2canvas: { scale: 2, useCORS: true, logging: false },
+          image: { type: 'jpeg', quality: 0.85 },
+          html2canvas: { scale: 1, useCORS: true, logging: false },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         }
         : {
           margin: [4, 4, 4, 4],
           filename,
-          image: { type: 'jpeg', quality: 0.90 },
-          html2canvas: { scale: 2, useCORS: true, logging: false },
+          image: { type: 'jpeg', quality: 0.85 },
+          html2canvas: { scale: 1, useCORS: true, logging: false },
           jsPDF: { unit: 'mm', format: [80, 200], orientation: 'portrait' },
         };
 
@@ -389,26 +389,102 @@ const printViaLan = async (sale, t) => {
 };
 
 export const receiptService = {
-  print: async (sale, t, actionType = 'download') => {
+  print: async (sale, t, actionType = 'download', forceLayout = null) => {
     if (!sale) return;
 
     const { paperWidth } = useSettingsStore.getState();
-    const isA4Layout = paperWidth === 'A4';
+    const effectiveLayout = forceLayout || paperWidth;
 
+    // ─── LAN Thermal Print (non-A4 only) ──────────────────────────────────────
     try {
       const { Capacitor } = await import('@capacitor/core');
-      const user = useAuthStore.getState().user;
-      const isManufacturing = (user?.organization?.business_type || '').toLowerCase() === 'manufacturing' || (user?.organization?.business_type || '').toLowerCase() === 'manufacturer';
-
-      // NEVER send A4 layout to thermal printer
-      if (!isA4Layout && Capacitor.isNativePlatform()) {
+      if (effectiveLayout !== 'A4' && Capacitor.isNativePlatform()) {
         const lanSuccess = await printViaLan(sale, t);
         if (lanSuccess) return;
       }
-    } catch (e) {
-      // Ignore if Capacitor is missing
+    } catch (e) { /* ignore */ }
+
+    // ─── A4: SERVER-SIDE PDF (fast, professional) ─────────────────────────────
+    if (effectiveLayout === 'A4') {
+      const invoiceFilename = `Invoice-${sale.invoice_number || 'draft'}.pdf`;
+      try {
+        const { Capacitor } = await import('@capacitor/core');
+        const { api } = await import('./api');
+
+        if (Capacitor.isNativePlatform()) {
+          const { Filesystem, Directory } = await import('@capacitor/filesystem');
+          // Fetch from server — ~100-400ms vs 3-6 seconds with html2pdf
+          const arrayBuffer = await api.sales.getPdfBuffer(sale.id);
+          const base64Data = await new Promise((resolve, reject) => {
+            const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+
+          const targetDir = actionType === 'download' ? Directory.Documents : Directory.Cache;
+          const writeResult = await Filesystem.writeFile({
+            path: invoiceFilename,
+            data: base64Data,
+            directory: targetDir,
+            recursive: true,
+          });
+
+          if (actionType === 'download') {
+            try {
+              const { LocalNotifications } = await import('@capacitor/local-notifications');
+              const { FileOpener } = await import('@capacitor-community/file-opener');
+              await LocalNotifications.requestPermissions();
+              if (!window._fileOpenerListenerAdded) {
+                LocalNotifications.addListener('localNotificationActionPerformed', (a) => {
+                  const uri = a.notification.extra?.fileUri;
+                  if (uri) FileOpener.open({ filePath: uri, contentType: 'application/pdf' }).catch(() => {});
+                });
+                window._fileOpenerListenerAdded = true;
+              }
+              await LocalNotifications.schedule({
+                notifications: [{
+                  title: 'Invoice Downloaded',
+                  body: `Tap to open ${invoiceFilename}`,
+                  id: Math.floor(Math.random() * 100000) + 1,
+                  schedule: { at: new Date(Date.now() + 500) },
+                  extra: { fileUri: writeResult.uri }
+                }]
+              });
+            } catch (e) {
+              const { Toast } = await import('@capacitor/toast');
+              await Toast.show({ text: `Saved: ${invoiceFilename}`, duration: 'long' });
+            }
+          } else {
+            const { Share } = await import('@capacitor/share');
+            await Share.share({
+              title: invoiceFilename.replace('.pdf', ''),
+              text: 'Invoice document',
+              url: writeResult.uri,
+              dialogTitle: 'Share Invoice (WhatsApp, Email, Save…)',
+            });
+          }
+          return;
+        }
+
+        // Web browser fallback — trigger download via anchor
+        const ab = await api.sales.getPdfBuffer(sale.id);
+        const blob = new Blob([ab], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = invoiceFilename;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return;
+      } catch (err) {
+        console.error('[receiptService] Server PDF failed:', err);
+      }
+      return;
     }
 
+    // ─── Thermal Receipt (80mm / 58mm) ────────────────────────────────────────
     const translate = t || ((key) => {
       const parts = key.split('.');
       const label = parts[parts.length - 1];
@@ -416,267 +492,38 @@ export const receiptService = {
     });
 
     const {
-      showLogo,
-      businessLogo,
-      businessName,
-      taxId,
-      headerText,
-      showFooterText,
-      footerText,
-      showRefundPolicy,
-      refundPolicy,
-      terminalName,
-      businessPhone,
-      businessEmail,
-      businessAddress
+      showLogo, businessLogo, businessName, taxId, headerText,
+      showFooterText, footerText, showRefundPolicy, refundPolicy,
+      terminalName, businessPhone, businessEmail, businessAddress
     } = useSettingsStore.getState();
 
     const formatDate = (dateStr) => {
       try {
-        const date = new Date(dateStr || new Date());
-        return date.toLocaleString('en-GB', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
+        return new Date(dateStr || new Date()).toLocaleString('en-GB', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false
         }).replace(',', '');
-      } catch (e) {
-        return dateStr;
-      }
+      } catch (e) { return dateStr; }
     };
 
     const qrData = JSON.stringify({
-      invoice: sale.invoice_number || "Draft",
+      invoice: sale.invoice_number || 'Draft',
       date: sale.created_at ? sale.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
       total: (sale.payable_amount || 0).toString()
     });
-
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
 
-    const user = useAuthStore.getState().user;
-    const isManufacturing =
-      (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' ||
-      (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
-
-    // ─── A4 Invoice for A4 Setting ────────────────────────────────────────
-    if (paperWidth === 'A4') {
-      const items = (sale.items || sale.sale_items || []);
-      const itemRows = items.map((item, idx) => `
-        <tr style="border-bottom:1px solid #ffffff;">
-          <td style="color:#666666;font-weight:600;padding:13px 14px;font-size:12px;">${idx + 1}</td>
-          <td style="padding:13px 14px;">
-            <div style="font-size:13px;font-weight:600;color:#000000;">${item.product_name || item.product?.name || item.name || 'Item'}</div>
-          </td>
-          <td style="padding:13px 14px;color:#000000;font-size:12px;font-weight:500;">
-            ${item.variant?.name || item.product_variant?.name || item.variant_name || '-'}
-          </td>
-          <td style="text-align:center;font-weight:700;color:#000000;padding:13px 14px;font-size:13px;">${Number(item.quantity)}</td>
-          <td style="text-align:right;color:#000000;padding:13px 14px;font-size:13px;font-weight:500;">${parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-          <td style="text-align:right;font-weight:700;color:#000000;padding:13px 14px;font-size:13px;">${parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-        </tr>
-      `).join('');
-
-      const discountRow = parseFloat(sale.discount_amount) > 0
-        ? `<div style="display:flex;justify-content:space-between;margin-bottom:10px;color:#000000;"><span>Discount</span><span style="font-weight:600;">- ${parseFloat(sale.discount_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : '';
-      const taxRow = parseFloat(sale.tax_amount) > 0
-        ? `<div style="display:flex;justify-content:space-between;margin-bottom:10px;color:#000000;"><span>VAT / Tax</span><span style="font-weight:600;">${parseFloat(sale.tax_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : '';
-      const adjRow = parseFloat(sale.adjustment || 0) !== 0
-        ? `<div style="display:flex;justify-content:space-between;margin-bottom:10px;color:#000000;"><span>Adjustment</span><span style="font-weight:600;">${parseFloat(sale.adjustment).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : '';
-      const changeRow = parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount)
-        ? `<div style="display:flex;justify-content:space-between;color:#000000;font-weight:800;margin-top:4px;"><span>Change Due</span><span>${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : '';
-
-      const dist = sale.distributor || sale.customer;
-      const distributorBlock = dist
-        ? `<p style="margin:0;font-size:15px;font-weight:900;color:#000000;">${dist.name}</p>
-           ${dist.company_name ? `<p style="margin:4px 0 0;font-size:13px;font-weight:600;color:#000000;">${dist.company_name}</p>` : ''}
-           ${dist.phone ? `<p style="margin:4px 0 0;font-size:12.5px;color:#000000;">Tel: ${dist.phone}</p>` : ''}
-           ${dist.email ? `<p style="margin:4px 0 0;font-size:12.5px;color:#000000;">Email: ${dist.email}</p>` : ''}
-           ${dist.address ? `<p style="margin:4px 0 0;font-size:12.5px;color:#000000;">${dist.address}</p>` : ''}`
-        : `<p style="margin:0;font-weight:600;color:#666666;">Walk-in / No Distributor Selected</p>`;
-
-      const invoiceDate = sale.created_at
-        ? new Date(sale.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
-        : new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-      const invoiceTime = sale.created_at
-        ? new Date(sale.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true })
-        : '';
-      const companyAddress = sale.branch?.address || businessAddress || user?.organization?.address || '';
-      const companyPhone = sale.branch?.phone || user?.organization?.phone || businessPhone || '';
-      const companyEmail = sale.branch?.email || user?.organization?.email || businessEmail || '';
-
-      const html = `
-  <style>
-    :root { color-scheme: light only; }
-    @page { size: A4; margin: 8mm; }
-    .invoice-body * { box-sizing: border-box; margin: 0; padding: 0; color: #000 !important; }
-    .invoice-body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; color: #000000; background: #fff; line-height: 1.5; }
-    .invoice-body .save-bar { position: sticky; top: 0; background: #000000; padding: 11px 24px; display: flex; align-items: center; justify-content: space-between; z-index: 100; }
-    .invoice-body .save-btn { background: #000000; color: #fff; font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 13px; border: none; padding: 9px 22px; border-radius: 7px; cursor: pointer; letter-spacing: 0.3px; }
-    .invoice-body .save-hint { color: #ffffff; font-size: 12px; font-weight: 500; }
-    .invoice-body .wrap { padding: 0; box-sizing: border-box; min-height: 270mm; display: flex; flex-direction: column; }
-    .invoice-body .label { font-size: 10px; font-weight: 700; color: #000;  letter-spacing: 1.2px; }
-    .invoice-body .value { font-size: 13px; font-weight: 500; color: #000; margin-top: 2px; }
-    @media print {
-      .save-bar { display: none; }
-      .invoice-body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
-  </style>
-  <div class="invoice-body">
-    <div class="save-bar no-print">
-      <span style="color:#fff;font-weight:700;font-size:14px;text-transform:uppercase;">Invoice / ${sale.invoice_number || 'DRAFT'}</span>
-      <div style="display:flex;align-items:center;gap:14px;">
-        <span class="save-hint">Change destination to <strong>Save as PDF</strong></span>
-        <button class="save-btn" onclick="window.print()">DOWNLOAD PDF</button>
-      </div>
-    </div>
-
-    <div class="wrap">
-      <!-- Header -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:2px solid #000;margin-bottom:24px;">
-        <div>
-          ${businessLogo ? `<img src="${businessLogo}" style="height:48px;object-fit:contain;margin-bottom:12px;display:block;filter:grayscale(100%);" />` : ''}
-          <div style="font-size:24px;font-weight:900;color:#000 !important;letter-spacing:-0.5px;text-transform:uppercase;">${businessName || 'Inzeedo Manufacturing'}</div>
-          ${companyAddress ? `<div style="margin-top:8px;font-size:12px;color:#000 !important;font-weight:500;">${companyAddress}</div>` : ''}
-          ${companyPhone ? `<div style="margin-top:4px;font-size:12px;color:#000 !important;font-weight:600;">Tel: ${companyPhone}</div>` : ''}
-          ${companyEmail ? `<div style="margin-top:2px;font-size:12px;color:#000 !important;font-weight:600;">Email: ${companyEmail}</div>` : ''}
-          ${taxId ? `<div style="margin-top:2px;font-size:12px;color:#000 !important;font-weight:700;">VAT/TIN: ${taxId}</div>` : ''}
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:32px;font-weight:900;color:#000 !important;text-transform:uppercase;border-bottom:2px solid #000;display:inline-block;padding-bottom:4px;margin-bottom:12px;">INVOICE</div>
-          <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:8px;">
-            <span style="font-weight:700;color:#000;">INV NO:</span>
-            <span style="font-weight:400;color:#000;">${sale.invoice_number || 'DRAFT'}</span>
-          </div>
-          <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:4px;">
-            <span style="font-weight:700;color:#000;">DATE:</span>
-            <span style="font-weight:400;color:#000;">${invoiceDate}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Distributor -->
-      <div style="margin-bottom:24px;">
-        <div style="font-size:10px;font-weight:900;color:#fff !important;background:#000 !important;text-transform:uppercase;letter-spacing:1px;padding:6px 12px;border-radius:4px;margin-bottom:12px;display:inline-block;">Billed To</div>
-        ${sale.customer ? `
-        <div>
-          <div style="font-size:16px;font-weight:900;color:#000;">${sale.customer.name}</div>
-          ${sale.customer.phone ? `<div style="font-size:12px;font-weight:700;color:#000;margin-top:4px;">P: ${sale.customer.phone}</div>` : ''}
-          ${sale.customer.email ? `<div style="font-size:12px;font-weight:700;color:#000;margin-top:2px;">E: ${sale.customer.email}</div>` : ''}
-          ${sale.customer.address ? `<div style="margin-top:6px;font-size:12px;color:#000 !important;font-weight:500;max-width:300px;">${sale.customer.address}</div>` : ''}
-        </div>` : '<div style="font-size:14px;font-weight:700;color:#666;">Walk-in / No Distributor Selected</div>'}
-      </div>
-
-      <!-- Items Table -->
-      <div style="margin-bottom:24px;">
-        <table style="width:100%;border-collapse:collapse;">
-          <thead>
-            <tr style="background:#000 !important;">
-              <th style="padding:12px;text-align:left !important;font-size:10px;font-weight:900;color:#fff !important;text-transform:uppercase;width:5%;">#</th>
-              <th style="padding:12px;text-align:left !important;font-size:10px;font-weight:900;color:#fff !important;text-transform:uppercase;width:45%;">Item Description</th>
-              <th style="padding:12px;text-align:center !important;font-size:10px;font-weight:900;color:#fff !important;text-transform:uppercase;width:15%;">Qty</th>
-              <th style="padding:12px;text-align:right !important;font-size:10px;font-weight:900;color:#fff !important;text-transform:uppercase;width:17.5%;">Unit Price</th>
-              <th style="padding:12px;text-align:right !important;font-size:10px;font-weight:900;color:#fff !important;text-transform:uppercase;width:17.5%;">Total</th>
-            </tr>
-          </thead>
-          <tbody style="border-bottom:2px solid #000;">
-            ${(sale.items || sale.sale_items || []).map((item, idx) => `
-              <tr>
-                <td style="padding:12px;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;text-align:left;">${idx + 1}</td>
-                <td style="padding:12px;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;text-align:left;">${item.product_name || item.product?.name || item.name || 'Item'}</td>
-                <td style="padding:12px;text-align:center;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;">${Number(item.quantity)}</td>
-                <td style="padding:12px;text-align:right;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;">${parseFloat(item.unit_price || item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                <td style="padding:12px;text-align:right;font-weight:400;font-size:12px;border-bottom:1px solid #e5e5e5;">${parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Totals & QR -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:32px;">
-        <div style="text-align:center;">
-          <!-- <div style="border:2px solid #000;padding:8px;display:inline-block;margin-bottom:8px;">
-            <img src="${qrUrl}" style="width:100px;height:100px;display:block;" />
-          </div>
-          <div style="font-size:10px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:1px;max-width:140px;line-height:1.4;">Scan to Verify Authenticity</div> -->
-        </div>
-        
-        <div style="flex:1;max-width:400px;">
-          <div style="margin-bottom:16px;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;">
-              <span style="font-weight:700;">Subtotal</span>
-              <span style="font-weight:700;">${parseFloat(sale.total_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-            </div>
-            ${parseFloat(sale.discount_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">Discount</span><span style="font-weight:700;">- ${parseFloat(sale.discount_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : ''}
-            ${parseFloat(sale.tax_amount) > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">VAT / Tax</span><span style="font-weight:700;">${parseFloat(sale.tax_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : ''}
-            ${parseFloat(sale.adjustment || 0) !== 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:13px;color:#000;"><span style="font-weight:700;">Adjustment</span><span style="font-weight:700;">${parseFloat(sale.adjustment).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></div>` : ''}
-          </div>
-          
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#000 !important;padding:16px;margin-top:16px;margin-bottom:24px;border-radius:4px;">
-            <span style="font-size:20px;font-weight:900;text-transform:uppercase;color:#fff !important;">Total Payable</span>
-            <span style="font-size:20px;font-weight:900;color:#fff !important;">${parseFloat(sale.payable_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-          </div>
-
-          <div style="border:2px solid #000;padding:16px;">
-            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:8px;">
-              <span>Amount Paid (${sale.payments?.[0]?.payment_method || sale.payment_method || 'CASH'})</span>
-              <span>${parseFloat(sale.paid_amount || sale.payable_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-            </div>
-            ${parseFloat(sale.paid_amount) > parseFloat(sale.payable_amount) ? `
-              <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;text-transform:uppercase;border-top:1px dashed #000;padding-top:8px;">
-                <span>Change Due</span>
-                <span>${(parseFloat(sale.paid_amount) - parseFloat(sale.payable_amount)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div style="margin-top:48px;padding-top:24px;">
-        <div style="border-top:2px solid #000;display:flex;justify-content:space-between;align-items:flex-end;padding-top:24px;">
-          <div style="max-width:60%;">
-            ${refundPolicy ? `
-              <div style="margin-bottom:16px;">
-                <strong style="font-size:10px;font-weight:700;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:8px;display:inline-block;">Terms &amp; Conditions</strong>
-                <p style="font-size:10px;font-weight:500;line-height:1.6;margin-top:4px;">${refundPolicy}</p>
-              </div>
-            ` : ''}
-            ${footerText ? `<p style="font-size:10px;font-weight:500;margin:0;">${footerText}</p>` : `<p style="font-size:16px;font-weight:900;text-transform:uppercase;margin:0;letter-spacing:-0.5px;">Thank you for your business.</p>`}
-          </div>
-          <div style="text-align:right;">
-            <div style="width:180px;border-top:1px solid #000;margin-bottom:8px;margin-left:auto;"></div>
-            <div style="font-size:10px;font-weight:500;">Authorized Signature</div>
-          </div>
-        </div>
-      </div>
-      
-      <div style="position:fixed;bottom:0;left:0;right:0;background:#fff;text-align:center;padding-top:16px;padding-bottom:16px;font-size:9px;font-weight:700;color:#666;text-transform:uppercase;width:100%;">
-        Generated by Inzeedo ERP System &bull; 2026
-      </div>
-    </div>
-  </div>`;
-
-      const invoiceFilename = `Invoice-${sale.invoice_number || 'draft'}.pdf`;
-      await generateAndSharePdf(html, invoiceFilename, true, actionType);
-      return;
-    }
-
-    // ─── Thermal Receipt for Retail/Wholesale ────────────────────────────────
     const width = paperWidth === '58mm' ? '58mm' : '80mm';
 
     const receiptHtml = `
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
           @page { size: ${width} auto; margin: 0; }
-          .invoice-body { 
-            width: ${width}; 
-            margin: 0; 
-            padding: 8mm 4mm; 
-            font-family: 'Inter', 'Courier New', Courier, monospace; 
-            font-size: 11px; 
+          .invoice-body {
+            width: ${width};
+            margin: 0;
+            padding: 8mm 4mm;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
             line-height: 1.2;
             color: #000;
             background: #fff;
@@ -684,128 +531,66 @@ export const receiptService = {
           .invoice-body .center { text-align: center; }
           .invoice-body .right { text-align: right; }
           .invoice-body .bold { font-weight: bold; }
-          .invoice-body .black { font-weight: 900; }
           .invoice-body .divider { border-top: 1px dashed #000; margin: 4px 0; }
-          .invoice-body .thick-divider { border-top: 2px solid #000; margin: 6px 0; }
           .invoice-body .row { display: flex; justify-content: space-between; margin: 1px 0; }
-          .invoice-body .header { margin-bottom: 12px; }
-          .invoice-body .footer { margin-top: 15px; font-size: 9px; }
-          .invoice-body table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-          .invoice-body th { text-align: left; border-bottom: 1px solid #000; padding: 4px 0; font-size: 10px;  }
-          .invoice-body td { padding: 6px 0; vertical-align: top; border-bottom: 1px dashed #000; }
-          .invoice-body .item-name { font-weight: bold; font-size: 11px; }
-          .invoice-body .item-variant { font-size: 9px; display: block; margin-top: 1px; }
-          .invoice-body .grand-total { font-size: 14px; font-weight: 900; padding-top: 4px; margin-top: 4px; border-top: 2px solid #000; }
-          .invoice-body .qr-container { margin: 15px 0; text-align: center; }
-          .invoice-body .qr-image { width: 80px; height: 80px; }
-          .invoice-body .sale-type { font-weight: bold; font-size: 10px; margin: 4px 0; border-bottom: 1px dashed #000; padding-bottom: 4px; padding-top: 4px; }
-          @media print { .invoice-body { padding: 4mm; } .invoice-body .no-print { display: none; } }
+          .invoice-body table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+          .invoice-body th { text-align: left; border-bottom: 1px solid #000; padding: 3px 0; font-size: 10px; }
+          .invoice-body td { padding: 5px 0; vertical-align: top; border-bottom: 1px dashed #000; }
+          .invoice-body .grand-total { font-size: 14px; font-weight: 900; border-top: 2px solid #000; padding-top: 4px; display: flex; justify-content: space-between; }
         </style>
         <div class="invoice-body">
-        <div class="center header">
-          ${showLogo && businessLogo ? `<img src="${businessLogo}" style="width: 60px; height: 60px; object-fit: contain; margin-bottom: 8px;" />` : ''}
-          <div class="bold" style="font-size: 18px; line-height: 1.1;">${businessName || 'Inzeedo POS'}</div>
-          <div style="opacity: 0.8; margin-top: 4px;">
-            <div>${sale.branch?.address || ''}</div>
-            <div>TEL: ${sale.branch?.phone || businessPhone || '+94 112 345 678'}</div>
-            ${taxId ? `<div>VAT/TIN: ${taxId}</div>` : ''}
-          </div>
-          ${headerText && headerText !== 'Sale Invoice' ? `<div class="bold" style="margin-top: 8px; border-top: 1px solid #000; padding-top: 4px;">${headerText}</div>` : ''}
-        </div>
-
-        <div class="divider"></div>
-        
-        <div class="row">
-          <span>INVOICE:</span>
-          <span class="bold">${sale.invoice_number || 'DRAFT'}</span>
-        </div>
-        <div class="row">
-          <span>DATE:</span>
-          <span>${formatDate(sale.created_at)}</span>
-        </div>
-        
-        <div class="center sale-type">
-          ${(sale.is_wholesale ? 'WHOLESALE' : 'RETAIL')} SALE
-        </div>
-
-        ${sale.customer ? `<div class="row"><span>CUSTOMER:</span><span>${sale.customer.name}</span></div>` : ''}
-        <div class="row"><span>USER:</span><span>${sale.cashier?.name || 'Staff User'}</span></div>
-        ${terminalName ? `<div class="row" style="opacity: 0.6; font-size: 9px;"><span>TERMINAL:</span><span>${terminalName}</span></div>` : ''}
-
-        <table>
-          <thead>
-            <tr class="header">
-              <th style="width: 50%;">${translate('pos.item_qty')}</th>
-              <th class="right" style="width: 25%;">${translate('pos.price_col')}</th>
-              <th class="right" style="width: 25%;">${translate('pos.amount_col')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${(sale.items || sale.sale_items || []).map(item => `
+          <div class="center bold" style="font-size:16px;">${businessName || 'Inzeedo POS'}</div>
+          ${businessAddress ? `<div class="center" style="font-size:10px;">${businessAddress}</div>` : ''}
+          ${businessPhone ? `<div class="center" style="font-size:10px;">Tel: ${businessPhone}</div>` : ''}
+          ${taxId ? `<div class="center" style="font-size:10px;">VAT/TIN: ${taxId}</div>` : ''}
+          <div class="divider"></div>
+          <div class="row"><span>INVOICE:</span><span class="bold">${sale.invoice_number || 'DRAFT'}</span></div>
+          <div class="row"><span>DATE:</span><span>${formatDate(sale.created_at)}</span></div>
+          ${sale.customer ? `<div class="row"><span>CUSTOMER:</span><span class="bold">${sale.customer.name}</span></div>` : ''}
+          <div class="row"><span>CASHIER:</span><span>${sale.cashier?.name || 'Staff'}</span></div>
+          <div class="divider"></div>
+          <table>
+            <thead>
               <tr>
-                <td style="width: 50%; min-width: 50%;">
-                  <div>
-                    <span class="item-name">${Number(item.quantity)} @ ${item.product_name || item.product?.name ||
-      item.product_variant?.product?.name || item.variant?.product?.name ||
-      item.name || 'Item'
-      }</span>
-                  </div>
-                  ${(item.variant?.name || item.product_variant?.name || item.variant_name || item.product_variant_name) ? `
-                    <div class="item-variant" style="padding-left: 12px; font-size: 9px;">- ${item.variant?.name || item.product_variant?.name || item.variant_name || item.product_variant_name}</div>
-                  ` : ''}
-                </td>
-                <td class="right" style="width: 25%;">${parseFloat(item.unit_price || item.price || 0).toLocaleString()}</td>
-                <td class="right bold" style="width: 25%;">${parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString()}</td>
+                <th style="width:50%;">${translate('pos.item_qty')}</th>
+                <th style="text-align:right;width:25%;">${translate('pos.price_col')}</th>
+                <th style="text-align:right;width:25%;">${translate('pos.amount_col')}</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
-
-        <div style="margin-top: 4px;">
-          <div class="row"><span>${translate('checkout.subtotal')}:</span><span>${parseFloat(sale.total_amount).toLocaleString()}</span></div>
-          ${parseFloat(sale.discount_amount) > 0 ? `<div class="row" style="color: #000000; font-size: 10px;"><span>${translate('checkout.discount')}:</span><span>- ${parseFloat(sale.discount_amount).toLocaleString()}</span></div>` : ''}
-          ${parseFloat(sale.tax_amount) > 0 ? `<div class="row"><span>${translate('checkout.vat')}:</span><span>${parseFloat(sale.tax_amount).toLocaleString()}</span></div>` : ''}
-          ${parseFloat(sale.adjustment || 0) !== 0 ? `<div class="row"><span>${translate('checkout.adjustment')}:</span><span>${parseFloat(sale.adjustment).toLocaleString()}</span></div>` : ''}
-          <div class="row grand-total"><span>${translate('pos.total')}:</span><span>${parseFloat(sale.payable_amount).toLocaleString()}</span></div>
-        </div>
-
-        <div style="margin-top: 8px; border-top: 1px dashed #000; padding-top: 4px;">
-          ${(sale.payments && sale.payments.length > 0) ? (() => {
-        let totalPaid = 0;
-        const pmtHtml = sale.payments.map(pmt => {
-          const amt = parseFloat(String(pmt.amount || 0).replace(/,/g, '')) || 0;
-          totalPaid += amt;
-          return `<div class="row" style="font-size: 11px;"><span class="">${pmt.payment_method} PAID:</span><span class="bold">${amt.toLocaleString()}</span></div>`;
-        }).join('');
-        const payableAmt = parseFloat(String(sale.payable_amount || 0).replace(/,/g, '')) || 0;
-        const changeHtml = totalPaid > payableAmt ? `<div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(totalPaid - payableAmt).toLocaleString()}</span></div>` : '';
-        return pmtHtml + changeHtml;
-      })() : (() => {
-        const paidAmt = parseFloat(String(sale.paid_amount || sale.payable_amount || 0).replace(/,/g, '')) || 0;
-        const payableAmt = parseFloat(String(sale.payable_amount || 0).replace(/,/g, '')) || 0;
-        const changeHtml = paidAmt > payableAmt ? `<div class="row" style="font-weight: bold;"><span>CHANGE:</span><span>${(paidAmt - payableAmt).toLocaleString()}</span></div>` : '';
-        return `<div class="row" style="font-size: 11px;"><span class="">${sale.payment_method || 'CASH'} PAID:</span><span class="bold">${paidAmt.toLocaleString()}</span></div>` + changeHtml;
-      })()}
-        </div>
-
-
-
-        <div class="footer center">
-          ${showRefundPolicy && refundPolicy ? `<div style="border-bottom: 1px dashed #ccc; padding-bottom: 4px; margin-bottom: 8px; font-size: 9px;"><span class="bold">REFUND/RETURN POLICY:</span><br/>${refundPolicy}</div>` : ''}
-          ${showFooterText && footerText ? `<div style="font-size: 10px; margin-bottom: 8px; white-space: pre-wrap;">${footerText}</div>` : (showFooterText ? '<div style="font-size: 10px; margin-bottom: 8px; font-weight: bold;">Thank you!</div>' : '')}
-          <div style="opacity: 0.5; margin-top: 12px; line-height: 1.1;">
-            <div class="bold" style="font-size: 8px;">A next-generation enterprise solution by Inzeedo</div>
-            <div style="font-size: 7px;">© 2026 Inzeedo. All rights reserved.</div>
+            </thead>
+            <tbody>
+              ${(sale.items || sale.sale_items || []).map(item => `
+                <tr>
+                  <td>
+                    <span class="bold">${Number(item.quantity)} @ ${item.product_name || item.product?.name || item.name || 'Item'}</span>
+                    ${(item.variant?.name || item.variant_name) ? `<div style="font-size:9px;padding-left:10px;">- ${item.variant?.name || item.variant_name}</div>` : ''}
+                  </td>
+                  <td style="text-align:right;">${parseFloat(item.unit_price || item.price || 0).toLocaleString()}</td>
+                  <td style="text-align:right;" class="bold">${parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="row" style="margin-top:4px;"><span>Subtotal:</span><span>${parseFloat(sale.total_amount || 0).toLocaleString()}</span></div>
+          ${parseFloat(sale.discount_amount) > 0 ? `<div class="row"><span>Discount:</span><span>- ${parseFloat(sale.discount_amount).toLocaleString()}</span></div>` : ''}
+          ${parseFloat(sale.tax_amount) > 0 ? `<div class="row"><span>Tax:</span><span>${parseFloat(sale.tax_amount).toLocaleString()}</span></div>` : ''}
+          <div class="grand-total"><span>TOTAL:</span><span>${parseFloat(sale.payable_amount || 0).toLocaleString()}</span></div>
+          <div style="margin-top:6px; border-top:1px dashed #000; padding-top:4px;">
+            ${(sale.payments && sale.payments.length > 0
+              ? sale.payments
+              : [{ payment_method: sale.payment_method || 'Cash', amount: sale.paid_amount || sale.payable_amount }]
+            ).map(p => `<div class="row"><span>${(p.payment_method || 'Cash').toUpperCase()} PAID:</span><span class="bold">${parseFloat(p.amount || 0).toLocaleString()}</span></div>`).join('')}
           </div>
-        </div>
-        </div>
+          ${showRefundPolicy && refundPolicy ? `<div class="center" style="margin-top:10px;font-size:9px;">${refundPolicy}</div>` : ''}
+          ${showFooterText && footerText ? `<div class="center bold" style="margin-top:8px;font-size:10px;">${footerText}</div>` : ''}
+          <div class="center" style="margin-top:10px;font-size:8px;opacity:0.5;">
+            <div>Powered by Inzeedo ERP</div>
+          </div>
         </div>
       `;
 
     const receiptFilename = `Receipt-${sale.invoice_number || 'draft'}.pdf`;
     await generateAndSharePdf(receiptHtml, receiptFilename, false, actionType);
   },
-
   /**
    * printDirect: Opens the OS native print dialog (Android PrintManager / iOS AirPrint).
    * Supports paired Bluetooth and USB printers automatically.

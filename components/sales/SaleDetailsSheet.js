@@ -72,7 +72,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
     haptics.medium();
     setIsDownloading(true);
     try {
-      await receiptService.print(sale, t, actionType);
+      await receiptService.print(sale, t, actionType, 'A4');
     } finally {
       setIsDownloading(false);
     }

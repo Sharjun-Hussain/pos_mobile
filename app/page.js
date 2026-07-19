@@ -48,6 +48,7 @@ const DashboardStats = memo(({ stats, loading, formatCurrency, t }) => (
         icon={FileText}
         gradient="from-blue-500 to-indigo-400"
         isLoading={loading}
+        onClick={() => router.push('/sales?filter=unpaid')}
       />
       <StatCard
         title="Low Stock"
@@ -136,7 +137,7 @@ InventoryAlerts.displayName = 'InventoryAlerts';
 
 // --- UI Primitives ---
 
-const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradient }) => {
+const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradient, onClick }) => {
   if (isLoading) {
     return (
       <div className="bg-surface p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 overflow-hidden relative border border-glass-border/20 shadow-sm">
@@ -156,7 +157,10 @@ const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradie
   const isUp = trendValue && trendValue.startsWith('+');
 
   return (
-    <div className="bg-surface p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 transition-transform active:scale-[0.97] border border-glass-border/30 shadow-sm">
+    <div 
+      onClick={() => { if (onClick) { haptics.light(); onClick(); } }}
+      className={`bg-surface p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 transition-transform border border-glass-border/30 shadow-sm ${onClick ? 'active:scale-[0.97] cursor-pointer' : ''}`}
+    >
       <div className="flex items-start justify-between">
         <div className={`p-2 rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md`}>
           <Icon size={18} />

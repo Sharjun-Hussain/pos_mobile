@@ -7,6 +7,8 @@ import {
   RotateCcw,
   AlertTriangle,
   PrinterCheck,
+  Share2,
+  Download
 } from 'lucide-react';
 import { Drawer } from 'vaul';
 import { haptics } from "@/services/haptics";
@@ -65,12 +67,12 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
     }
   }, [saleId]);
 
-  const handlePrint = useCallback(async () => {
+  const handlePrintAction = useCallback(async (actionType) => {
     if (!sale) return;
     haptics.medium();
     setIsDownloading(true);
     try {
-      await receiptService.print(sale, t);
+      await receiptService.print(sale, t, actionType);
     } finally {
       setIsDownloading(false);
     }
@@ -172,9 +174,9 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
             {(sale || (!loading && !error)) && (
               <div className="p-6 bg-surface/80 backdrop-blur-xl border-t border-glass-border/30 flex flex-col gap-3 pb-[calc(var(--sab)+2rem)]">
                 <div className="flex gap-3">
-                  {/* A4 Print */}
+                  {/* Share A4 */}
                   <button
-                    onClick={handlePrint}
+                    onClick={() => handlePrintAction('share')}
                     disabled={isDownloading || isPrinting}
                     className="flex-1 h-14 bg-surface-muted text-text-main border border-glass-border/80 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:active:scale-100 group"
                   >
@@ -182,12 +184,30 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                       <div className="h-5 w-5 border-2 border-brand/30 border-t-brand rounded-full animate-spin"></div>
                     ) : (
                       <>
-                        <Printer size={18} className="text-text-secondary group-hover:text-brand transition-colors" />
-                        <span className="text-sm font-bold tracking-wide">A4 Print</span>
+                        <Share2 size={18} className="text-text-secondary group-hover:text-brand transition-colors" />
+                        <span className="text-sm font-bold tracking-wide">Share A4</span>
                       </>
                     )}
                   </button>
 
+                  {/* Download A4 */}
+                  <button
+                    onClick={() => handlePrintAction('download')}
+                    disabled={isDownloading || isPrinting}
+                    className="flex-1 h-14 bg-surface-muted text-text-main border border-glass-border/80 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:active:scale-100 group"
+                  >
+                    {isDownloading ? (
+                      <div className="h-5 w-5 border-2 border-brand/30 border-t-brand rounded-full animate-spin"></div>
+                    ) : (
+                      <>
+                        <Download size={18} className="text-text-secondary group-hover:text-brand transition-colors" />
+                        <span className="text-sm font-bold tracking-wide">Save A4</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex gap-3">
                   {/* Thermal Print */}
                   <button
                     onClick={handleNativePrint}

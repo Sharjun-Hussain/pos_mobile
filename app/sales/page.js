@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import {
   Search,
   Menu,
@@ -19,6 +19,7 @@ import { useUIStore } from '@/store/useUIStore';
 import { useFetch } from '@/hooks/useFetch';
 import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
 import { ReturnSheet } from '@/components/sales/ReturnSheet';
+import { useSearchParams } from 'next/navigation';
 
 const SaleRow = React.memo(({ sale, onClick }) => {
   const date = new Date(sale.created_at).toLocaleDateString('en-US', {
@@ -82,16 +83,19 @@ const SaleRow = React.memo(({ sale, onClick }) => {
 
 SaleRow.displayName = 'SaleRow';
 
-export default function SalesHistoryPage() {
+function SalesHistoryPage() {
   const { data: salesData, isLoading: salesLoading, error: salesError, mutate: refetchSales } = useFetch('/sales?size=50');
   const { openDrawer } = useUIStore();
 
+  const searchParams = useSearchParams();
+  const initialFilter = searchParams.get('filter') || 'all';
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSaleId, setSelectedSaleId] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isReturnOpen, setIsReturnOpen] = useState(false);
   const [activeSale, setActiveSale] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState(initialFilter);
   const [sortBy, setSortBy] = useState('newest');
 
   const sales = salesData?.data || salesData || [];
@@ -248,5 +252,13 @@ export default function SalesHistoryPage() {
         onFinish={refetchSales}
       />
     </div>
+  );
+}
+
+export default function SalesHistoryPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center">Loading...</div>}>
+      <SalesHistoryPage />
+    </Suspense>
   );
 }

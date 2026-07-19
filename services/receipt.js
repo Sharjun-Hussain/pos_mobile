@@ -107,7 +107,39 @@ const generateAndSharePdf = async (htmlContent, filename = 'invoice.pdf', isA4 =
             text: `Saved to Documents: ${filename}`,
             duration: 'long'
           });
-        } catch (e) { }
+
+          const { LocalNotifications } = await import('@capacitor/local-notifications');
+          const { FileOpener } = await import('@capacitor-community/file-opener');
+          
+          await LocalNotifications.requestPermissions();
+
+          // Add listener to open the file
+          if (!window._fileOpenerListenerAdded) {
+            LocalNotifications.addListener('localNotificationActionPerformed', (notificationAction) => {
+              const fileUri = notificationAction.notification.extra?.fileUri;
+              if (fileUri) {
+                FileOpener.open({ filePath: fileUri, contentType: 'application/pdf' })
+                  .catch(e => console.error('Error opening file:', e));
+              }
+            });
+            window._fileOpenerListenerAdded = true;
+          }
+
+          await LocalNotifications.schedule({
+            notifications: [
+              {
+                title: 'Invoice Downloaded',
+                body: `Tap to view ${filename}`,
+                id: Math.floor(Math.random() * 100000) + 1,
+                schedule: { at: new Date(Date.now() + 500) },
+                extra: { fileUri: writeResult.uri }
+              }
+            ]
+          });
+
+        } catch (e) {
+          console.error('[receiptService] Download notification error:', e);
+        }
       } else {
         // Open native share sheet so user can Save/Print/WhatsApp etc.
         await Share.share({
@@ -357,7 +389,7 @@ const printViaLan = async (sale, t) => {
 };
 
 export const receiptService = {
-  print: async (sale, t) => {
+  print: async (sale, t, actionType = 'download') => {
     if (!sale) return;
 
     const { paperWidth } = useSettingsStore.getState();
@@ -628,7 +660,7 @@ export const receiptService = {
   </div>`;
 
       const invoiceFilename = `Invoice-${sale.invoice_number || 'draft'}.pdf`;
-      await generateAndSharePdf(html, invoiceFilename, true, 'download');
+      await generateAndSharePdf(html, invoiceFilename, true, actionType);
       return;
     }
 
@@ -771,7 +803,7 @@ export const receiptService = {
       `;
 
     const receiptFilename = `Receipt-${sale.invoice_number || 'draft'}.pdf`;
-    await generateAndSharePdf(receiptHtml, receiptFilename, false, 'download');
+    await generateAndSharePdf(receiptHtml, receiptFilename, false, actionType);
   },
 
   /**

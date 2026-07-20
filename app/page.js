@@ -30,7 +30,7 @@ import Image from 'next/image';
 
 // --- Internal Memoized Components for Performance ---
 
-const DashboardStats = memo(({ stats, loading, formatCurrency, t }) => (
+const DashboardStats = memo(({ stats, loading, formatCurrency, t, router }) => (
   <section className="animate-in fade-in duration-500">
     <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-2 -mx-4 px-4">
       <StatCard
@@ -383,6 +383,7 @@ export default function Home() {
         loading={statsLoading}
         formatCurrency={formatCurrency}
         t={t}
+        router={router}
       />
 
       {statsError && (

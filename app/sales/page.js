@@ -91,6 +91,7 @@ function SalesHistoryPage() {
   const initialFilter = searchParams.get('filter') || 'all';
   
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [selectedSaleId, setSelectedSaleId] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isReturnOpen, setIsReturnOpen] = useState(false);
@@ -187,12 +188,24 @@ function SalesHistoryPage() {
               <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Transaction Ledger</p>
             </div>
           </div>
-          <button
-            onClick={() => { haptics.light(); refetchSales(); }}
-            className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
-          >
-            <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { 
+                haptics.light(); 
+                setIsSearchVisible(!isSearchVisible); 
+                if (isSearchVisible) setSearchTerm(''); 
+              }}
+              className={`h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center active:scale-95 transition-transform shadow-sm ${isSearchVisible ? 'bg-brand/10 text-brand' : 'bg-surface-muted text-text-secondary hover:text-brand'}`}
+            >
+              <Search size={16} />
+            </button>
+            <button
+              onClick={() => { haptics.light(); refetchSales(); }}
+              className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
+            >
+              <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+            </button>
+          </div>
         </div>
 
         <div className="flex w-full relative mt-2">
@@ -221,16 +234,19 @@ function SalesHistoryPage() {
       </header>
 
       <section className="flex flex-col gap-3">
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
-          <input
-            type="text"
-            placeholder="Search invoice or customer..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
-          />
-        </div>
+        {isSearchVisible && (
+          <div className="relative animate-in slide-in-from-top-2 fade-in duration-200">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
+            <input
+              type="text"
+              autoFocus
+              placeholder="Search invoice or customer..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
+            />
+          </div>
+        )}
 
         {/* Filters & Sorting */}
         {saleType !== 'hold' && (

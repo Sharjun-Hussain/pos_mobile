@@ -264,11 +264,11 @@ export default function DynamicReportViewer({ params }) {
                       <div className="grid grid-cols-2 gap-3">
                         <div className="bg-gradient-to-br from-brand/20 to-brand/5 border border-brand/20 rounded-3xl p-4 flex flex-col gap-1 relative overflow-hidden">
                           <div className="absolute -right-4 -top-4 w-16 h-16 bg-brand/10 rounded-full blur-xl" />
-                          <span className="text-xs font-bold text-brand uppercase tracking-wider">Total Volume</span>
+                          <span className="text-xs font-bold text-brand">Total Volume</span>
                           <span className="text-xl font-bold text-text-main">{currency} {totalRevenue.toFixed(2)}</span>
                         </div>
                         <div className="bg-surface-muted/60 border border-glass-border/30 rounded-3xl p-4 flex flex-col gap-1">
-                          <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Total Records</span>
+                          <span className="text-xs font-bold text-text-secondary">Total Records</span>
                           <span className="text-xl font-bold text-text-main">{totalItems}</span>
                         </div>
                       </div>
@@ -276,7 +276,7 @@ export default function DynamicReportViewer({ params }) {
                       {/* Horizontal Stacked Bar Chart */}
                       {(cashVolume > 0 || cardVolume > 0) && (
                         <div className="bg-surface-muted/60 border border-glass-border/30 rounded-3xl p-4 flex flex-col gap-3">
-                          <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider">Revenue Breakdown</span>
+                          <span className="text-[11px] font-bold text-text-secondary">Revenue Breakdown</span>
 
                           <div className="h-3.5 w-full bg-surface border border-glass-border/10 rounded-full overflow-hidden flex gap-0.5">
                             {cashPct > 0 && <div className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all duration-1000" style={{ width: `${cashPct}%` }} />}
@@ -296,7 +296,7 @@ export default function DynamicReportViewer({ params }) {
               })()}
 
               <div className="px-2 pb-1 flex justify-between items-end">
-                <p className="text-[11px] font-bold text-text-secondary uppercase tracking-wider">{filteredData.length} records found</p>
+                <p className="text-[11px] font-bold text-text-secondary">{filteredData.length} records found</p>
               </div>
 
               {filteredData.map((item, idx) => (
@@ -309,7 +309,7 @@ export default function DynamicReportViewer({ params }) {
                       const isTotal = k.toLowerCase().includes('total') || k.toLowerCase() === 'amount';
                       return (
                         <div key={k} className={`flex justify-between items-center gap-4 ${i !== 0 ? 'border-t border-glass-border/10 pt-2' : ''}`}>
-                          <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider">{formatKey(k)}</span>
+                          <span className="text-[11px] font-bold text-text-secondary">{formatKey(k)}</span>
                           <span className={`text-sm font-black text-right break-all ${isTotal ? 'text-brand text-base' : 'text-text-main'}`}>{isTotal && !isNaN(Number(v)) ? `${currency} ${Number(v).toFixed(2)}` : formatValue(v)}</span>
                         </div>
                       );

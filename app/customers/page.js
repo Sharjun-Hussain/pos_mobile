@@ -222,7 +222,7 @@ export default function CustomersPage() {
 
               <div className="flex flex-col gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Full Name*</label>
+                  <label className="text-[12px] font-bold text-text-secondary pl-1">Full Name*</label>
                   <input
                     type="text"
                     placeholder="Enter customer name"
@@ -232,7 +232,7 @@ export default function CustomersPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Phone Number</label>
+                  <label className="text-[12px] font-bold text-text-secondary pl-1">Phone Number</label>
                   <input
                     type="tel"
                     placeholder="07x xxxx xxx"
@@ -242,7 +242,7 @@ export default function CustomersPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-text-secondary pl-1 opacity-50">Email Address</label>
+                  <label className="text-[12px] font-bold text-text-secondary pl-1">Email Address</label>
                   <input
                     type="email"
                     placeholder="customer@inzeedo.lk"
@@ -256,7 +256,7 @@ export default function CustomersPage() {
               <button
                 onClick={handleCreateCustomer}
                 disabled={!newCustomer.name || isSaving}
-                className="w-full h-12 bg-brand text-white rounded-2xl text-[13px] font-black mt-8 shadow-lg shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-50"
+                className="w-full h-12 bg-brand text-white rounded-2xl text-[15px] font-bold mt-8 shadow-lg shadow-brand/20 flex items-center justify-center gap-3 disabled:opacity-50"
               >
                 {isSaving ? (
                   <RefreshCcw size={18} className="animate-spin" />

@@ -45,9 +45,6 @@ const SaleRow = React.memo(({ sale, onClick }) => {
       className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer"
     >
       <div className="flex items-center gap-3 overflow-hidden">
-        <div className="h-10 w-10 rounded-xl bg-surface-muted flex items-center justify-center flex-shrink-0 text-text-secondary border border-glass-border/20">
-          <FileText size={18} />
-        </div>
         <div className="overflow-hidden">
           <div className="flex items-center gap-2 mb-0.5">
             <h4 className="font-bold text-text-main text-sm truncate leading-tight">

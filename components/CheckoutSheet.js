@@ -655,12 +655,12 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                   {step === 3 && (
                     <div className="flex flex-col gap-4 pb-4 pointer-events-auto px-6 overflow-y-auto no-scrollbar max-h-[60vh] animate-in fade-in slide-in-from-right-4 duration-300">
                       {/* Summary Card - Premium Minimalist Design */}
-                      <div className="p-6 rounded-[2rem] bg-surface-muted/30 border border-glass-border/40 flex flex-col items-center text-center gap-1 relative overflow-hidden shadow-sm">
+                      <div className="p-6 rounded-[2rem] bg-surface-muted/30 border border-glass-border/40 flex flex-col items-center text-center gap-1 relative overflow-hidden shadow-sm shrink-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-brand/5 to-transparent opacity-50" />
                         
                         <div className="relative z-10 flex flex-col items-center w-full">
                           <p className="text-sm font-bold text-text-secondary">Payable Amount</p>
-                          <h3 className="text-5xl leading-none font-black text-text-main mt-2 tracking-tight">
+                          <h3 className="text-4xl sm:text-5xl leading-tight font-black text-text-main mt-2 tracking-tight pb-1">
                             {formatCurrency(total)}
                           </h3>
                           

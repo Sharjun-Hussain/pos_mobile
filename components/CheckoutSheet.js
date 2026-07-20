@@ -478,18 +478,17 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                         </div>
                       )}
 
-                      {!isAddingCustomer ? (
-                        <>
-                          <div className="relative px-6">
-                            <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
-                            <input 
-                              type="text" 
-                              placeholder={(!isManufacturer || isCustomerView) ? t('common.search') : 'Search distributors...'}
-                              value={search}
-                              onChange={(e) => setSearch(e.target.value)}
-                              className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
-                            />
-                          </div>
+                      <>
+                        <div className="relative px-6">
+                          <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+                          <input 
+                            type="text" 
+                            placeholder={(!isManufacturer || isCustomerView) ? t('common.search') : 'Search distributors...'}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full h-14 bg-surface-muted border border-glass-border rounded-2xl pl-12 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                          />
+                        </div>
 
                           <div className="flex-1 flex flex-col bg-surface-muted/5 border-y border-glass-border/20 overflow-hidden overflow-y-auto no-scrollbar overscroll-contain">
                             <button 
@@ -578,67 +577,78 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                             </button>
                           </div>
                         </>
-                      ) : (
-                        <div className="px-6 py-2 flex flex-col gap-5 overflow-y-auto no-scrollbar">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-bold text-text-main">{(!isManufacturer || isCustomerView) ? 'Quick Registration' : 'New Distributor'}</h3>
-                            <button onClick={() => setIsAddingCustomer(false)} className="text-[10px] font-bold text-rose-500">Cancel</button>
-                          </div>
-                          
-                          <div className="flex flex-col gap-4">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[10px] font-bold text-text-secondary pl-1">Full Name *</label>
-                              <input 
-                                type="text"
-                                placeholder={(!isManufacturer || isCustomerView) ? "Enter customer name" : "Enter distributor name"}
-                                value={newCustomer.name}
-                                onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
-                                className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
-                              />
-                            </div>
-                            {(isManufacturer && !isCustomerView) && (
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-bold text-text-secondary pl-1">Company Name</label>
-                                <input 
-                                  type="text"
-                                  placeholder="Enter company / business name"
-                                  value={newCustomer.company_name}
-                                  onChange={(e) => setNewCustomer({...newCustomer, company_name: e.target.value})}
-                                  className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
-                                />
+                        
+                        {/* Nested Drawer for Creating Customer/Distributor */}
+                        <Drawer.NestedRoot open={isAddingCustomer} onOpenChange={setIsAddingCustomer}>
+                          <Drawer.Portal>
+                            <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120]" />
+                            <Drawer.Content className="bg-surface flex flex-col rounded-t-[3rem] fixed bottom-0 left-0 right-0 z-[121] outline-none shadow-2xl h-[90dvh] pb-[calc(var(--sab)+1rem)]">
+                              <div className="mx-auto w-14 h-1.5 flex-shrink-0 rounded-full bg-text-secondary/20 mt-4 mb-2" />
+                              
+                              <div className="px-6 py-4 flex flex-col h-full overflow-hidden">
+                                <div className="flex items-center justify-between mb-6">
+                                  <h3 className="text-xl font-bold text-text-main">{(!isManufacturer || isCustomerView) ? 'Quick Registration' : 'New Distributor'}</h3>
+                                  <button onClick={() => setIsAddingCustomer(false)} className="text-sm font-bold text-rose-500">Cancel</button>
+                                </div>
+                                
+                                <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col gap-5 pb-10">
+                                  <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-text-secondary pl-1">Full Name *</label>
+                                    <input 
+                                      type="text"
+                                      placeholder={(!isManufacturer || isCustomerView) ? "Enter customer name" : "Enter distributor name"}
+                                      value={newCustomer.name}
+                                      onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+                                      className="w-full h-14 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                                    />
+                                  </div>
+                                  {(isManufacturer && !isCustomerView) && (
+                                    <div className="flex flex-col gap-1.5">
+                                      <label className="text-xs font-bold text-text-secondary pl-1">Company Name</label>
+                                      <input 
+                                        type="text"
+                                        placeholder="Enter company / business name"
+                                        value={newCustomer.company_name}
+                                        onChange={(e) => setNewCustomer({...newCustomer, company_name: e.target.value})}
+                                        className="w-full h-14 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-text-secondary pl-1">Phone Number</label>
+                                    <input 
+                                      type="tel"
+                                      placeholder="07x xxxx xxx"
+                                      value={newCustomer.phone}
+                                      onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
+                                      className="w-full h-14 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-text-secondary pl-1">Email Address</label>
+                                    <input 
+                                      type="email"
+                                      placeholder="customer@example.com"
+                                      value={newCustomer.email}
+                                      onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
+                                      className="w-full h-14 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div className="pt-4 border-t border-glass-border/10">
+                                  <button 
+                                    onClick={handleCreateCustomer}
+                                    disabled={!newCustomer.name || loading}
+                                    className="btn-primary w-full h-14 text-sm disabled:opacity-50"
+                                  >
+                                    {loading ? 'Registering...' : ((!isManufacturer || isCustomerView) ? 'Save & Select Customer' : 'Save & Select Distributor')}
+                                  </button>
+                                </div>
                               </div>
-                            )}
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[10px] font-bold text-text-secondary pl-1">Phone Number</label>
-                              <input 
-                                type="tel"
-                                placeholder="07x xxxx xxx"
-                                value={newCustomer.phone}
-                                onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
-                                className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-[10px] font-bold text-text-secondary pl-1">Email Address</label>
-                              <input 
-                                type="email"
-                                placeholder="customer@example.com"
-                                value={newCustomer.email}
-                                onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
-                                className="w-full h-12 bg-surface-muted border border-glass-border rounded-xl px-4 text-sm font-bold text-text-main outline-none focus:border-brand/40"
-                              />
-                            </div>
-                          </div>
-
-                          <button 
-                            onClick={handleCreateCustomer}
-                            disabled={!newCustomer.name || loading}
-                            className="btn-primary w-full h-14 text-sm mt-2 disabled:opacity-50"
-                          >
-                            {loading ? 'Registering...' : ((!isManufacturer || isCustomerView) ? 'Save & Select Customer' : 'Save & Select Distributor')}
-                          </button>
-                        </div>
-                      )}
+                            </Drawer.Content>
+                          </Drawer.Portal>
+                        </Drawer.NestedRoot>
                     </div>
                   )}
 

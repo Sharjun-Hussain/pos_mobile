@@ -10,9 +10,9 @@ import { useHardwareBack } from '@/hooks/useHardwareBack';
 
 const InputField = memo(({ label, icon: Icon, children, hint }) => (
   <div className="flex flex-col gap-1.5">
-    <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">{label}</label>
+    <label className="text-[12px] font-bold text-text-secondary pl-1">{label}</label>
     <div className="relative">{children}</div>
-    {hint && <p className="text-[10px] font-medium text-text-secondary pl-1 opacity-40 leading-relaxed">{hint}</p>}
+    {hint && <p className="text-[11px] font-medium text-text-secondary pl-1 opacity-70 leading-relaxed">{hint}</p>}
   </div>
 ));
 InputField.displayName = 'InputField';
@@ -176,7 +176,7 @@ export const EditProfileSheet = memo(({ isOpen, onClose, initialTab = 'profile' 
                   </div>
 
                   <InputField label="Full Name">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={18} />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-70" size={18} />
                     <input
                       type="text"
                       value={name}
@@ -186,7 +186,7 @@ export const EditProfileSheet = memo(({ isOpen, onClose, initialTab = 'profile' 
                   </InputField>
 
                   <InputField label="Email Address" hint="Email acts as your login ID and cannot be changed.">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={18} />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-70" size={18} />
                     <input
                       disabled
                       type="email"
@@ -204,15 +204,15 @@ export const EditProfileSheet = memo(({ isOpen, onClose, initialTab = 'profile' 
               ) : (
                 <div className="flex flex-col gap-5">
                   <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex gap-3 items-start">
-                    <ShieldCheck className="text-amber-500 shrink-0 mt-0.5" size={18} />
-                    <p className="text-[12px] font-medium text-amber-600 dark:text-amber-400 leading-relaxed">
+                    <ShieldCheck className="text-amber-700 shrink-0 mt-0.5" size={18} />
+                    <p className="text-[13px] font-medium text-amber-900 leading-relaxed">
                       Ensure your new password is at least 8 characters and contains a mix of letters and numbers.
                     </p>
                   </div>
 
                   {['current', 'new', 'confirm'].map((field) => (
                     <InputField key={field} label={field === 'current' ? 'Current Password' : field === 'new' ? 'New Password' : 'Confirm New Password'}>
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={18} />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-70" size={18} />
                       <input
                         type={showPwd[field] ? 'text' : 'password'}
                         value={passwords[field]}
@@ -224,7 +224,7 @@ export const EditProfileSheet = memo(({ isOpen, onClose, initialTab = 'profile' 
                       <button
                         type="button"
                         onClick={() => setShowPwd(s => ({ ...s, [field]: !s[field] }))}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-40"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary opacity-70 hover:opacity-100"
                       >
                         {showPwd[field] ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>

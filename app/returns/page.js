@@ -32,25 +32,25 @@ const ReturnRow = ({ returnRecord }) => {
       onClick={() => haptics.light()}
       className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-rose-500/5 transition-colors cursor-pointer"
     >
-      <div className="flex items-center gap-3 overflow-hidden">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="h-10 w-10 rounded-xl bg-rose-500/5 flex items-center justify-center flex-shrink-0 text-rose-500 border border-rose-500/10">
           <RotateCcw size={18} />
         </div>
-        <div className="overflow-hidden">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-center gap-2 mb-0.5">
             <h4 className="font-bold text-text-main text-sm truncate leading-tight">
               {returnRecord.invoice_number || 'Return Record'}
             </h4>
-            <span className="text-[10px] font-black px-2 py-0.5 rounded-md uppercase bg-rose-500 text-white">
+            <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md uppercase bg-rose-500 text-white shrink-0">
               REFUND
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-text-secondary opacity-60">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold text-text-secondary opacity-60 truncate">
               Ref: {returnRecord.return_number || returnRecord.id.slice(0, 8)}
             </span>
-            <div className="h-0.5 w-0.5 rounded-full bg-glass-border/30" />
-            <span className="text-xs font-medium text-text-secondary opacity-40">
+            <div className="h-1 w-1 rounded-full bg-text-secondary/30 shrink-0" />
+            <span className="text-[10px] font-medium text-text-secondary opacity-40 shrink-0">
               {date}
             </span>
           </div>

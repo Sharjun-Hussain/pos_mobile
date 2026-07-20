@@ -140,7 +140,7 @@ InventoryAlerts.displayName = 'InventoryAlerts';
 const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradient, onClick }) => {
   if (isLoading) {
     return (
-      <div className="bg-surface p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 overflow-hidden relative border border-glass-border/20 shadow-sm">
+      <div className="bg-card p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 overflow-hidden relative border border-glass-border/20 shadow-sm">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
         <div className="flex items-start justify-between">
           <div className="h-10 w-10 bg-brand/10 rounded-xl animate-pulse" />
@@ -159,7 +159,7 @@ const StatCard = memo(({ title, value, trendValue, icon: Icon, isLoading, gradie
   return (
     <div 
       onClick={() => { if (onClick) { haptics.light(); onClick(); } }}
-      className={`bg-surface p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 transition-transform border border-glass-border/30 shadow-sm ${onClick ? 'active:scale-[0.97] cursor-pointer' : ''}`}
+      className={`bg-card p-3.5 rounded-[1.75rem] min-w-[160px] snap-center flex flex-col gap-3.5 transition-transform border border-glass-border/30 shadow-sm ${onClick ? 'active:scale-[0.97] cursor-pointer' : ''}`}
     >
       <div className="flex items-start justify-between">
         <div className={`p-2 rounded-xl bg-gradient-to-br ${gradient} text-white shadow-md`}>
@@ -184,7 +184,7 @@ StatCard.displayName = 'StatCard';
 const ActionCard = memo(({ title, description, icon: Icon, color, isLoading, onClick }) => {
   if (isLoading) {
     return (
-      <div className="bg-surface p-3 rounded-3xl flex items-center gap-4 relative overflow-hidden border border-glass-border/20 shadow-sm">
+      <div className="bg-card p-3 rounded-3xl flex items-center gap-4 relative overflow-hidden border border-glass-border/20 shadow-sm">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
         <div className="h-12 w-12 bg-surface-muted rounded-2xl animate-pulse" />
         <div className="flex-1 flex flex-col gap-2.5">
@@ -206,7 +206,7 @@ const ActionCard = memo(({ title, description, icon: Icon, color, isLoading, onC
   return (
     <button
       onClick={() => { haptics.light(); onClick?.(); }}
-      className="bg-surface p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-all hover:bg-surface-muted/30 border border-glass-border/30 shadow-sm"
+      className="bg-card p-3 rounded-3xl flex items-center gap-4 text-left active:scale-[0.98] transition-all hover:bg-surface-muted/30 border border-glass-border/30 shadow-sm"
     >
       <div className={`p-3 rounded-2xl ${activeColor}`}>
         <Icon size={22} strokeWidth={2.5} />
@@ -387,7 +387,7 @@ export default function Home() {
       />
 
       {statsError && (
-        <div className="bg-surface p-4 rounded-2xl flex items-center justify-between bg-rose-500/5 border border-rose-500/10 shadow-sm">
+        <div className="bg-card p-4 rounded-2xl flex items-center justify-between border border-rose-500/20 shadow-sm">
           <div className="flex items-center gap-3 text-rose-500">
             <AlertCircle size={18} />
             <span className="text-xs font-bold">Refresh failed</span>

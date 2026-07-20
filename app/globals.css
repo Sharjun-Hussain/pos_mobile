@@ -27,6 +27,8 @@
   --color-brand: oklch(0.62 0.25 273); /* Electric Indigo */
   
   /* Semantic Colors that adapt */
+  --color-background: var(--bg-background);
+  --color-card: var(--bg-card);
   --color-surface: var(--bg-surface);
   --color-surface-muted: var(--bg-surface-muted);
   --color-text-main: var(--text-primary);
@@ -36,8 +38,10 @@
 }
 
 :root {
+  --bg-background: #f1f5f9;
+  --bg-card: #ffffff;
   --bg-surface: #f8fafc;
-  --bg-surface-muted: #f1f5f9;
+  --bg-surface-muted: #e2e8f0;
   --text-primary: #0f172a;
   --text-secondary: #64748b;
   --glass-bg: rgba(255, 255, 255, 0.7);
@@ -49,8 +53,10 @@
 }
 
 .dark {
+  --bg-background: #000000;
+  --bg-card: #18181b;
   --bg-surface: #09090b;
-  --bg-surface-muted: #121214;
+  --bg-surface-muted: #27272a;
   --text-primary: #f4f4f5;
   --text-secondary: #71717a;
   --glass-bg: rgba(24, 24, 27, 0.7);
@@ -58,7 +64,7 @@
 }
 
 body {
-  background-color: var(--color-surface);
+  background-color: var(--color-background);
   color: var(--color-text-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

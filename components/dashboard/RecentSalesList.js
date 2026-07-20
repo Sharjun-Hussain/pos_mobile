@@ -60,7 +60,7 @@ export const RecentSalesList = memo(({ sales = [], isLoading, onSaleClick }) => 
           <button
             key={item.id}
             onClick={() => onSaleClick?.(item)}
-            className="glass-panel p-4 rounded-[2rem] flex items-center justify-between active:scale-[0.98] transition-all hover:bg-surface-muted/30"
+            className="bg-card p-4 rounded-[2rem] flex items-center justify-between active:scale-[0.98] transition-all hover:bg-surface-muted/30 border border-glass-border/30 shadow-sm"
           >
             <div className="flex items-center gap-4 text-left">
               <div className={`h-11 w-11 rounded-2xl flex items-center justify-center ${

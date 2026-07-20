@@ -96,6 +96,7 @@ function SalesHistoryPage() {
   const [isReturnOpen, setIsReturnOpen] = useState(false);
   const [activeSale, setActiveSale] = useState(null);
   const [filterStatus, setFilterStatus] = useState(initialFilter);
+  const [saleType, setSaleType] = useState('regular');
   const [sortBy, setSortBy] = useState('newest');
 
   const sales = salesData?.data || salesData || [];
@@ -115,6 +116,9 @@ function SalesHistoryPage() {
 
   const filteredSales = Array.isArray(sales) ? sales
     .filter(s => {
+      const isHold = s.status === 'hold' || s.payment_status === 'hold';
+      const matchesSaleType = saleType === 'hold' ? isHold : !isHold;
+
       const matchesSearch = (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -123,7 +127,7 @@ function SalesHistoryPage() {
         (filterStatus === 'paid' && s.payment_status === 'paid') ||
         (filterStatus === 'unpaid' && s.payment_status !== 'paid');
 
-      return matchesSearch && matchesStatus;
+      return matchesSaleType && matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
       if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
@@ -135,25 +139,42 @@ function SalesHistoryPage() {
 
   return (
     <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface">
-      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl pt-[calc(var(--sat)+1rem)] pb-3 -mx-4 px-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => { haptics.light(); openDrawer(); }}
-            className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
-          >
-            <Menu size={24} strokeWidth={2.5} />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-text-main leading-none mb-1">Recent Sales</h1>
-            <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Transaction Ledger</p>
+      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl pt-[calc(var(--sat)+1rem)] pb-3 -mx-4 px-4 flex flex-col gap-3 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => { haptics.light(); openDrawer(); }}
+              className="h-10 w-10 flex items-center justify-center text-text-main active:scale-90 transition-transform ml-[-8px]"
+            >
+              <Menu size={24} strokeWidth={2.5} />
+            </button>
+            <div>
+              <h1 className="text-xl font-bold text-text-main leading-none mb-1">Recent Sales</h1>
+              <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Transaction Ledger</p>
+            </div>
           </div>
+          <button
+            onClick={() => { haptics.light(); refetchSales(); }}
+            className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
+          >
+            <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+          </button>
         </div>
-        <button
-          onClick={() => { haptics.light(); refetchSales(); }}
-          className="h-10 w-10 border border-glass-border/30 rounded-xl flex items-center justify-center text-text-secondary active:scale-95 transition-transform hover:text-brand bg-surface-muted shadow-sm"
-        >
-          <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
-        </button>
+
+        <div className="flex bg-surface-muted/50 p-1 rounded-xl border border-glass-border/40">
+          <button
+            onClick={() => { haptics.light(); setSaleType('regular'); }}
+            className={`flex-1 h-9 text-xs font-bold rounded-lg transition-all flex items-center justify-center ${saleType === 'regular' ? 'bg-surface shadow-sm text-text-main' : 'text-text-secondary hover:bg-black/5 dark:hover:bg-white/5'}`}
+          >
+            Regular Sales
+          </button>
+          <button
+            onClick={() => { haptics.light(); setSaleType('hold'); }}
+            className={`flex-1 h-9 text-xs font-bold rounded-lg transition-all flex items-center justify-center ${saleType === 'hold' ? 'bg-surface shadow-sm text-text-main' : 'text-text-secondary hover:bg-black/5 dark:hover:bg-white/5'}`}
+          >
+            Hold Sales
+          </button>
+        </div>
       </header>
 
       <section className="flex flex-col gap-3">
@@ -169,45 +190,47 @@ function SalesHistoryPage() {
         </div>
 
         {/* Filters & Sorting */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-1">
-            {[
-              { id: 'all', label: 'All Sales' },
-              { id: 'paid', label: 'Paid' },
-              { id: 'unpaid', label: 'Unpaid' },
-              { id: 'returned', label: 'Refunded' }
-            ].map(chip => (
-              <button
-                key={chip.id}
-                onClick={() => { haptics.light(); setFilterStatus(chip.id); }}
-                className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-bold transition-all border ${filterStatus === chip.id
-                  ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105'
-                  : 'bg-surface-muted text-text-secondary border-glass-border/40 hover:bg-black/5 dark:hover:bg-white/5'
-                  }`}
-              >
-                {chip.label}
-              </button>
-            ))}
+        {saleType !== 'hold' && (
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-1">
+              {[
+                { id: 'all', label: 'All Sales' },
+                { id: 'paid', label: 'Paid' },
+                { id: 'unpaid', label: 'Unpaid' },
+                { id: 'returned', label: 'Refunded' }
+              ].map(chip => (
+                <button
+                  key={chip.id}
+                  onClick={() => { haptics.light(); setFilterStatus(chip.id); }}
+                  className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-bold transition-all border ${filterStatus === chip.id
+                    ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105'
+                    : 'bg-surface-muted text-text-secondary border-glass-border/40 hover:bg-black/5 dark:hover:bg-white/5'
+                    }`}
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="w-[1px] h-6 bg-glass-border/20 flex-shrink-0" />
+
+            <button
+              onClick={() => {
+                haptics.medium();
+                const modes = ['newest', 'oldest', 'amount_high', 'amount_low'];
+                const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
+                setSortBy(next);
+              }}
+              className="flex items-center justify-center h-9 px-3 rounded-full bg-surface-muted border border-glass-border/40 text-[11px] font-bold text-text-main whitespace-nowrap active:scale-95 transition-transform hover:bg-black/5 dark:hover:bg-white/5 flex-shrink-0"
+            >
+              {sortBy === 'newest' && <Clock size={14} className="text-brand mr-1" />}
+              {sortBy === 'oldest' && <Clock size={14} className="text-text-secondary rotate-180 mr-1" />}
+              {sortBy === 'amount_high' && <ArrowUpAZ size={14} className="text-emerald-500 mr-1" />}
+              {sortBy === 'amount_low' && <ArrowDownAZ size={14} className="text-rose-500 mr-1" />}
+              Sort
+            </button>
           </div>
-
-          <div className="w-[1px] h-6 bg-glass-border/20 flex-shrink-0" />
-
-          <button
-            onClick={() => {
-              haptics.medium();
-              const modes = ['newest', 'oldest', 'amount_high', 'amount_low'];
-              const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
-              setSortBy(next);
-            }}
-            className="flex items-center justify-center h-9 px-3 rounded-full bg-surface-muted border border-glass-border/40 text-[11px] font-bold text-text-main whitespace-nowrap active:scale-95 transition-transform hover:bg-black/5 dark:hover:bg-white/5 flex-shrink-0"
-          >
-            {sortBy === 'newest' && <Clock size={14} className="text-brand mr-1" />}
-            {sortBy === 'oldest' && <Clock size={14} className="text-text-secondary rotate-180 mr-1" />}
-            {sortBy === 'amount_high' && <ArrowUpAZ size={14} className="text-emerald-500 mr-1" />}
-            {sortBy === 'amount_low' && <ArrowDownAZ size={14} className="text-rose-500 mr-1" />}
-            Sort
-          </button>
-        </div>
+        )}
       </section>
 
       <section className="flex flex-col">

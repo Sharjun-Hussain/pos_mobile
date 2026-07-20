@@ -72,7 +72,7 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
   }
 
   return (
-    <div className="bg-surface p-6 pb-4 rounded-[2.5rem] flex flex-col gap-4 overflow-hidden relative animate-in fade-in duration-700 border border-glass-border/30 shadow-sm">
+    <div className="bg-card p-6 pb-4 rounded-[2.5rem] flex flex-col gap-4 overflow-hidden relative animate-in fade-in duration-700 border border-glass-border/30 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
           <h4 className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none mb-1 opacity-60">Weekly Performance</h4>

@@ -161,19 +161,28 @@ function SalesHistoryPage() {
           </button>
         </div>
 
-        <div className="flex bg-surface-muted/50 p-1 rounded-xl border border-glass-border/40">
+        <div className="flex w-full relative mt-2">
           <button
             onClick={() => { haptics.light(); setSaleType('regular'); }}
-            className={`flex-1 h-9 text-xs font-bold rounded-lg transition-all flex items-center justify-center ${saleType === 'regular' ? 'bg-surface shadow-sm text-text-main' : 'text-text-secondary hover:bg-black/5 dark:hover:bg-white/5'}`}
+            className={`flex-1 pb-3 text-sm font-bold transition-all ${saleType === 'regular' ? 'text-brand' : 'text-text-secondary hover:text-text-main'}`}
           >
             Regular Sales
           </button>
           <button
             onClick={() => { haptics.light(); setSaleType('hold'); }}
-            className={`flex-1 h-9 text-xs font-bold rounded-lg transition-all flex items-center justify-center ${saleType === 'hold' ? 'bg-surface shadow-sm text-text-main' : 'text-text-secondary hover:bg-black/5 dark:hover:bg-white/5'}`}
+            className={`flex-1 pb-3 text-sm font-bold transition-all ${saleType === 'hold' ? 'text-brand' : 'text-text-secondary hover:text-text-main'}`}
           >
             Hold Sales
           </button>
+          
+          {/* Track line */}
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-glass-border/30" />
+          
+          {/* Animated slider */}
+          <div 
+            className="absolute bottom-0 w-1/2 h-[3px] bg-brand rounded-t-full transition-transform duration-300 ease-out z-10"
+            style={{ transform: `translateX(${saleType === 'regular' ? '0%' : '100%'})` }}
+          />
         </div>
       </header>
 

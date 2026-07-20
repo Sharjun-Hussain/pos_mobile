@@ -10,19 +10,28 @@ export const useCurrency = () => {
     return (amount) => {
       if (amount === undefined || amount === null || isNaN(amount)) return "";
 
+      const activeCurrency = currency || 'LKR';
+
       try {
-        // We use en-US locale for consistent formatting (1,234.56) 
+        // We use en-LK locale for South Asian formatting (1,00,000.00) 
         // with the dynamic currency code from settings
-        return new Intl.NumberFormat('en-US', {
+        const formatted = new Intl.NumberFormat('en-LK', {
           style: 'currency',
-          currency: currency || 'LKR',
+          currency: activeCurrency,
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }).format(amount);
+        
+        // Display LKR as Rs.
+        if (activeCurrency === 'LKR') {
+          return formatted.replace('LKR', 'Rs.');
+        }
+        
+        return formatted;
       } catch (error) {
         // Fallback for invalid currency codes
-        const code = currency || 'LKR';
-        return `${code} ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        const code = activeCurrency === 'LKR' ? 'Rs.' : activeCurrency;
+        return `${code} ${Number(amount).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
       }
     };
   }, [currency]);

@@ -128,23 +128,23 @@ export const EditProfileSheet = memo(({ isOpen, onClose, initialTab = 'profile' 
 
             {/* Segmented Tab Control */}
             <div className="px-8 mb-6">
-              <div className="flex bg-surface-muted p-1.5 rounded-2xl gap-1.5 border border-glass-border/20">
+              <div className="flex border-b border-glass-border/30">
                 <button
                   onClick={() => { haptics.light(); setActiveTab('profile'); }}
-                  className={`flex-1 h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 ${
+                  className={`flex-1 h-12 text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 border-b-2 ${
                     activeTab === 'profile'
-                      ? 'bg-white dark:bg-surface text-brand shadow-md shadow-black/5'
-                      : 'text-text-secondary hover:text-text-main'
+                      ? 'border-brand text-brand'
+                      : 'border-transparent text-text-secondary hover:text-text-main'
                   }`}
                 >
                   <User size={16} /> Profile
                 </button>
                 <button
                   onClick={() => { haptics.light(); setActiveTab('security'); }}
-                  className={`flex-1 h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 ${
+                  className={`flex-1 h-12 text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 border-b-2 ${
                     activeTab === 'security'
-                      ? 'bg-white dark:bg-surface text-emerald-500 shadow-md shadow-black/5'
-                      : 'text-text-secondary hover:text-text-main'
+                      ? 'border-emerald-500 text-emerald-500'
+                      : 'border-transparent text-text-secondary hover:text-text-main'
                   }`}
                 >
                   <ShieldCheck size={16} /> Security

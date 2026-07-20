@@ -62,37 +62,37 @@ export const RecentSalesList = memo(({ sales = [], isLoading, onSaleClick }) => 
             onClick={() => onSaleClick?.(item)}
             className="bg-card p-4 rounded-[2rem] flex items-center justify-between active:scale-[0.98] transition-all hover:bg-surface-muted/30 border border-glass-border/30 shadow-sm"
           >
-            <div className="flex items-center gap-4 text-left">
-              <div className={`h-11 w-11 rounded-2xl flex items-center justify-center ${
+            <div className="flex flex-1 items-center gap-3 text-left overflow-hidden pr-2">
+              <div className={`h-11 w-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${
                 isReturn ? 'bg-rose-500/10 text-rose-500' : 'bg-brand/10 text-brand'
               }`}>
                 {isReturn ? <RotateCcw size={20} /> : <User size={20} />}
               </div>
-              <div>
-                <h5 className="text-sm font-bold text-text-main line-clamp-1">
+              <div className="flex-1 overflow-hidden">
+                <h5 className="text-sm font-bold text-text-main truncate">
                   {isReturn ? (item.invoice_number || 'Sale Return') : (item.customer?.name || "Walk-in Guest")}
                 </h5>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-xs font-bold text-text-secondary opacity-60 flex items-center gap-1 uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 mt-1">
+                  <p className="text-[10px] font-bold text-text-secondary opacity-60 flex items-center gap-1 uppercase tracking-wider flex-shrink-0">
                     <Clock size={10} /> {getTimeAgo(item.created_at)}
                   </p>
-                  <div className="h-1 w-1 rounded-full bg-text-secondary/20" />
-                  <p className={`text-xs font-bold uppercase ${isReturn ? 'text-rose-500' : 'text-brand'}`}>
+                  <div className="h-1 w-1 rounded-full bg-text-secondary/20 flex-shrink-0" />
+                  <p className={`text-[10px] font-bold uppercase flex-shrink-0 ${isReturn ? 'text-rose-500' : 'text-brand'}`}>
                     {isReturn ? 'REFUND' : (item.payment_method || 'CASH')}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 pl-1 flex-shrink-0">
               <div className="text-right">
-                <p className={`text-sm font-black leading-none ${isReturn ? 'text-rose-500' : 'text-text-main'}`}>
-                  {isReturn && '-'} {formatCurrency(amount)}
+                <p className={`text-sm font-black leading-none whitespace-nowrap ${isReturn ? 'text-rose-500' : 'text-text-main'}`}>
+                  {isReturn ? '-' : ''}{formatCurrency(amount)}
                 </p>
-                <p className="text-[10px] font-bold text-text-secondary mt-1 tracking-tight">
+                <p className="text-[10px] font-bold text-text-secondary mt-1 tracking-tight whitespace-nowrap text-right">
                   {isReturn ? (item.return_number || item.id.slice(0,8)) : item.invoice_number}
                 </p>
               </div>
-              <ChevronRight size={16} className="text-text-secondary opacity-30" />
+              <ChevronRight size={16} className="text-text-secondary opacity-30 flex-shrink-0" />
             </div>
           </button>
         );

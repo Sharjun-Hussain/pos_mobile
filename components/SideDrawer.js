@@ -145,7 +145,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
                 <MenuLink href="/" icon={Home} label="Dashboard" onClick={onClose} />
                 <MenuLink href="/sales" icon={History} label="Sales History" onClick={onClose} />
                 <MenuLink href="/returns" icon={RotateCcw} label="Returns History" onClick={onClose} />
-                {!isManufacturing && <MenuLink href="/customers" icon={Users} label="Customers" onClick={onClose} />}
+                <MenuLink href="/customers" icon={Users} label="Customers" onClick={onClose} />
                 {isManufacturing && <MenuLink href="/distributors" icon={Network} label="Distributors" onClick={onClose} />}
                 <MenuLink href="/reports" icon={BarChart3} label="Reports & Analytics" isLast onClick={onClose} />
               </MenuGroup>

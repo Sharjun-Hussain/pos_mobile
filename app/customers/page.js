@@ -132,18 +132,7 @@ export default function CustomersPage() {
         </button>
       </header>
 
-      <section className="flex flex-col gap-3">
-        {/* Search Bar Row */}
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
-          <input
-            type="text"
-            placeholder="Search by name or phone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
-          />
-        </div>
+      <section className="mb-2">
 
         {/* View & Sort Toolbar */}
         <div className="flex items-center justify-between">
@@ -186,11 +175,7 @@ export default function CustomersPage() {
       </section>
 
       <section className="flex flex-col">
-        <div className="flex items-center justify-between mb-3 px-1 border-b border-glass-border/30 pb-2">
-          <h2 className="text-xs font-black text-text-secondary opacity-30">
-            {loading ? 'Refreshing Registry...' : `${filteredAndSortedCustomers.length} registered customers`}
-          </h2>
-        </div>
+
 
         {loading ? (
           <div className={viewMode === 'grid' ? "grid grid-cols-2 gap-4" : "flex flex-col"}>

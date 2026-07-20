@@ -17,11 +17,13 @@ import { haptics } from '@/services/haptics';
 import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
 import { useFetch } from '@/hooks/useFetch';
+import { useCurrency } from '@/hooks/useCurrency';
 import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
 import { ReturnSheet } from '@/components/sales/ReturnSheet';
 import { useSearchParams } from 'next/navigation';
 
 const SaleRow = React.memo(({ sale, onClick }) => {
+  const { formatCurrency } = useCurrency();
   const date = new Date(sale.created_at).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -51,11 +53,11 @@ const SaleRow = React.memo(({ sale, onClick }) => {
             <h4 className="font-bold text-text-main text-sm truncate leading-tight">
               {sale.invoice_number}
             </h4>
-            <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider ${getStatusColor(sale.payment_status)}`}>
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider ${getStatusColor(sale.payment_status)}`}>
               {sale.payment_status}
             </span>
             {(sale.return_status === 'partial' || sale.return_status === 'full' || sale.returns?.length > 0) && (
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider bg-orange-500/10 text-orange-600">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider bg-orange-500/10 text-orange-600">
                 Returned
               </span>
             )}
@@ -72,8 +74,8 @@ const SaleRow = React.memo(({ sale, onClick }) => {
         </div>
       </div>
       <div className="text-right flex-shrink-0 ml-3">
-        <p className="font-black text-brand text-sm">LKR {Math.round(sale.payable_amount).toLocaleString()}</p>
-        <p className="text-[10px] font-black text-text-secondary opacity-30 mt-0.5 uppercase tracking-tighter">
+        <p className="font-bold text-brand text-sm">{formatCurrency(sale.payable_amount)}</p>
+        <p className="text-[10px] font-semibold text-text-secondary opacity-50 mt-0.5 uppercase tracking-tighter">
           {sale.payment_method || 'Cash'}
         </p>
       </div>

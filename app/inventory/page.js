@@ -11,9 +11,11 @@ import {
 import { haptics } from '@/services/haptics';
 import { useUIStore } from '@/store/useUIStore';
 import { useFetch } from '@/hooks/useFetch';
+import { useCurrency } from '@/hooks/useCurrency';
 import { ProductDetailSheet } from '@/components/dashboard/ProductDetailSheet';
 
 const InventoryItemRow = React.memo(({ product, onClick }) => {
+  const { formatCurrency } = useCurrency();
   const stock = product.variants?.reduce((sum, v) => {
     if (v.stocks && v.stocks.length > 0) {
       const variantStock = v.stocks.reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
@@ -49,7 +51,7 @@ const InventoryItemRow = React.memo(({ product, onClick }) => {
       </div>
       <div className="text-right flex-shrink-0 ml-3">
         <p className="font-black text-brand text-sm">
-          {product.variants?.[0]?.price ? `LKR ${Math.round(product.variants[0].price).toLocaleString()}` : '---'}
+          {product.variants?.[0]?.price ? formatCurrency(product.variants[0].price) : '---'}
         </p>
         <p className="text-[10px] font-black text-text-secondary opacity-30 mt-0.5 uppercase tracking-widest">
           {product.variants?.length || 0} Variants

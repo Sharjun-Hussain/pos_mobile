@@ -18,11 +18,13 @@ import { api } from '@/services/api';
 import { useUIStore } from '@/store/useUIStore';
 import { useFetch } from '@/hooks/useFetch';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useLongPress } from '@/hooks/useLongPress';
 import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
 import { ReturnSheet } from '@/components/sales/ReturnSheet';
+import { SaleActionMenu } from '@/components/sales/SaleActionMenu';
 import { useSearchParams } from 'next/navigation';
 
-const SaleRow = React.memo(({ sale, onClick }) => {
+const SaleRow = React.memo(({ sale, onClick, onLongPress }) => {
   const { formatCurrency } = useCurrency();
   const date = new Date(sale.created_at).toLocaleDateString('en-US', {
     month: 'short',
@@ -39,9 +41,14 @@ const SaleRow = React.memo(({ sale, onClick }) => {
     }
   };
 
+  const longPressProps = useLongPress(
+    () => { haptics.medium(); onLongPress(sale); },
+    () => { haptics.light(); onClick(sale.id); }
+  );
+
   return (
     <div
-      onClick={() => { haptics.light(); onClick(sale.id); }}
+      {...longPressProps}
       className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer"
     >
       <div className="flex items-center gap-3 overflow-hidden">
@@ -94,6 +101,7 @@ function SalesHistoryPage() {
   const [selectedSaleId, setSelectedSaleId] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isReturnOpen, setIsReturnOpen] = useState(false);
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [activeSale, setActiveSale] = useState(null);
   const [filterStatus, setFilterStatus] = useState(initialFilter);
   const [saleType, setSaleType] = useState('regular');
@@ -135,6 +143,11 @@ function SalesHistoryPage() {
   const handleSaleClick = React.useCallback((saleId) => {
     setSelectedSaleId(saleId);
     setIsDetailsOpen(true);
+  }, []);
+
+  const handleSaleLongPress = React.useCallback((sale) => {
+    setActiveSale(sale);
+    setIsActionMenuOpen(true);
   }, []);
 
   const handleReturnTrigger = (sale) => {
@@ -307,7 +320,7 @@ function SalesHistoryPage() {
         ) : filteredSales.length > 0 ? (
           <div className="flex flex-col">
             {filteredSales.map(sale => (
-              <SaleRow key={sale.id} sale={sale} onClick={handleSaleClick} />
+              <SaleRow key={sale.id} sale={sale} onClick={handleSaleClick} onLongPress={handleSaleLongPress} />
             ))}
           </div>
         ) : (
@@ -331,6 +344,12 @@ function SalesHistoryPage() {
         onClose={() => setIsReturnOpen(false)}
         sale={activeSale}
         onFinish={refetchSales}
+      />
+
+      <SaleActionMenu
+        isOpen={isActionMenuOpen}
+        onClose={() => setIsActionMenuOpen(false)}
+        sale={activeSale}
       />
     </div>
   );

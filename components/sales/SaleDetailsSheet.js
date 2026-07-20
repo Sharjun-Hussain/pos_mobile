@@ -161,8 +161,8 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                       <div className="absolute inset-0 rounded-full border-2 border-brand/20 animate-pulse"></div>
                       <PrinterCheck size={32} className="text-brand" strokeWidth={2.5} />
                     </div>
-                    <h3 className="text-xl font-black text-text-main mb-2 tracking-tight">Transaction Complete</h3>
-                    <p className="text-xs font-bold text-text-secondary max-w-[250px] leading-relaxed">
+                    <h3 className="text-xl font-semibold text-text-main mb-2 tracking-tight">Transaction Complete</h3>
+                    <p className="text-xs font-medium text-text-secondary max-w-[250px] leading-relaxed">
                       The sale has been successfully recorded. Tap below to print the receipt.
                     </p>
                   </div>

@@ -26,37 +26,26 @@ const TerminalHeader = memo(({
       {!showSearch ? (
         <>
           <div className="flex items-center gap-2">
-            <button onClick={onBack} className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary">
+            <button onClick={onBack} className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary flex-shrink-0">
               <ArrowLeft size={18} />
             </button>
-            <div>
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <h1 className="text-base font-bold text-text-main leading-none">{displayTitle}</h1>
-                {productCount !== undefined && (
-                  <span className="px-1.5 py-0.5 rounded bg-brand/10 text-brand text-[10px] font-black leading-none">{productCount}</span>
-                )}
-              </div>
-              {branchName && (
-                <p className="text-[10px] font-bold text-brand mt-0.5 truncate max-w-[120px]">
-                  {branchName}
-                </p>
-              )}
-            </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <button 
+            onClick={() => onToggleSearch(true)}
+            className="flex-1 mx-2 h-10 bg-surface-muted/50 border border-glass-border/60 rounded-xl flex items-center px-3 gap-2 text-text-secondary active:scale-[0.98] transition-all"
+          >
+            <Search size={16} className="opacity-50" />
+            <span className="text-[12px] font-semibold opacity-60 truncate">{t('pos.searchProducts') || 'Search products...'}</span>
+          </button>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <button 
               onClick={onScan}
               className="h-10 px-3 bg-brand text-white rounded-xl flex items-center gap-1.5 shadow-lg shadow-brand/20 active:scale-95 transition-all"
             >
               <Camera size={16} strokeWidth={2.5} />
               <span className="text-[10px] font-bold hidden sm:inline">{t('pos.scan')}</span>
-            </button>
-            <button 
-              onClick={() => onToggleSearch(true)}
-              className="h-10 w-10 glass-panel rounded-xl flex items-center justify-center text-text-secondary active:scale-90"
-            >
-              <Search size={16} />
             </button>
             <button 
               onClick={() => onViewModeChange(viewMode === 'grid' ? 'list' : 'grid')}

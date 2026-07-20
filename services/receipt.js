@@ -413,6 +413,33 @@ export const receiptService = {
 
         if (Capacitor.isNativePlatform()) {
           const { Filesystem, Directory } = await import('@capacitor/filesystem');
+          let downloadNotificationId = null;
+          let LocalNotifications = null;
+
+          if (actionType === 'download') {
+            try {
+              const { Toast } = await import('@capacitor/toast');
+              await Toast.show({ text: `Downloading ${invoiceFilename}...`, duration: 'short' });
+
+              const notificationsModule = await import('@capacitor/local-notifications');
+              LocalNotifications = notificationsModule.LocalNotifications;
+              await LocalNotifications.requestPermissions();
+              
+              downloadNotificationId = Math.floor(Math.random() * 100000) + 1;
+              
+              await LocalNotifications.schedule({
+                notifications: [{
+                  title: 'Downloading Invoice...',
+                  body: invoiceFilename,
+                  id: downloadNotificationId,
+                  smallIcon: 'ic_stat_download', // Uses standard download icon if available
+                  autoCancel: false,
+                  ongoing: true
+                }]
+              });
+            } catch (e) { /* ignore */ }
+          }
+
           // Fetch from server — ~100-400ms vs 3-6 seconds with html2pdf
           const arrayBuffer = await api.sales.getPdfBuffer(sale.id);
           const base64Data = await new Promise((resolve, reject) => {
@@ -433,25 +460,33 @@ export const receiptService = {
 
           if (actionType === 'download') {
             try {
-              const { LocalNotifications } = await import('@capacitor/local-notifications');
-              const { FileOpener } = await import('@capacitor-community/file-opener');
-              await LocalNotifications.requestPermissions();
-              if (!window._fileOpenerListenerAdded) {
-                LocalNotifications.addListener('localNotificationActionPerformed', (a) => {
-                  const uri = a.notification.extra?.fileUri;
-                  if (uri) FileOpener.open({ filePath: uri, contentType: 'application/pdf' }).catch(() => {});
+              if (LocalNotifications) {
+                // Cancel the "Downloading..." notification
+                if (downloadNotificationId) {
+                  await LocalNotifications.cancel({ notifications: [{ id: downloadNotificationId }] });
+                }
+
+                const { FileOpener } = await import('@capacitor-community/file-opener');
+                
+                if (!window._fileOpenerListenerAdded) {
+                  LocalNotifications.addListener('localNotificationActionPerformed', (a) => {
+                    const uri = a.notification.extra?.fileUri;
+                    if (uri) FileOpener.open({ filePath: uri, contentType: 'application/pdf' }).catch(() => {});
+                  });
+                  window._fileOpenerListenerAdded = true;
+                }
+                
+                // Show "Download Complete"
+                await LocalNotifications.schedule({
+                  notifications: [{
+                    title: 'Download Complete',
+                    body: `Tap to open ${invoiceFilename}`,
+                    id: downloadNotificationId ? downloadNotificationId + 1 : Math.floor(Math.random() * 100000) + 1,
+                    schedule: { at: new Date(Date.now() + 500) },
+                    extra: { fileUri: writeResult.uri }
+                  }]
                 });
-                window._fileOpenerListenerAdded = true;
               }
-              await LocalNotifications.schedule({
-                notifications: [{
-                  title: 'Invoice Downloaded',
-                  body: `Tap to open ${invoiceFilename}`,
-                  id: Math.floor(Math.random() * 100000) + 1,
-                  schedule: { at: new Date(Date.now() + 500) },
-                  extra: { fileUri: writeResult.uri }
-                }]
-              });
             } catch (e) {
               const { Toast } = await import('@capacitor/toast');
               await Toast.show({ text: `Saved: ${invoiceFilename}`, duration: 'long' });

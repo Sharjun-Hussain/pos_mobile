@@ -185,7 +185,9 @@ function SalesHistoryPage() {
             </button>
             <div>
               <h1 className="text-xl font-bold text-text-main leading-none mb-1">Recent Sales</h1>
-              <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Transaction Ledger</p>
+              <p className="text-[11px] font-semibold text-text-brand leading-none opacity-90">
+                {loading ? 'Consulting Records...' : `${filteredSales.length} Recent Invoices`}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -233,72 +235,68 @@ function SalesHistoryPage() {
         </div>
       </header>
 
-      <section className="flex flex-col gap-3">
-        {isSearchVisible && (
-          <div className="relative animate-in slide-in-from-top-2 fade-in duration-200">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
-            <input
-              type="text"
-              autoFocus
-              placeholder="Search invoice or customer..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
-            />
-          </div>
-        )}
-
-        {/* Filters & Sorting */}
-        {saleType !== 'hold' && (
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-1">
-              {[
-                { id: 'all', label: 'All Sales' },
-                { id: 'paid', label: 'Paid' },
-                { id: 'unpaid', label: 'Unpaid' },
-                { id: 'returned', label: 'Refunded' }
-              ].map(chip => (
-                <button
-                  key={chip.id}
-                  onClick={() => { haptics.light(); setFilterStatus(chip.id); }}
-                  className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-bold transition-all border ${filterStatus === chip.id
-                    ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105'
-                    : 'bg-surface-muted text-text-secondary border-glass-border/40 hover:bg-black/5 dark:hover:bg-white/5'
-                    }`}
-                >
-                  {chip.label}
-                </button>
-              ))}
+      {(isSearchVisible || saleType !== 'hold') && (
+        <section className="flex flex-col gap-3">
+          {isSearchVisible && (
+            <div className="relative animate-in slide-in-from-top-2 fade-in duration-200">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search invoice or customer..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-bold text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
+              />
             </div>
+          )}
 
-            <div className="w-[1px] h-6 bg-glass-border/20 flex-shrink-0" />
+          {/* Filters & Sorting */}
+          {saleType !== 'hold' && (
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-1">
+                {[
+                  { id: 'all', label: 'All Sales' },
+                  { id: 'paid', label: 'Paid' },
+                  { id: 'unpaid', label: 'Unpaid' },
+                  { id: 'returned', label: 'Refunded' }
+                ].map(chip => (
+                  <button
+                    key={chip.id}
+                    onClick={() => { haptics.light(); setFilterStatus(chip.id); }}
+                    className={`whitespace-nowrap px-4 py-2 rounded-full text-[11px] font-bold transition-all border ${filterStatus === chip.id
+                      ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 scale-105'
+                      : 'bg-surface-muted text-text-secondary border-glass-border/40 hover:bg-black/5 dark:hover:bg-white/5'
+                      }`}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
 
-            <button
-              onClick={() => {
-                haptics.medium();
-                const modes = ['newest', 'oldest', 'amount_high', 'amount_low'];
-                const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
-                setSortBy(next);
-              }}
-              className="flex items-center justify-center h-9 px-3 rounded-full bg-surface-muted border border-glass-border/40 text-[11px] font-bold text-text-main whitespace-nowrap active:scale-95 transition-transform hover:bg-black/5 dark:hover:bg-white/5 flex-shrink-0"
-            >
-              {sortBy === 'newest' && <Clock size={14} className="text-brand mr-1" />}
-              {sortBy === 'oldest' && <Clock size={14} className="text-text-secondary rotate-180 mr-1" />}
-              {sortBy === 'amount_high' && <ArrowUpAZ size={14} className="text-emerald-500 mr-1" />}
-              {sortBy === 'amount_low' && <ArrowDownAZ size={14} className="text-rose-500 mr-1" />}
-              Sort
-            </button>
-          </div>
-        )}
-      </section>
+              <div className="w-[1px] h-6 bg-glass-border/20 flex-shrink-0" />
 
-      <section className="flex flex-col">
-        <div className="flex items-center justify-between mb-3 px-1 border-b border-glass-border/10 pb-2">
-          <h2 className="text-xs font-black text-text-secondary opacity-30 uppercase tracking-widest">
-            {loading ? 'Consulting Records...' : `${filteredSales.length} Recent Invoices`}
-          </h2>
-        </div>
+              <button
+                onClick={() => {
+                  haptics.medium();
+                  const modes = ['newest', 'oldest', 'amount_high', 'amount_low'];
+                  const next = modes[(modes.indexOf(sortBy) + 1) % modes.length];
+                  setSortBy(next);
+                }}
+                className="flex items-center justify-center h-9 px-3 rounded-full bg-surface-muted border border-glass-border/40 text-[11px] font-bold text-text-main whitespace-nowrap active:scale-95 transition-transform hover:bg-black/5 dark:hover:bg-white/5 flex-shrink-0"
+              >
+                {sortBy === 'newest' && <Clock size={14} className="text-brand mr-1" />}
+                {sortBy === 'oldest' && <Clock size={14} className="text-text-secondary rotate-180 mr-1" />}
+                {sortBy === 'amount_high' && <ArrowUpAZ size={14} className="text-emerald-500 mr-1" />}
+                {sortBy === 'amount_low' && <ArrowDownAZ size={14} className="text-rose-500 mr-1" />}
+                Sort
+              </button>
+            </div>
+          )}
+        </section>
+      )}
 
+      <section className="flex flex-col mt-2">
         {loading ? (
           <div className="flex flex-col">
             {Array(10).fill(0).map((_, i) => (

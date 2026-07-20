@@ -175,19 +175,31 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     haptics.medium();
     try {
       const isActuallyCustomer = !isManufacturer || isCustomerView;
+      const payload = { ...newCustomer };
+      if (!payload.email) delete payload.email; // Avoid backend rejecting empty string for unique email fields
+      if (!payload.phone) delete payload.phone;
+
       const res = isActuallyCustomer
-        ? await api.customers.create(newCustomer)
-        : await api.distributors.create(newCustomer);
-      if (res.status === 'success') {
-        const createdCustomer = res.data;
+        ? await api.customers.create(payload)
+        : await api.distributors.create(payload);
+        
+      const createdCustomer = res.data?.customer || res.data?.distributor || res.data || res;
+      
+      if (createdCustomer && createdCustomer.id) {
         haptics.heavy();
         setCustomers(prev => [createdCustomer, ...prev]);
         setSelectedCustomer(createdCustomer);
         setIsAddingCustomer(false);
         setNewCustomer({ name: '', phone: '', email: '', company_name: '' });
+      } else {
+        console.error("Unexpected create response:", res);
+        alert("Customer created, but failed to auto-select. Please search for them.");
+        setIsAddingCustomer(false);
+        fetchCustomers();
       }
     } catch (e) {
-      console.error('Failed to create entity');
+      console.error('Failed to create entity', e);
+      alert(e?.message || 'Failed to create customer');
     } finally {
       setLoading(false);
     }

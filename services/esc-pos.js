@@ -35,8 +35,20 @@ export class EscPosEncoder {
    * Prints text
    */
   text(content) {
-    for (let i = 0; i < content.length; i++) {
-      this.buffer.push(content.charCodeAt(i));
+    // Replace common Unicode characters with ASCII equivalents to prevent PC437 mapping issues
+    // For example, '×' (U+00D7) maps to '╫' in PC437, which looks like a weird '#'
+    const sanitized = content
+      .replace(/×/g, 'x')
+      .replace(/÷/g, '/')
+      .replace(/‘|’/g, "'")
+      .replace(/“|”/g, '"')
+      .replace(/–|—/g, '-');
+      
+    for (let i = 0; i < sanitized.length; i++) {
+      let charCode = sanitized.charCodeAt(i);
+      // Fallback for unmapped high-unicode characters
+      if (charCode > 255) charCode = 63; // '?'
+      this.buffer.push(charCode);
     }
     return this;
   }
@@ -95,7 +107,7 @@ export class EscPosEncoder {
    * @param {'full'|'partial'} mode
    */
   cut(mode = 'full') {
-    this.feed(5); // Feed paper to prevent cutting middle of text
+    this.feed(4); // Feed paper to prevent cutting middle of text
     this.buffer.push(0x1d, 0x56, mode === 'full' ? 0 : 1);
     return this;
   }

@@ -244,8 +244,6 @@ const printViaLan = async (sale, t) => {
     if (customerStr) {
       encoder.line(`CUSTOMER:${' '.repeat(Math.max(1, lineLength - 9 - customerStr.length))}${customerStr}`);
     }
-    const userStr = sale.cashier?.name?.toUpperCase() || 'STAFF';
-    encoder.line(`USER:${' '.repeat(Math.max(1, lineLength - 5 - userStr.length))}${userStr}`);
 
     encoder.divider(lineLength, '=');
 
@@ -264,7 +262,7 @@ const printViaLan = async (sale, t) => {
       encoder.line(itemName);
 
       const variantName = (item.variant?.name || item.product_variant?.name || item.variant_name || '').toUpperCase();
-      if (variantName && variantName !== rawProdName) {
+      if (variantName && variantName !== rawProdName && variantName !== 'DEFAULT') {
         encoder.line(`  - ${variantName}`.substring(0, maxNameLen));
       }
 
@@ -306,7 +304,8 @@ const printViaLan = async (sale, t) => {
     }
 
     encoder.divider(lineLength, '=');
-    const totalStr = parseFloat(sale.payable_amount || 0).toLocaleString();
+    const currencyStr = useSettingsStore.getState().currency || 'LKR';
+    const totalStr = `${currencyStr} ` + parseFloat(sale.payable_amount || 0).toLocaleString();
     const bigLineLen = Math.floor(lineLength / 2);
     encoder.size(2, 2);
     encoder.line(`TOTAL:${' '.repeat(Math.max(1, bigLineLen - 6 - totalStr.length))}${totalStr}`);
@@ -369,7 +368,7 @@ const printViaLan = async (sale, t) => {
       }
     } catch (e) { }
 
-    encoder.newline().newline().cut();
+    encoder.cut();
 
     const data = encoder.encode();
     const res = await LanPrinter.connect({ ip: printerIp, port: printerPort || 9100 });
@@ -582,7 +581,6 @@ export const receiptService = {
           <div class="row"><span>INVOICE:</span><span class="bold">${sale.invoice_number || 'DRAFT'}</span></div>
           <div class="row"><span>DATE:</span><span>${formatDate(sale.created_at)}</span></div>
           ${sale.customer ? `<div class="row"><span>CUSTOMER:</span><span class="bold">${sale.customer.name}</span></div>` : ''}
-          <div class="row"><span>CASHIER:</span><span>${sale.cashier?.name || 'Staff'}</span></div>
           <div class="divider"></div>
           <table>
             <thead>
@@ -597,7 +595,14 @@ export const receiptService = {
                 <tr>
                   <td>
                     <span class="bold">${Number(item.quantity)} @ ${item.product_name || item.product?.name || item.name || 'Item'}</span>
-                    ${(item.variant?.name || item.variant_name) ? `<div style="font-size:9px;padding-left:10px;">- ${item.variant?.name || item.variant_name}</div>` : ''}
+                    ${(() => {
+                      const vName = (item.variant?.name || item.variant_name || '').toUpperCase();
+                      const pName = (item.product_name || item.product?.name || item.name || '').toUpperCase();
+                      if (vName && vName !== 'DEFAULT' && vName !== pName) {
+                        return `<div style="font-size:9px;padding-left:10px;">- ${item.variant?.name || item.variant_name}</div>`;
+                      }
+                      return '';
+                    })()}
                   </td>
                   <td style="text-align:right;">${parseFloat(item.unit_price || item.price || 0).toLocaleString()}</td>
                   <td style="text-align:right;" class="bold">${parseFloat((item.unit_price || item.price || 0) * item.quantity).toLocaleString()}</td>

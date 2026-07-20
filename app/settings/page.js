@@ -116,6 +116,7 @@ export default function SettingsPage() {
     terminalName,
     syncSettings,
     businessName,
+    businessLogo,
     currency,
     paperWidth,
     activePaymentMethods,
@@ -129,7 +130,6 @@ export default function SettingsPage() {
 
   const [mounted, setMounted] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(null);
-  const [orgLogoUrl, setOrgLogoUrl] = useState(null);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [initialProfileTab, setInitialProfileTab] = useState('profile');
 
@@ -164,10 +164,7 @@ export default function SettingsPage() {
     if (user?.profile_image) {
       api.getImageUrl(user.profile_image).then(setProfileImageUrl);
     }
-    if (user?.organization?.logo) {
-      api.getImageUrl(user.organization.logo).then(setOrgLogoUrl);
-    }
-  }, [user?.profile_image, user?.organization?.logo]);
+  }, [user?.profile_image]);
 
   const avatarSrc = profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Felix'}`;
 
@@ -213,8 +210,8 @@ export default function SettingsPage() {
         <div className="flex bg-surface-muted/30 p-2 rounded-[2rem] mx-1 gap-3 items-center justify-between border border-glass-border/30">
           <div className="flex items-center gap-3 ml-1">
             <div className="h-12 w-12 rounded-2xl bg-brand/10 text-brand flex items-center justify-center overflow-hidden shrink-0">
-              {orgLogoUrl ? (
-                <img src={orgLogoUrl} alt="Organization Logo" className="h-full w-full object-cover" />
+              {businessLogo ? (
+                <img src={businessLogo} alt="Organization Logo" className="h-full w-full object-cover" />
               ) : (
                 <Building2 size={20} strokeWidth={2.5} />
               )}

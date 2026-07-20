@@ -17,8 +17,9 @@ import { receiptService } from '@/services/receipt';
 import { InvoiceView } from './InvoiceView';
 import { useHardwareBack } from '@/hooks/useHardwareBack';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useCurrency } from '@/hooks/useCurrency';
 
 
 
@@ -32,6 +33,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const { paperWidth } = useSettingsStore();
+  const { formatCurrency } = useCurrency();
   const isManufacturing = (user?.organization?.business_type || "").toLowerCase() === 'manufacturing' || (user?.organization?.business_type || "").toLowerCase() === 'manufacturer';
   const isA4 = paperWidth === 'A4';
 
@@ -140,14 +142,21 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
                         <RotateCcw size={20} />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-xs font-black text-orange-700 uppercase mb-1">Return Information</h4>
-                        <p className="text-[11px] font-bold text-orange-600/80 leading-relaxed">
-                          This transaction has associated returns. Total refunded:
-                          <span className="text-orange-700 ml-1">
-                            LKR {Math.round(
-                              (sale.returns || sale.sale_returns || []).reduce((sum, r) => sum + parseFloat(r.refund_amount || 0), 0)
-                            ).toLocaleString()}
-                          </span>
+                        <h4 className="text-sm font-semibold text-orange-700 mb-1">Return Information</h4>
+                        <p className="text-xs font-medium text-orange-600/80 leading-relaxed">
+                          This transaction has associated returns.
+                          {(() => {
+                            const total = parseFloat(sale.refunded_amount || sale.returned_amount || sale.total_refund || 0) || 
+                              (sale.returns || sale.sale_returns || []).reduce((sum, r) => sum + parseFloat(r.refund_amount || r.total_amount || r.amount || r.total || (r.return_quantity * r.unit_price) || 0), 0);
+                            return total > 0 ? (
+                              <span className="ml-1">
+                                Total refunded:
+                                <span className="text-orange-700 font-semibold ml-1">
+                                  {formatCurrency(total)}
+                                </span>
+                              </span>
+                            ) : null;
+                          })()}
                         </p>
                       </div>
                     </div>

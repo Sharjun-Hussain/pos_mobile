@@ -188,9 +188,6 @@ export default function RecipesPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold text-text-main leading-none mb-1">Recipes</h1>
-              <span className="px-2 py-0.5 rounded-md bg-brand/10 text-brand text-[10px] font-black">
-                {searchTerm ? `${filteredRecipes.length} / ${totalCount}` : totalCount}
-              </span>
             </div>
             <p className="text-[11px] font-semibold text-text-secondary leading-none opacity-70">Bill of Quantities (BOM)</p>
           </div>
@@ -211,25 +208,10 @@ export default function RecipesPage() {
         </div>
       </header>
 
-      <section className="flex flex-col gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={16} />
-          <input
-            type="text"
-            placeholder="Search recipes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-12 bg-surface-muted border border-glass-border/30 rounded-xl pl-11 pr-4 text-sm font-medium text-text-main outline-none focus:border-brand/40 focus:bg-surface transition-all placeholder:text-text-secondary/40"
-          />
-        </div>
-      </section>
+
 
       <section className="flex flex-col">
-        <div className="flex items-center justify-between mb-3 px-1 border-b border-glass-border/30 pb-2">
-          <h2 className="text-xs font-black text-text-secondary opacity-30">
-            {isLoading ? 'Loading Recipes...' : `${filteredRecipes.length} results`}
-          </h2>
-        </div>
+
 
         {isLoading ? (
           <div className="flex flex-col">

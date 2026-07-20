@@ -221,7 +221,7 @@ export const MailSettingsSheet = memo(({ isOpen, onClose }) => {
                       </div>
                       <div>
                         <h4 className="text-[14px] font-black text-text-main">Email Gateway</h4>
-                        <p className="text-[10px] font-bold text-text-secondary opacity-60 uppercase tracking-tighter">System Level Dispatcher</p>
+                        <p className="text-[11px] font-medium text-text-secondary opacity-70">System Level Dispatcher</p>
                       </div>
                     </div>
                     <button

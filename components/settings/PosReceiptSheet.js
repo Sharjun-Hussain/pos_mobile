@@ -77,7 +77,7 @@ export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
             <div className="flex items-center justify-between px-8 pt-4 mb-5">
               <div>
                 <Drawer.Title className="text-xl font-bold text-text-main leading-none">Receipt Policy</Drawer.Title>
-                <p className="text-[10px] font-bold text-text-secondary opacity-40 mt-1.5 uppercase tracking-widest">Printer & Branding</p>
+                <p className="text-[11px] font-bold text-text-secondary opacity-70 mt-1.5">Printer & Branding</p>
               </div>
               <button onClick={onClose} className="h-11 w-11 bg-surface-muted rounded-2xl flex items-center justify-center text-text-secondary active:scale-90 transition-transform">
                 <X size={20} />
@@ -88,7 +88,7 @@ export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
                 <ToggleRow icon={Smartphone} color="bg-brand/10 text-brand" label="Show Business Logo" desc="Display branding on receipt" enabled={form.showLogo} onToggle={() => setField('showLogo', !form.showLogo)} />
                 <ToggleRow icon={Barcode} color="bg-blue-500/10 text-blue-500" label="Print Barcode" desc="Show invoice barcode at bottom" enabled={form.showBarcode} onToggle={() => setField('showBarcode', !form.showBarcode)} />
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">Paper Dimension</label>
+                  <label className="text-[12px] font-bold text-text-secondary pl-1">Paper Dimension</label>
                   <div className="grid grid-cols-2 gap-3">
                     {['80mm', 'A4'].map(size => (
                       <button key={size} onClick={() => { haptics.light(); setField('paperWidth', size); }} className={`h-14 rounded-2xl border-2 font-bold text-[13px] transition-all ${form.paperWidth === size ? 'border-brand bg-brand/5 text-brand' : 'border-glass-border/30 bg-surface-muted text-text-secondary'}`}>
@@ -104,7 +104,7 @@ export const PosReceiptSheet = memo(({ isOpen, onClose }) => {
                 ].map(({ key, toggleKey, label, placeholder, rows }) => (
                   <div key={key} className="flex flex-col gap-1.5">
                     <div className="flex items-center justify-between pr-2">
-                      <label className="text-[11px] font-black text-text-secondary pl-1 opacity-70 uppercase tracking-widest">{label}</label>
+                      <label className="text-[12px] font-bold text-text-secondary pl-1">{label}</label>
                       {toggleKey && <Toggle enabled={form[toggleKey]} onToggle={() => setField(toggleKey, !form[toggleKey])} />}
                     </div>
                     {rows === 1 ? (

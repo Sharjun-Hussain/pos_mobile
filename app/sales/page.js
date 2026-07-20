@@ -98,6 +98,35 @@ function SalesHistoryPage() {
   const [filterStatus, setFilterStatus] = useState(initialFilter);
   const [saleType, setSaleType] = useState('regular');
   const [sortBy, setSortBy] = useState('newest');
+  const touchStartRef = React.useRef(null);
+  const touchEndRef = React.useRef(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = React.useCallback((e) => {
+    touchEndRef.current = null;
+    touchStartRef.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+  }, []);
+
+  const onTouchMove = React.useCallback((e) => {
+    touchEndRef.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+  }, []);
+
+  const onTouchEnd = React.useCallback(() => {
+    if (!touchStartRef.current || !touchEndRef.current) return;
+    const distanceX = touchStartRef.current.x - touchEndRef.current.x;
+    const distanceY = touchStartRef.current.y - touchEndRef.current.y;
+    
+    if (Math.abs(distanceX) > Math.abs(distanceY)) {
+      if (distanceX > minSwipeDistance && saleType === 'regular') {
+        haptics.light();
+        setSaleType('hold');
+      }
+      if (distanceX < -minSwipeDistance && saleType === 'hold') {
+        haptics.light();
+        setSaleType('regular');
+      }
+    }
+  }, [saleType]);
 
   const sales = salesData?.data || salesData || [];
   const loading = salesLoading;
@@ -138,7 +167,12 @@ function SalesHistoryPage() {
     }) : [];
 
   return (
-    <div className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface">
+    <div 
+      className="px-4 pb-24 flex flex-col gap-5 min-h-screen bg-surface overflow-x-hidden"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl pt-[calc(var(--sat)+1rem)] pb-3 -mx-4 px-4 flex flex-col gap-3 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">

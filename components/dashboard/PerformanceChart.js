@@ -79,13 +79,11 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
           <p className="text-sm font-black text-text-main leading-none">Sales Revenue</p>
         </div>
         {hasData && (
-          <div className="text-right">
-            <p className="text-xs font-black text-emerald-500 leading-none">
-              {chartData.length > 1 && chartData[chartData.length - 2].value > 0 
-                ? `+${Math.round((chartData[chartData.length - 1].value / chartData[chartData.length - 2].value - 1) * 100)}%` 
-                : '0%'}
+          <div className="text-right flex flex-col items-end">
+            <p className="text-[13px] font-black text-brand leading-none">
+              {formatCurrency(chartData.reduce((sum, d) => sum + d.value, 0))}
             </p>
-            <p className="text-[8px] font-bold text-text-secondary mt-1">vs Previous</p>
+            <p className="text-[9px] font-bold text-text-secondary mt-1">Total This Week</p>
           </div>
         )}
       </div>

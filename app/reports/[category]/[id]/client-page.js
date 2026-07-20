@@ -176,19 +176,19 @@ export default function DynamicReportViewer({ params }) {
     <div className="px-4 pb-24 flex flex-col gap-4 min-h-screen bg-surface pt-[calc(var(--sat)+1rem)] print:hidden">
       {/* Header */}
       <header className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1">
           <button
             onClick={() => { haptics.light(); router.back(); }}
-            className="h-10 w-10 flex items-center justify-center rounded-xl bg-surface-muted border border-glass-border/50 text-text-main active:scale-90 transition-transform"
+            className="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-surface-muted border border-glass-border/50 text-text-main active:scale-90 transition-transform"
           >
             <ChevronLeft size={20} />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-xl font-black text-text-main leading-tight capitalize">{formatKey(id)} Report</h1>
             <p className="text-xs font-bold text-text-secondary capitalize">{category}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => { haptics.light(); setShowColumnPicker(true); }}
             disabled={!allColumns.length}
@@ -198,22 +198,6 @@ export default function DynamicReportViewer({ params }) {
             {activeColumns.length < allColumns.length && (
               <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-brand text-white text-[9px] font-black flex items-center justify-center">{activeColumns.length}</span>
             )}
-          </button>
-          <button
-            onClick={exportToCSV}
-            disabled={!filteredData.length}
-            className="h-10 px-3 flex items-center gap-1.5 rounded-xl bg-brand/10 text-brand font-bold text-sm active:scale-95 transition-transform disabled:opacity-50"
-          >
-            <Download size={15} />
-            <span>CSV</span>
-          </button>
-          <button
-            onClick={() => window.print()}
-            disabled={!filteredData.length}
-            className="h-10 px-3 flex items-center gap-1.5 rounded-xl bg-brand text-white font-bold text-sm active:scale-95 transition-transform disabled:opacity-50"
-          >
-            <Printer size={15} />
-            <span>PDF</span>
           </button>
         </div>
       </header>

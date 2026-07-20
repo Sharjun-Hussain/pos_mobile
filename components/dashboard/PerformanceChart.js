@@ -61,7 +61,13 @@ export const PerformanceChart = ({ data = [], isLoading }) => {
     pathData = `M 0,${points[0].y} L ${width},${points[0].y}`;
     areaData = `M 0,${points[0].y} L ${width},${points[0].y} L ${width},${height} L 0,${height} Z`;
   } else if (points.length > 1) {
-    pathData = `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}`;
+    pathData = `M ${points[0].x},${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const curr = points[i];
+      const next = points[i + 1];
+      const cx = (curr.x + next.x) / 2;
+      pathData += ` C ${cx},${curr.y} ${cx},${next.y} ${next.x},${next.y}`;
+    }
     areaData = `${pathData} L ${points[points.length - 1].x},${height} L ${points[0].x},${height} Z`;
   }
 

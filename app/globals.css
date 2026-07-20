@@ -125,16 +125,15 @@ body {
   opacity: 0.5;
 }
 
-/* Hide scrollbars for a more native feel */
-.no-scrollbar::-webkit-scrollbar {
+/* Hide scrollbars globally for a native app feel */
+::-webkit-scrollbar {
   display: none !important;
 }
-.no-scrollbar {
+
+* {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
-  scroll-behavior: smooth;
 }
-
 /* Native Scanner Backdrop Support */
 body.scanner-active {
   background: transparent !important;

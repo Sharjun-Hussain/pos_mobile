@@ -144,28 +144,30 @@ function SalesHistoryPage() {
     setIsReturnOpen(true);
   };
 
-  const filteredSales = Array.isArray(sales) ? sales
-    .filter(s => {
-      const isHold = s.status === 'hold' || s.payment_status === 'hold';
-      const matchesSaleType = saleType === 'hold' ? isHold : !isHold;
+  const filteredSales = React.useMemo(() => {
+    return Array.isArray(sales) ? sales
+      .filter(s => {
+        const isHold = s.status === 'hold' || s.payment_status === 'hold';
+        const matchesSaleType = saleType === 'hold' ? isHold : !isHold;
 
-      const matchesSearch = (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = filterStatus === 'all' ||
-        (filterStatus === 'returned' && (s.return_status === 'partial' || s.return_status === 'full' || s.returns?.length > 0)) ||
-        (filterStatus === 'paid' && s.payment_status === 'paid') ||
-        (filterStatus === 'unpaid' && s.payment_status !== 'paid');
+        const matchesStatus = filterStatus === 'all' ||
+          (filterStatus === 'returned' && (s.return_status === 'partial' || s.return_status === 'full' || s.returns?.length > 0)) ||
+          (filterStatus === 'paid' && s.payment_status === 'paid') ||
+          (filterStatus === 'unpaid' && s.payment_status !== 'paid');
 
-      return matchesSaleType && matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
-      if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
-      if (sortBy === 'amount_high') return parseFloat(b.payable_amount) - parseFloat(a.payable_amount);
-      if (sortBy === 'amount_low') return parseFloat(a.payable_amount) - parseFloat(b.payable_amount);
-      return 0;
-    }) : [];
+        return matchesSaleType && matchesSearch && matchesStatus;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
+        if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
+        if (sortBy === 'amount_high') return parseFloat(b.payable_amount) - parseFloat(a.payable_amount);
+        if (sortBy === 'amount_low') return parseFloat(a.payable_amount) - parseFloat(b.payable_amount);
+        return 0;
+      }) : [];
+  }, [sales, saleType, searchTerm, filterStatus, sortBy]);
 
   return (
     <div 

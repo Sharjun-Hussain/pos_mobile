@@ -13,7 +13,7 @@ import { useUIStore } from '@/store/useUIStore';
 import { useFetch } from '@/hooks/useFetch';
 import { ProductDetailSheet } from '@/components/dashboard/ProductDetailSheet';
 
-const InventoryItemRow = ({ product, onClick }) => {
+const InventoryItemRow = React.memo(({ product, onClick }) => {
   const stock = product.variants?.reduce((sum, v) => {
     if (v.stocks && v.stocks.length > 0) {
       const variantStock = v.stocks.reduce((acc, s) => acc + parseFloat(s.quantity || 0), 0);
@@ -57,7 +57,7 @@ const InventoryItemRow = ({ product, onClick }) => {
       </div>
     </div>
   );
-};
+});
 
 export default function InventoryPage() {
   const { openDrawer } = useUIStore();
@@ -69,10 +69,12 @@ export default function InventoryPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const products = productsData?.data || productsData || [];
 
-  const filteredProducts = Array.isArray(products) ? products.filter(p => 
-    (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (p.sku || '').toLowerCase().includes(searchTerm.toLowerCase())
-  ) : [];
+  const filteredProducts = React.useMemo(() => {
+    return Array.isArray(products) ? products.filter(p => 
+      (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.sku || '').toLowerCase().includes(searchTerm.toLowerCase())
+    ) : [];
+  }, [products, searchTerm]);
 
   const totalBackendCount = productsData?.meta?.total || productsData?.total || products.length;
 

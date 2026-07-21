@@ -30,7 +30,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useShiftStore } from '@/store/useShiftStore';
 
-export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
+export const CheckoutSheet = React.memo(({ isOpen, onClose, onFinish }) => {
   // Consume Global Stores
   const { 
     cart, 
@@ -911,4 +911,6 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
       </Drawer.Portal>
     </Drawer.Root>
   );
-};
+});
+
+CheckoutSheet.displayName = 'CheckoutSheet';

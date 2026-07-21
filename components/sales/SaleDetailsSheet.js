@@ -118,7 +118,9 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
     useCartStore.setState({
       cart: newCart,
       discount: 0,
-      adjustment: parseFloat(sale.adjustment || 0)
+      adjustment: parseFloat(sale.adjustment || 0),
+      customer: sale.customer || sale.distributor || null,
+      isCustomerView: !!sale.customer || !sale.distributor
     });
 
     onClose();

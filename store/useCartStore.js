@@ -10,8 +10,11 @@ export const useCartStore = create(
       cart: [],
       discount: 0,
       adjustment: 0,
+      customer: null,
+      isCustomerView: true,
       
       // Actions
+      setCustomer: (customer, isCustomerView = true) => set({ customer, isCustomerView }),
       addItem: (product, isWholesale, weight = null, quantityToAdd = 1) => {
         const { cart } = get();
         const price = isWholesale ? (product.wholesalePrice || 0) : (product.retailPrice || 0);
@@ -69,7 +72,7 @@ export const useCartStore = create(
       setDiscount: (val) => set({ discount: parseFloat(val) || 0 }),
       setAdjustment: (val) => set({ adjustment: parseFloat(val) || 0 }),
 
-      clearCart: () => set({ cart: [], discount: 0, adjustment: 0 }),
+      clearCart: () => set({ cart: [], discount: 0, adjustment: 0, customer: null }),
 
       // Calculated State
       getSubtotal: () => {
@@ -148,7 +151,9 @@ export const useCartStore = create(
       partialize: (state) => ({ 
         cart: state.cart,
         discount: state.discount,
-        adjustment: state.adjustment
+        adjustment: state.adjustment,
+        customer: state.customer,
+        isCustomerView: state.isCustomerView
       }),
     }
   )

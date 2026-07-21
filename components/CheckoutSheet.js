@@ -45,7 +45,9 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     getDiscountAmount,
     getTaxAmount,
     getVATAmount,
-    getSSCLAmount 
+    getSSCLAmount,
+    customer: globalCustomer,
+    isCustomerView: globalIsCustomerView
   } = useCartStore();
   const { selectedBranch, user } = useAuthStore();
   const { isWholesale, activePaymentMethods, currency: currentCurrency, checkoutPreview, vatRate, ssclRate, enableTax, requireShift } = useSettingsStore();
@@ -74,8 +76,14 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
   const total = getTotal();
 
   useEffect(() => {
-    if (isOpen && step === 2) {
-      fetchCustomers();
+    if (isOpen) {
+      if (globalCustomer !== undefined && globalCustomer !== null) {
+        setSelectedCustomer(globalCustomer);
+        if (globalIsCustomerView !== undefined) setIsCustomerView(globalIsCustomerView);
+      }
+      if (step === 2) {
+        fetchCustomers();
+      }
     }
     if (isOpen && step === 3 && payments[0].amount === 0) {
       // Auto-set the first payment amount to total for retail, leave as 0 for manufacturing (credit by default)

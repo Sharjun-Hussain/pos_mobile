@@ -736,7 +736,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               <select 
                                 value={pmt.method}
                                 onChange={(e) => updatePayment(pmt.id, 'method', e.target.value)}
-                                className="w-32 h-16 px-4 text-lg font-black rounded-2xl bg-surface border border-glass-border/50 outline-none text-text-main shadow-sm"
+                                className="w-28 h-14 px-3 text-sm font-bold rounded-2xl bg-surface border border-glass-border/50 outline-none text-text-main shadow-sm"
                               >
                                 {[
                                   { id: 'cash', label: 'Cash' },
@@ -749,19 +749,19 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                                 .map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
                               </select>
 
-                              <div className="relative flex-1 bg-surface shadow-inner rounded-2xl border border-glass-border/50 h-16 flex items-center overflow-hidden">
-                                <span className="pl-4 text-base font-black text-text-secondary opacity-60 select-none">{currentCurrency || 'LKR'}</span>
+                              <div className="relative flex-1 bg-surface shadow-inner rounded-2xl border border-glass-border/50 h-14 flex items-center overflow-hidden">
+                                <span className="pl-4 text-sm font-bold text-text-secondary opacity-60 select-none">{currentCurrency || 'LKR'}</span>
                                 <input 
                                   type="number"
                                   placeholder="0.00"
                                   value={pmt.amount || ''}
                                   onChange={(e) => updatePayment(pmt.id, 'amount', e.target.value)}
-                                  className="w-full h-full bg-transparent px-3 text-3xl font-black text-text-main outline-none placeholder:text-text-secondary/30"
+                                  className="w-full h-full bg-transparent pl-3 pr-14 text-xl font-bold text-text-main outline-none placeholder:text-text-secondary/30"
                                 />
                                 {index === 0 && (
                                   <button 
                                     onClick={() => updatePayment(pmt.id, 'amount', Number((parseFloat(pmt.amount || 0) + (total - totalPaid)).toFixed(2)))}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-brand bg-brand/10 px-3 py-1.5 rounded-xl hover:bg-brand/20 active:scale-95 transition-all"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-brand bg-brand/10 px-3 py-1.5 rounded-xl hover:bg-brand/20 active:scale-95 transition-all z-10"
                                   >
                                     MAX
                                   </button>
@@ -769,8 +769,8 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                               </div>
 
                               {payments.length > 1 && (
-                                <button onClick={() => removePayment(pmt.id)} className="h-16 w-16 shrink-0 flex items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 active:scale-90 transition-transform">
-                                  <Trash2 size={20} />
+                                <button onClick={() => removePayment(pmt.id)} className="h-14 w-14 shrink-0 flex items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 active:scale-90 transition-transform">
+                                  <Trash2 size={18} />
                                 </button>
                               )}
                             </div>

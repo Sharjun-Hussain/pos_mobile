@@ -460,21 +460,30 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
                     <div className="flex flex-col gap-4 pb-4 pointer-events-auto animate-in fade-in slide-in-from-right-4 duration-300 h-full">
                       
                       {isManufacturer && !isAddingCustomer && (
-                        <div className="px-6">
-                            <div className="flex p-1 bg-surface-muted/30 border border-glass-border rounded-xl">
-                              <button
-                                onClick={() => { setIsCustomerView(false); setSelectedCustomer(null); }}
-                                className={`flex-1 h-10 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${!isCustomerView ? 'bg-surface shadow-sm text-text-main' : 'text-text-secondary hover:bg-surface-muted/50'}`}
-                              >
-                                Distributor
-                              </button>
-                              <button
-                                onClick={() => { setIsCustomerView(true); setSelectedCustomer(null); }}
-                                className={`flex-1 h-10 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${isCustomerView ? 'bg-surface shadow-sm text-text-main' : 'text-text-secondary hover:bg-surface-muted/50'}`}
-                              >
-                                Customer
-                              </button>
-                            </div>
+                        <div className="px-6 mb-2">
+                          <div className="flex w-full relative">
+                            <button
+                              onClick={() => { haptics.light(); setIsCustomerView(false); setSelectedCustomer(null); }}
+                              className={`flex-1 pb-3 text-sm font-bold transition-all ${!isCustomerView ? 'text-brand' : 'text-text-secondary hover:text-text-main'}`}
+                            >
+                              Distributor
+                            </button>
+                            <button
+                              onClick={() => { haptics.light(); setIsCustomerView(true); setSelectedCustomer(null); }}
+                              className={`flex-1 pb-3 text-sm font-bold transition-all ${isCustomerView ? 'text-brand' : 'text-text-secondary hover:text-text-main'}`}
+                            >
+                              Customer
+                            </button>
+                            
+                            {/* Track line */}
+                            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-glass-border/30" />
+                            
+                            {/* Animated slider */}
+                            <div 
+                              className="absolute bottom-0 w-1/2 h-[3px] bg-brand rounded-t-full transition-transform duration-300 ease-out z-10"
+                              style={{ transform: `translateX(${!isCustomerView ? '0%' : '100%'})` }}
+                            />
+                          </div>
                         </div>
                       )}
 

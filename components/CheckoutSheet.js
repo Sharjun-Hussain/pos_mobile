@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   X, 
   Minus, 
@@ -93,23 +93,23 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     }
   }, [isOpen, step, total, isCustomerView]);
 
-  const addPayment = () => {
+  const addPayment = useCallback(() => {
     haptics.light();
     const remaining = total - payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
-    setPayments([...payments, { id: Date.now(), method: 'cash', amount: remaining > 0 ? Number(remaining.toFixed(2)) : 0 }]);
-  };
+    setPayments(prev => [...prev, { id: Date.now(), method: 'cash', amount: remaining > 0 ? Number(remaining.toFixed(2)) : 0 }]);
+  }, [total, payments]);
 
-  const removePayment = (id) => {
+  const removePayment = useCallback((id) => {
     if (payments.length <= 1) return;
     haptics.light();
-    setPayments(payments.filter(p => p.id !== id));
-  };
+    setPayments(prev => prev.filter(p => p.id !== id));
+  }, [payments.length]);
 
-  const updatePayment = (id, field, value) => {
-    setPayments(payments.map(p => p.id === id ? { ...p, [field]: value } : p));
-  };
+  const updatePayment = useCallback((id, field, value) => {
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  }, []);
 
-  const totalPaid = payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+  const totalPaid = useMemo(() => payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0), [payments]);
 
   // Handle Native Hardware Back Button
   useEffect(() => {
@@ -142,7 +142,7 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     };
   }, [isOpen, step, isAddingCustomer]);
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
       const isActuallyCustomer = !isManufacturer || isCustomerView;
@@ -157,12 +157,16 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isManufacturer, isCustomerView]);
 
-  const filteredCustomers = customers.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
-    (c.phone && c.phone.includes(search))
-  );
+  const filteredCustomers = useMemo(() => {
+    if (!search) return customers;
+    const lowerSearch = search.toLowerCase();
+    return customers.filter(c => 
+      c.name.toLowerCase().includes(lowerSearch) || 
+      (c.phone && c.phone.includes(search))
+    );
+  }, [customers, search]);
 
   const handleNext = () => {
     haptics.medium();

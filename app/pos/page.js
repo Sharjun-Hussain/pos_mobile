@@ -225,18 +225,26 @@ export default function SalesPage() {
   const handleFinishSale = useCallback(async (saleData) => {
     setIsCheckoutOpen(false);
     
-    // Auto-print receipt handled by the success sheet or triggered here
-    // But showing the sheet first is better for closability
     if (saleData) {
-      setLastSaleData(saleData);
-      setIsSuccessOpen(true);
+      if (saleData.status === 'hold' || saleData.status === 'draft') {
+        // Show native toast for hold
+        await Toast.show({
+          text: t('common.success') || 'Sale Held Successfully',
+          duration: 'short'
+        });
+      } else {
+        // Auto-print receipt handled by the success sheet or triggered here
+        // But showing the sheet first is better for closability
+        setLastSaleData(saleData);
+        setIsSuccessOpen(true);
+        
+        // Show native toast
+        await Toast.show({
+          text: t('common.success') || 'Sale Completed Successfully',
+          duration: 'short'
+        });
+      }
     }
-    
-    // Show native toast
-    await Toast.show({
-      text: t('common.success') || 'Sale Completed Successfully',
-      duration: 'short'
-    });
   }, [t]);
 
   const total = useMemo(() => {

@@ -51,27 +51,29 @@ const SaleRow = React.memo(({ sale, onClick, onLongPress }) => {
       {...longPressProps}
       className="flex items-center justify-between py-3.5 border-b border-glass-border/10 px-1 active:bg-brand/5 transition-colors cursor-pointer"
     >
-      <div className="flex items-center gap-3 overflow-hidden">
-        <div className="overflow-hidden">
+      <div className="flex items-center gap-3 overflow-hidden flex-1">
+        <div className="overflow-hidden w-full">
           <div className="flex items-center gap-2 mb-0.5">
             <h4 className="font-bold text-text-main text-sm truncate leading-tight">
               {sale.invoice_number}
             </h4>
-            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider ${getStatusColor(sale.payment_status)}`}>
-              {sale.payment_status}
-            </span>
+            {!(sale.status === 'draft' || sale.status === 'hold') && (
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 ${getStatusColor(sale.payment_status)}`}>
+                {sale.payment_status}
+              </span>
+            )}
             {(sale.return_status === 'partial' || sale.return_status === 'full' || sale.returns?.length > 0) && (
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider bg-orange-500/10 text-orange-600">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider bg-orange-500/10 text-orange-600 shrink-0">
                 Returned
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-text-secondary opacity-60">
-              {sale.customer?.name || 'Walk-in Guest'}
+          <div className="flex items-center gap-2 w-full overflow-hidden">
+            <span className="text-xs font-bold text-text-secondary opacity-60 truncate shrink">
+              {sale.customer?.name || sale.distributor?.name || 'Walk-in Guest'}
             </span>
-            <div className="h-0.5 w-0.5 rounded-full bg-glass-border/30" />
-            <span className="text-xs font-medium text-text-secondary opacity-40">
+            <div className="h-1 w-1 rounded-full bg-text-secondary/30 shrink-0" />
+            <span className="text-xs font-medium text-text-secondary opacity-40 shrink-0">
               {date}
             </span>
           </div>
@@ -159,11 +161,12 @@ function SalesHistoryPage() {
   const filteredSales = React.useMemo(() => {
     return Array.isArray(sales) ? sales
       .filter(s => {
-        const isHold = s.status === 'hold' || s.payment_status === 'hold';
+        const isHold = s.status === 'hold' || s.status === 'draft' || s.payment_status === 'hold';
         const matchesSaleType = saleType === 'hold' ? isHold : !isHold;
 
         const matchesSearch = (s.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+          (s.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (s.distributor?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
 
         const matchesStatus = filterStatus === 'all' ||
           (filterStatus === 'returned' && (s.return_status === 'partial' || s.return_status === 'full' || s.returns?.length > 0)) ||

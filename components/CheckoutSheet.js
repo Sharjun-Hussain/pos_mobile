@@ -244,12 +244,12 @@ export const CheckoutSheet = ({ isOpen, onClose, onFinish }) => {
             total_amount: parseFloat((taxableAmount + ssclAmount + vatAmount).toFixed(2))
           };
         }),
-        payments: payments.map(p => ({
+        payments: targetStatus === 'draft' ? [] : payments.map(p => ({
           payment_method: p.method,
           amount: parseFloat(p.amount) || 0
         })),
         adjustment: parseFloat(adjustment || 0) || 0,
-        paid_amount: parseFloat(totalPaid.toFixed(2)),
+        paid_amount: targetStatus === 'draft' ? 0 : parseFloat(totalPaid.toFixed(2)),
         total_amount: parseFloat(subtotal.toFixed(2)),
         discount_amount: parseFloat(getDiscountAmount().toFixed(2)),
         tax_amount: parseFloat(getTaxAmount().toFixed(2)),

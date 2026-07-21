@@ -98,6 +98,12 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
   const handleResumeSale = useCallback(() => {
     if (!sale || !sale.items) return;
     
+    const currentCart = useCartStore.getState().cart;
+    if (currentCart && currentCart.length > 0) {
+      const confirmDiscard = window.confirm('Some items are already in the cart. Do you want to discard them?');
+      if (!confirmDiscard) return;
+    }
+
     haptics.medium();
     
     const newCart = sale.items.map((item) => ({
@@ -125,7 +131,7 @@ export const SaleDetailsSheet = memo(({ isOpen, onClose, saleId, initialSaleData
 
     onClose();
     setTimeout(() => {
-      router.push('/pos');
+      router.push('/pos?checkout=true');
     }, 150);
   }, [sale, router, onClose]);
 

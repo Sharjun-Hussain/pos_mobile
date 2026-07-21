@@ -8,7 +8,7 @@ import { ProductSkeleton } from '@/components/ProductSkeleton';
 import { VariantSelector } from '@/components/VariantSelector';
 import { CheckoutSheet } from '@/components/CheckoutSheet';
 import { SaleDetailsSheet } from '@/components/sales/SaleDetailsSheet';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Toast } from '@capacitor/toast';
 import { receiptService } from '@/services/receipt';
 import { QuickQuantityModal } from '@/components/pos/QuickQuantityModal';
@@ -28,6 +28,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 
 export default function SalesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
   const { formatCurrency } = useCurrency();
   const { selectedBranch, user } = useAuthStore();
@@ -55,6 +56,15 @@ export default function SalesPage() {
   useEffect(() => {
     fetchData();
   }, [selectedBranch?.id]);
+
+  // Open checkout automatically if navigating from hold sales
+  useEffect(() => {
+    if (searchParams.get('checkout') === 'true') {
+      setIsCheckoutOpen(true);
+      // Clean up the URL to prevent reopening on reload
+      router.replace('/pos');
+    }
+  }, [searchParams, router]);
 
   // Debounce search
   useEffect(() => {
